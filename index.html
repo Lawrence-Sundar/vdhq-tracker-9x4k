@@ -1,0 +1,1621 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Versa Digital HQ — Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script defer src="https://alcdn.msauth.net/browser/2.38.2/js/msal-browser.min.js"></script>
+  <style>
+    :root {
+      --bg:#0A0A0B; --surface:#111113; --elevated:#1A1A1F;
+      --border:rgba(255,255,255,0.07);
+      --accent:#5E6AD2; --accent-dim:rgba(94,106,210,0.12);
+      --success:#4CAF7D; --success-dim:rgba(76,175,125,0.12);
+      --warning:#F0A429; --warning-dim:rgba(240,164,41,0.12);
+      --danger:#E5484D; --danger-dim:rgba(229,72,77,0.12);
+      --muted:#6B7280; --text:#E5E7EB; --text-dim:#9CA3AF;
+      --sidebar-w:220px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',-apple-system,sans-serif;font-size:13px;background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow:hidden}
+
+    /* ── Sidebar ── */
+    #sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;z-index:20}
+    .sidebar-brand{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+    .sidebar-brand-name{font-size:13px;font-weight:600;letter-spacing:-0.01em}
+    .sidebar-brand-sub{font-size:11px;color:var(--muted);margin-top:2px}
+    .sidebar-nav{padding:8px;flex:1}
+    .nav-item{display:flex;align-items:center;width:100%;padding:8px 10px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-size:13px;font-family:inherit;font-weight:400;cursor:pointer;text-align:left;transition:background .12s,color .12s;margin-bottom:2px}
+    .nav-item:hover{background:var(--elevated);color:var(--text)}
+    .nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:500}
+    .sidebar-actions{padding:8px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+    .sidebar-action-btn{display:flex;align-items:center;width:100%;padding:7px 10px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;text-align:left;transition:background .12s,color .12s}
+    .sidebar-action-btn:hover{background:var(--elevated);color:var(--text)}
+    .sidebar-action-btn.danger:hover{color:var(--danger)}
+    .sidebar-stats{padding:12px;border-top:1px solid var(--border)}
+    .stat-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+    .stat-label{font-size:11px;color:var(--muted)}
+    .stat-value{font-size:12px;font-weight:600}
+    .stat-value.accent{color:var(--accent)}
+    .stat-value.warning{color:var(--warning)}
+
+    /* ── Main ── */
+    #mainContent{flex:1;overflow-y:auto;height:100vh;display:flex;flex-direction:column}
+    .mobile-bar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+    .mobile-bar-title{font-size:14px;font-weight:600}
+    .hamburger{background:none;border:none;color:var(--text);cursor:pointer;font-size:20px;padding:2px;line-height:1}
+
+    /* Tab panes */
+    .tabPane{display:none;padding:24px;flex:1}
+    .tabPane.active{display:block}
+
+    /* Page header */
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+    .page-title{font-size:15px;font-weight:600}
+    .page-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+    /* Card */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px}
+
+    /* Forms */
+    label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;letter-spacing:.02em;text-transform:uppercase}
+    input[type=text],input[type=email],input[type=date],input[type=url],select,textarea{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--elevated);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+    select option{background:var(--elevated)}
+    textarea{min-height:80px;resize:vertical;line-height:1.55}
+    .form-row{display:flex;gap:10px;margin-bottom:10px}
+    .form-row>*{flex:1}
+    .form-row .w100{flex:none;width:100px}
+    .form-row .w120{flex:none;width:120px}
+    .form-row .w160{flex:none;width:160px}
+    .form-row .w200{flex:none;width:200px}
+
+    /* Buttons */
+    .btn{border:none;border-radius:6px;padding:8px 14px;font-size:13px;font-family:inherit;font-weight:500;cursor:pointer;transition:opacity .15s}
+    .btn:disabled{opacity:.4;cursor:not-allowed}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:hover{opacity:.88}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-dim)}
+    .btn-ghost:hover{border-color:rgba(255,255,255,.15);color:var(--text)}
+    .btn-sm{padding:5px 10px;font-size:12px}
+    .btn-delete{border-color:rgba(229,72,77,.35);color:#E5484D}
+    .btn-delete:hover{border-color:#E5484D;color:#E5484D;background:rgba(229,72,77,.08)}
+
+    /* Status dots */
+    .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:1px}
+    .sdot-replied{background:var(--success);box-shadow:0 0 0 2px var(--success-dim)}
+    .sdot-due{background:var(--warning);box-shadow:0 0 0 2px var(--warning-dim)}
+    .sdot-disq{background:var(--danger);box-shadow:0 0 0 2px var(--danger-dim)}
+    .sdot-pending{background:rgba(107,114,128,.4)}
+
+    /* FU chips (read-only indicators in row) */
+    .fu-chips{display:flex;gap:4px;flex-shrink:0}
+    .fu-chip{font-size:10px;font-weight:500;padding:2px 6px;border-radius:4px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+    .fu-chip-sent{background:var(--success-dim);color:var(--success);border-color:transparent}
+    .fu-chip-due{background:var(--warning-dim);color:var(--warning);border-color:transparent}
+
+    /* Lead rows */
+    .leads-table{display:flex;flex-direction:column}
+    .lead-row{border-bottom:1px solid var(--border)}
+    .lead-row:last-child{border-bottom:none}
+    .lead-row-main{display:flex;align-items:center;gap:10px;padding:9px 4px;cursor:pointer;border-radius:6px;transition:background .1s;min-height:40px}
+    .lead-row-main:hover{background:var(--elevated)}
+    .lead-row-info{flex:1;min-width:0}
+    .lead-name{font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+    .lead-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-top:1px}
+    .angle-chip{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:var(--accent-dim);color:var(--accent);white-space:nowrap;flex-shrink:0}
+    .reply-y-chip{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--success-dim);color:var(--success);white-space:nowrap;flex-shrink:0}
+
+    /* Expanded detail */
+    .lead-row-expand{padding:12px 16px 14px;background:var(--elevated);border-radius:0 0 6px 6px;border-top:1px solid var(--border)}
+    .expand-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-bottom:12px}
+    .expand-field{font-size:12px}
+    .expand-field .ef-label{color:var(--muted);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+    .expand-field .ef-val{color:var(--text);font-weight:500}
+    .expand-fu{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .fu-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;transition:background .12s;white-space:nowrap}
+    .fu-btn.fu-sent{background:var(--success-dim);color:var(--success);border-color:transparent}
+    .fu-btn.fu-due{background:var(--warning-dim);color:var(--warning);border-color:transparent}
+    .expand-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    /* Dashboard */
+    .dash-empty{color:var(--muted);font-size:13px;padding:16px 0}
+    .dash-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+    .dash-row:last-child{border-bottom:none}
+    .dash-row-info{flex:1;min-width:0}
+    .dash-row-name{font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dash-row-sub{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dash-fu-label{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--warning-dim);color:var(--warning);white-space:nowrap;flex-shrink:0}
+
+    /* Filters */
+    .filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+    .filters-bar input,.filters-bar select{width:auto}
+    .search-input{flex:1;min-width:160px}
+
+    /* Email tab */
+    .email-section-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+    .btn-group{display:flex;gap:6px;flex-wrap:wrap}
+    .toggle-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:7px 13px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .12s;white-space:nowrap}
+    .toggle-btn:hover{border-color:rgba(255,255,255,.12);color:var(--text)}
+    .toggle-btn.active-angle{background:var(--accent);color:#fff;border-color:transparent}
+    .toggle-btn.active-hook{background:var(--warning);color:#0d0a00;border-color:transparent}
+    .toggle-btn.active-type{background:var(--success);color:#001a0a;border-color:transparent}
+    .email-autofill{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+    .autofill-field{background:var(--elevated);border-radius:6px;padding:8px 10px;border:1px solid var(--border)}
+    .autofill-field span{display:block;font-size:10px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
+    .autofill-field strong{font-size:12px}
+    .hook-warning{display:none;background:var(--warning-dim);border:1px solid rgba(240,164,41,.2);border-radius:6px;padding:9px 12px;font-size:12px;color:var(--warning);margin-top:8px}
+    .trigger-wrap{display:none;margin-top:8px}
+    .review-override-wrap{display:none;margin-top:8px}
+    .review-override-wrap input,.trigger-wrap input{width:200px}
+    .email-preview-box{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;min-height:180px;color:#d4e8f0}
+    .subject-line{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    .email-actions{display:flex;gap:8px;margin-top:12px;align-items:center}
+    .copy-confirm{font-size:12px;color:var(--success);opacity:0;transition:opacity .2s}
+    .copy-confirm.show{opacity:1}
+    .lead-select-wrap select{width:100%}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .18s;z-index:100}
+    .modal-backdrop.open{opacity:1;pointer-events:auto}
+    .modal{width:440px;background:var(--surface);height:100%;overflow-y:auto;box-shadow:-10px 0 30px rgba(0,0,0,.5);padding:24px;transform:translateX(20px);transition:transform .18s;border-left:1px solid var(--border)}
+    .modal.open{transform:translateX(0)}
+    .modal h3{font-size:15px;font-weight:600;margin-bottom:16px}
+
+    /* Edit modal — centred overlay (overrides the default right-slide modal) */
+    #editBackdrop{justify-content:center;align-items:center}
+    #editModal{width:600px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px)}
+    #editModal.open{transform:translateY(0)}
+    @media(max-width:640px){#editModal{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;max-height:92vh;transform:translateY(20px)}#editModal.open{transform:translateY(0)}}
+    /* Add Lead panel — centred overlay (matches Edit modal exactly) */
+    #addLeadBackdrop{justify-content:center;align-items:center}
+    #addLeadPanel{width:600px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px)}
+    #addLeadPanel.open{transform:translateY(0)}
+    @media(max-width:640px){#addLeadPanel{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;max-height:92vh;transform:translateY(20px)}#addLeadPanel.open{transform:translateY(0)}}
+    /* Backup modal — centred overlay */
+    #backupBackdrop{justify-content:center;align-items:center}
+    #backupModal{width:500px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px)}
+    #backupModal.open{transform:translateY(0)}
+    @media(max-width:640px){#backupModal{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;transform:translateY(20px)}#backupModal.open{transform:translateY(0)}}
+    .backup-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:6px;background:var(--elevated);gap:12px}
+    .backup-row+.backup-row{margin-top:6px}
+    .backup-ts{font-size:13px;color:var(--text)}
+    .backup-count{font-size:12px;color:var(--muted)}
+
+    /* Misc */
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .flex{display:flex;gap:8px;align-items:center}
+
+    /* Nav count badge */
+    .nav-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C9A84C;color:#0A0A0B;font-size:10px;font-weight:700;margin-left:6px;line-height:1}
+
+    /* Source badges */
+    .source-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+    .source-qualifier{border:1px solid #C9A84C;color:#C9A84C;background:transparent}
+    .source-manual{border:1px solid #888;color:#888;background:transparent}
+
+    /* Mark as Sent button (Inbox) */
+    .btn-mark-sent{background:transparent;border:1px solid #C9A84C;color:#C9A84C;padding:5px 12px;border-radius:6px;font-size:12px;font-family:inherit;font-weight:500;cursor:pointer;transition:background .12s,color .12s;white-space:nowrap;flex-shrink:0}
+    .btn-mark-sent:hover{background:#C9A84C;color:#0A0A0B}
+
+    /* Date added label */
+    .date-added-label{font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;line-height:1.6}
+    .empty-icon{font-size:28px;margin-bottom:12px;opacity:.4}
+
+    /* Pipeline — status dots */
+    .sdot-p-notsent{background:#888}
+    .sdot-p-sent{background:#5E6AD2}
+    .sdot-p-fudue{background:#F5A623;box-shadow:0 0 0 2px rgba(245,166,35,.18)}
+    .sdot-p-replied{background:#2D7D46;box-shadow:0 0 0 2px rgba(45,125,70,.18)}
+    .sdot-p-converted{background:#C9A84C;box-shadow:0 0 0 2px rgba(201,168,76,.18)}
+    .sdot-p-disqualified{background:#8B0000}
+    .sdot-p-dnc{background:#8B0000}
+    .sdot-p-notinterested{background:#444}
+
+    /* Not Interested collapsed section */
+    .ni-section{margin-top:16px}
+    .ni-section-header{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);cursor:pointer;user-select:none;color:var(--muted);font-size:12px;font-style:italic}
+    .ni-section-header:hover{border-color:rgba(255,255,255,.12);color:var(--text)}
+    .ni-section-toggle{font-size:10px;opacity:.6}
+    .ni-section-body{margin-top:4px}
+    .ni-badge{display:inline-block;font-size:10px;font-style:italic;padding:2px 9px;border-radius:12px;background:#222;color:#666;letter-spacing:.03em;margin-bottom:8px}
+
+    /* Do Not Contact badge */
+    .dnc-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:12px;background:#8B0000;color:#fff;letter-spacing:.05em;margin-bottom:8px}
+
+    /* Pipeline — status filter button group */
+    .status-filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+    .status-filter-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:5px 12px;border-radius:20px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .12s;white-space:nowrap}
+    .status-filter-btn:hover{border-color:rgba(255,255,255,.15);color:var(--text)}
+    .status-filter-btn.active{background:#C9A84C;color:#0A0A0B;border-color:#C9A84C;font-weight:600}
+
+    /* Pipeline — secondary filter bar */
+    .secondary-filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+    .filter-group{display:flex;align-items:center;gap:6px}
+    .filter-inline-label{font-size:11px;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em;font-weight:500}
+    .filter-group select{width:auto;padding:5px 8px;font-size:12px}
+
+    /* Pipeline — filter reset badge */
+    .filter-reset-badge{background:var(--elevated);border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:12px;font-size:11px;font-family:inherit;cursor:pointer;transition:border-color .12s,color .12s}
+    .filter-reset-badge:hover{border-color:#C9A84C;color:#C9A84C}
+
+    /* Pipeline — row layout */
+    .row-centre{display:flex;align-items:center;gap:6px;flex-shrink:0}
+    .row-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+    /* Pipeline — city tag */
+    .city-tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+
+    /* Follow Ups tab */
+    .fu-section-label{display:block;font-size:10px;font-weight:700;color:#C9A84C;text-transform:uppercase;letter-spacing:.1em;padding:20px 4px 8px}
+    .fu-row-main{display:flex;align-items:center;gap:10px;padding:9px 4px;min-height:40px}
+    .fu-due-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+    .fu-due-badge-overdue{background:rgba(229,72,77,.12);color:#E5484D}
+    .fu-due-badge-today{background:rgba(240,164,41,.12);color:#F0A429}
+    .fu-row-actions{display:flex;gap:6px;flex-shrink:0}
+    .btn-fu-action{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:6px;font-size:11px;font-family:inherit;cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap}
+    .btn-fu-action:hover{border-color:rgba(255,255,255,.15);color:var(--text)}
+    .btn-fu-replied{border-color:rgba(76,175,125,.3);color:#4CAF7D}
+    .btn-fu-replied:hover{background:rgba(76,175,125,.1);border-color:#4CAF7D}
+    .fu-empty-state{text-align:center;padding:40px 20px;color:#4CAF7D;font-size:13px;line-height:1.6}
+    .fu-empty-icon{font-size:24px;margin-bottom:12px}
+
+    /* Pipeline — FU urgency indicator */
+    .fu-urgency{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;white-space:nowrap;flex-shrink:0}
+    .fu-urg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block}
+    .fu-urg-overdue{color:#E5484D}
+    .fu-urg-overdue .fu-urg-dot{background:#E5484D}
+    .fu-urg-today{color:#F0A429}
+    .fu-urg-today .fu-urg-dot{background:#F0A429}
+    .fu-urg-soon{color:var(--muted)}
+    .fu-urg-soon .fu-urg-dot{background:var(--muted)}
+
+    /* Pipeline — draft email section in expand rows */
+    .expand-draft{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+    .expand-draft-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px}
+    .expand-draft-subject{font-size:12px;font-weight:500;color:var(--text);flex:1;word-break:break-word}
+    .expand-draft-body{font-size:12px;color:var(--text-dim);line-height:1.65;white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:6px;padding:10px 12px;margin-top:6px}
+    .expand-draft-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .btn-copy-draft{background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;font-family:inherit;cursor:pointer;transition:border-color .12s,color .12s;white-space:nowrap;flex-shrink:0}
+    .btn-copy-draft:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
+
+    /* Inline Reply Analyser (Pipeline expand) */
+    .ra-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+    .ra-section-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px}
+    .ra-textarea{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:inherit;outline:none;resize:vertical;min-height:72px;line-height:1.55;transition:border-color .15s}
+    .ra-textarea:focus{border-color:#C9A84C}
+    .btn-ra-analyse{background:#C9A84C;color:#0A0A0B;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:8px}
+    .btn-ra-analyse:hover{opacity:.85}
+    .btn-ra-analyse:disabled{opacity:.4;cursor:not-allowed}
+    .ra-api-prompt{margin-top:8px;padding:10px 12px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)}
+    .ra-api-prompt-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:block}
+    .ra-api-input{width:100%;padding:6px 9px;border-radius:5px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:inherit;outline:none;transition:border-color .15s}
+    .ra-api-input:focus{border-color:#C9A84C}
+    .btn-ra-savekey{background:transparent;border:1px solid #C9A84C;color:#C9A84C;border-radius:5px;padding:5px 12px;font-size:11px;font-family:inherit;cursor:pointer;margin-top:6px;transition:background .12s,color .12s}
+    .btn-ra-savekey:hover{background:#C9A84C;color:#0A0A0B}
+    .ra-loading{font-size:12px;color:var(--muted);margin-top:8px;display:none}
+    .ra-error{font-size:12px;color:var(--danger);margin-top:8px;padding:7px 10px;background:var(--danger-dim);border-radius:5px;display:none}
+    .ra-results{margin-top:10px;display:none}
+    .ra-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;letter-spacing:.03em;margin-bottom:8px}
+    .ra-badge-hot{background:rgba(45,125,70,.25);color:#4CAF7D}
+    .ra-badge-gatekeeper{background:rgba(94,106,210,.2);color:#8B9CF5}
+    .ra-badge-sofno{background:rgba(240,164,41,.15);color:#F0A429}
+    .ra-badge-hardno{background:rgba(229,72,77,.15);color:#E5484D}
+    .ra-badge-nurturing{background:rgba(240,164,41,.1);color:#F0A429}
+    .ra-badge-wrongperson{background:var(--elevated);color:var(--muted)}
+    .ra-result-row{margin-bottom:8px}
+    .ra-result-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+    .ra-result-text{font-size:12px;color:var(--text-dim);line-height:1.55}
+    .ra-suggested-box{font-size:12px;color:var(--text-dim);line-height:1.6;white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:5px;padding:8px 10px;border:1px solid var(--border);margin-bottom:6px}
+    .ra-watchout{font-size:12px;line-height:1.55;padding:8px 10px;border-radius:0 5px 5px 0;border-left:3px solid var(--danger);background:rgba(229,72,77,.07);color:#fca5a5;margin-bottom:8px}
+    .ra-watchout.amber{border-left-color:var(--warning);background:rgba(240,164,41,.07);color:#fde68a}
+    .ra-action-row{display:flex;gap:8px;align-items:center;margin-top:4px}
+    .btn-ra-copy{background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;font-family:inherit;cursor:pointer;transition:border-color .12s,color .12s;white-space:nowrap}
+    .btn-ra-copy:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
+    .btn-ra-save{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;display:none;margin-top:10px}
+    .btn-ra-save:hover{opacity:.85}
+    .ra-on-record{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+    .ra-on-record-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0}
+    .ra-on-record-title{font-size:10px;font-weight:700;color:#C9A84C;text-transform:uppercase;letter-spacing:.06em}
+    .ra-on-record-toggle{font-size:11px;color:var(--muted)}
+    .ra-on-record-body{margin-top:8px;display:none}
+
+    /* Email auto-populate note */
+    .email-auto-note{font-size:11px;color:var(--muted);margin-top:8px;padding:5px 8px;background:var(--elevated);border-radius:5px;border:1px solid var(--border)}
+
+    /* Score badges (Pipeline expand) */
+    .score-badge-hot{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:12px;background:#2D7D46;color:#fff;letter-spacing:.04em;margin-bottom:8px}
+    .score-badge-warm{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:12px;background:#F5A623;color:#0d0a00;letter-spacing:.04em;margin-bottom:8px}
+
+    /* Content top bar */
+    .content-topbar{display:flex;align-items:center;justify-content:flex-end;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:9}
+    .btn-add-lead-trigger{background:#C9A84C;color:#0A0A0B;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;letter-spacing:.01em}
+    .btn-add-lead-trigger:hover{opacity:.85}
+    @media(max-width:900px){ .content-topbar{position:static} }
+
+    /* Outlook integration */
+    .outlook-connected{display:none;align-items:center;gap:8px;padding:7px 10px}
+    .outlook-dot{width:7px;height:7px;border-radius:50%;background:#4CAF7D;flex-shrink:0}
+    .outlook-label{font-size:11px;color:#4CAF7D;font-weight:500;line-height:1.3}
+    .outlook-email{font-size:10px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+
+    /* Send All modal */
+    #sendAllBackdrop{justify-content:center;align-items:center}
+    #sendAllModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
+    #sendAllModal.open{transform:translateY(0)}
+    @media(max-width:640px){#sendAllModal{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;max-height:92vh;transform:translateY(20px)}#sendAllModal.open{transform:translateY(0)}}
+    .send-all-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:6px;background:var(--elevated);margin-bottom:6px}
+    .send-all-status{width:60px;flex-shrink:0;margin-top:2px}
+    .send-all-info{flex:1;min-width:0}
+    .send-all-name{font-size:13px;font-weight:500;color:var(--text)}
+    .send-all-email-addr{font-size:11px;color:var(--muted);margin-top:1px}
+    .send-all-subject{font-size:11px;color:var(--text-dim);margin-top:3px;font-style:italic}
+    .btn-send-outlook{background:transparent;border:1px solid rgba(76,175,125,.4);color:#4CAF7D;padding:5px 12px;border-radius:6px;font-size:12px;font-family:inherit;font-weight:500;cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap}
+    .btn-send-outlook:hover{background:rgba(76,175,125,.1);border-color:#4CAF7D}
+    .btn-send-outlook:disabled{opacity:.4;cursor:not-allowed}
+
+    /* Mobile overlay */
+    #sidebarOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49}
+
+    @media(max-width:900px){
+      body{overflow:auto}
+      #sidebar{position:fixed;left:-240px;top:0;height:100vh;z-index:50;transition:left .22s ease}
+      #sidebar.open{left:0}
+      #mainContent{height:auto;overflow-y:auto}
+      .mobile-bar{display:flex}
+      .tabPane{padding:16px}
+      .form-row{flex-wrap:wrap}
+      .form-row .w100,.form-row .w120,.form-row .w160,.form-row .w200{width:100%;flex:1 1 120px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-name">Versa Digital HQ</div>
+      <div class="sidebar-brand-sub">Outreach Tracker</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item tabBtn" data-tab="dashboard">Dashboard</button>
+      <button class="nav-item tabBtn" data-tab="inbox">Inbox <span class="nav-count-badge" id="inboxNavBadge" style="display:none"></span></button>
+      <button class="nav-item tabBtn" data-tab="pipeline">Pipeline</button>
+      <button class="nav-item tabBtn" data-tab="followups">Follow Ups <span class="nav-count-badge" id="followUpsNavBadge" style="display:none"></span></button>
+      <button class="nav-item tabBtn" data-tab="email">Email</button>
+    </nav>
+
+    <div class="sidebar-actions">
+      <input id="csvFile" type="file" accept="text/csv" style="display:none">
+      <button class="sidebar-action-btn" id="btnImport">↑ Import CSV</button>
+      <button class="sidebar-action-btn" id="btnExport">↓ Export CSV</button>
+      <button class="sidebar-action-btn danger" id="btnClear">Clear all data</button>
+      <button class="sidebar-action-btn" id="btnRestoreBackup">&#8635; Restore from Backup</button>
+      <button class="sidebar-action-btn" id="btnFixSources">Fix Qualifier Sources</button>
+      <div style="margin-top:4px;padding-top:6px;border-top:1px solid var(--border)">
+        <button class="sidebar-action-btn" id="btnConnectOutlook">&#9993; Connect Outlook</button>
+        <div class="outlook-connected" id="outlookConnected">
+          <span class="outlook-dot"></span>
+          <div style="min-width:0"><div class="outlook-label">Outlook Connected</div><div class="outlook-email" id="outlookEmail"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-stats">
+      <div class="stat-item"><span class="stat-label">Total leads</span><span class="stat-value" id="statTotal">0</span></div>
+      <div class="stat-item"><span class="stat-label">Inbox</span><span class="stat-value accent" id="statInbox">0</span></div>
+      <div class="stat-item"><span class="stat-label">Replied</span><span class="stat-value accent" id="statReplied">0</span></div>
+      <div class="stat-item"><span class="stat-label">FU due today</span><span class="stat-value warning" id="statPending">0</span></div>
+      <div class="stat-item"><span class="stat-label">Pending</span><span class="stat-value" id="statPendingNoReply">0</span></div>
+    </div>
+  </aside>
+
+  <div id="sidebarOverlay"></div>
+
+  <!-- Main content -->
+  <main id="mainContent">
+    <div class="mobile-bar">
+      <div class="mobile-bar-title" id="mobileTitle">Dashboard</div>
+      <button class="hamburger" id="hamburger">&#9776;</button>
+    </div>
+
+    <div class="content-topbar">
+      <button class="btn-add-lead-trigger" id="btnAddLeadTrigger">+ Add Lead</button>
+    </div>
+
+    <!-- Dashboard -->
+    <section id="tab-dashboard" class="tabPane">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Follow-ups due today</div>
+        </div>
+      </div>
+      <div class="card" style="padding:0 16px">
+        <div id="dashboard" class="dash-rows"></div>
+      </div>
+    </section>
+
+    <!-- Inbox -->
+    <section id="tab-inbox" class="tabPane">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Inbox</div>
+          <div class="page-sub">Unsent qualifier leads — mark as sent to move them to Pipeline.</div>
+        </div>
+      </div>
+      <div class="card" style="padding:0 12px">
+        <div id="inboxList" class="leads-table"></div>
+      </div>
+    </section>
+
+    <!-- Pipeline -->
+    <section id="tab-pipeline" class="tabPane">
+      <div class="page-header">
+        <div><div class="page-title">Pipeline</div></div>
+        <div id="pipelineFilterBadge" style="display:none">
+          <button class="filter-reset-badge" id="btnResetFilters">Filters (<span id="filterCount">0</span>)</button>
+        </div>
+      </div>
+      <div class="status-filter-bar">
+        <button class="status-filter-btn active" data-status="All">All</button>
+        <button class="status-filter-btn" data-status="Not Sent">Not Sent</button>
+        <button class="status-filter-btn" data-status="Sent">Sent</button>
+        <button class="status-filter-btn" data-status="Follow Up Due">Follow Up Due</button>
+        <button class="status-filter-btn" data-status="Replied">Replied</button>
+        <button class="status-filter-btn" data-status="Converted">Converted</button>
+        <button class="status-filter-btn" data-status="Do Not Contact">Do Not Contact</button>
+      </div>
+      <div class="secondary-filter-bar">
+        <div class="filter-group">
+          <span class="filter-inline-label">Source</span>
+          <select id="pFilterSource"><option value="All">All</option><option value="Qualifier">Qualifier</option><option value="Manual">Manual</option></select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-inline-label">City</span>
+          <select id="pFilterCity"><option value="All">All</option><option value="London">London</option><option value="Manchester">Manchester</option><option value="Birmingham">Birmingham</option><option value="Leeds">Leeds</option><option value="Other">Other</option></select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-inline-label">Sort</span>
+          <select id="pFilterSort"><option value="newest">Date Added (Newest)</option><option value="oldest">Date Added (Oldest)</option><option value="fuSoonest">FU Due (Soonest)</option></select>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 4px 0;gap:12px">
+        <div id="pipelineCount" style="font-size:12px;color:#888;font-family:Inter,sans-serif;white-space:nowrap"></div>
+        <input id="pipelineSearch" type="text" placeholder="Search clinics..." style="font-size:12px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:Inter,sans-serif;width:200px;outline:none">
+      </div>
+      <div class="card" style="padding:0 12px">
+        <div id="pipelineList" class="leads-table"></div>
+      </div>
+    </section>
+
+    <!-- Follow Ups -->
+    <section id="tab-followups" class="tabPane">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Follow Ups</div>
+          <div class="page-sub">Everything overdue or due today.</div>
+        </div>
+        <button class="btn-send-outlook" id="btnSendAllDue" style="display:none">Send All Due Today</button>
+      </div>
+      <div id="followUpsList"></div>
+    </section>
+
+    <!-- Email -->
+    <section id="tab-email" class="tabPane">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Email Sequence Manager</div>
+          <div class="page-sub">Select a lead, angle, hook and type to generate a ready-to-send email.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="email-section-label">Step 1 — Select a Lead</div>
+        <div class="lead-select-wrap">
+          <select id="emailLeadSelect"><option value="">— choose a lead —</option></select>
+        </div>
+        <div class="email-autofill" id="emailAutofill" style="display:none">
+          <div class="autofill-field"><span>Clinic Name</span><strong id="af_clinic">—</strong></div>
+          <div class="autofill-field"><span>Named Contact</span><strong id="af_contact">—</strong></div>
+          <div class="autofill-field"><span>City</span><strong id="af_city">—</strong></div>
+          <div class="autofill-field"><span>Channel</span><strong id="af_channel">—</strong></div>
+          <div class="autofill-field"><span>Reviews</span><strong id="af_reviews">—</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="email-section-label">Step 2 — Select Angle</div>
+        <div class="btn-group">
+          <button class="toggle-btn" data-angle="After-Hours">After-Hours</button>
+          <button class="toggle-btn" data-angle="Coordination">Coordination</button>
+          <button class="toggle-btn" data-angle="Conversion">Conversion</button>
+        </div>
+        <div class="email-auto-note" id="emailAutoNote" style="display:none">Auto-populated from qualifier data</div>
+      </div>
+
+      <div class="card" id="hookCard">
+        <div class="email-section-label">Step 3 — Select Hook Type</div>
+        <div class="btn-group">
+          <button class="toggle-btn" data-hook="Direct Observation">Direct Observation</button>
+          <button class="toggle-btn" data-hook="Patient Perspective">Patient Perspective</button>
+          <button class="toggle-btn" data-hook="Specific Gap">Specific Gap</button>
+          <button class="toggle-btn" data-hook="Observation + Compliment">Observation + Compliment</button>
+          <button class="toggle-btn" data-hook="Industry Insight">Industry Insight</button>
+          <button class="toggle-btn" data-hook="Trigger Event">Trigger Event</button>
+        </div>
+        <div class="hook-warning" id="hookWarnOC">&#9888; This hook requires the clinic's Google review count. Check their listing before sending.</div>
+        <div class="review-override-wrap" id="reviewOverrideWrap">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:none;letter-spacing:0">Review count (if not in lead record)</label>
+          <input type="text" id="reviewOverrideInput" placeholder="e.g. 47">
+        </div>
+        <div class="hook-warning" id="hookWarnTE">&#9888; This hook requires a specific recent trigger (new service, recent post). Only use if confirmed.</div>
+        <div class="trigger-wrap" id="triggerWrap">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:none;letter-spacing:0">Trigger (e.g. teeth whitening, Invisalign)</label>
+          <input type="text" id="triggerInput" placeholder="e.g. teeth whitening">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="email-section-label">Step 4 — Select Email Type</div>
+        <div class="btn-group">
+          <button class="toggle-btn" data-type="Initial">Initial</button>
+          <button class="toggle-btn" data-type="FU1">FU1</button>
+          <button class="toggle-btn" data-type="FU2">FU2</button>
+          <button class="toggle-btn" data-type="FU3">FU3</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="email-section-label">Step 5 — Generated Email</div>
+        <div id="emailPreviewWrap" style="display:none">
+          <div class="subject-line" id="emailSubjectPreview"></div>
+          <div class="email-preview-box" id="emailBodyPreview"></div>
+          <div class="email-actions">
+            <button class="btn btn-ghost btn-sm" id="btnCopySubject">Copy Subject</button>
+            <button class="btn btn-primary btn-sm" id="btnCopyEmail">Copy Email</button>
+            <button class="btn-send-outlook" id="btnSendOutlook" style="display:none">Send via Outlook</button>
+            <span class="copy-confirm" id="copyConfirm">Copied!</span>
+          </div>
+          <div id="fu2DemoTip" style="display:none;margin-top:8px;font-size:11px;color:#666">Tip: if the demo link doesn't appear as a hyperlink in your email client, highlight the URL and use Insert Link.</div>
+        </div>
+        <div id="emailPreviewPlaceholder" class="muted small">Select a lead, angle, and email type to generate the email. For initial emails, also select a hook type.</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Lead slide-in panel -->
+  <div id="addLeadBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="addLeadPanel" class="modal" role="dialog" aria-modal="true" aria-label="Add Lead">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h3 style="margin-bottom:0">Add New Clinic</h3>
+        <button id="addLeadClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">All fields optional — add what you have.</p>
+      <form id="leadForm">
+        <div class="form-row">
+          <div><label>Clinic Name</label><input type="text" id="clinicName"></div>
+          <div class="w160"><label>Date Sent</label><input type="date" id="dateSent"></div>
+        </div>
+        <div class="form-row">
+          <div><label>City</label><input type="text" id="city"></div>
+          <div><label>Address</label><input type="text" id="address"></div>
+        </div>
+        <div class="form-row">
+          <div><label>Website</label><input type="text" id="website"></div>
+          <div><label>Named Contact</label><input type="text" id="contactName"></div>
+        </div>
+        <div class="form-row">
+          <div><label>Email Address</label><input type="email" id="email"></div>
+          <div class="w200"><label>Channel</label>
+            <select id="channel"><option>Email</option><option>Contact Form</option><option>DM</option></select>
+          </div>
+          <div class="w100"><label>Reviews</label><input type="text" id="reviewCount" placeholder="e.g. 47"></div>
+        </div>
+        <div class="form-row">
+          <div class="w200"><label>Angle</label>
+            <select id="angle"><option>After-Hours</option><option>Coordination</option><option>Conversion</option></select>
+          </div>
+          <div class="w120"><label>Reply</label>
+            <select id="reply"><option value="N">No</option><option value="Y">Yes</option></select>
+          </div>
+          <div><label>Reply Type</label>
+            <select id="replyType">
+              <option value="">(none)</option>
+              <option>Disqualified</option>
+              <option>Interested</option>
+              <option>Not Interested</option>
+              <option>Converted</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:12px"><label>Notes</label><textarea id="notes"></textarea></div>
+        <div class="flex">
+          <button type="submit" class="btn btn-primary">Add Lead</button>
+          <button type="button" id="btnFillTest" class="btn btn-ghost">Add Example</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit modal -->
+  <div id="editBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-label="Edit lead">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="margin-bottom:0">Edit Lead</h3>
+        <button id="editClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+      </div>
+      <form id="editForm">
+        <div class="form-row"><div><label>Clinic Name</label><input id="e_clinicName" type="text"></div><div class="w160"><label>Date Sent</label><input id="e_dateSent" type="date"></div></div>
+        <div class="form-row"><div><label>City</label><input id="e_city" type="text"></div><div><label>Address</label><input id="e_address" type="text"></div></div>
+        <div class="form-row"><div><label>Website</label><input id="e_website" type="text"></div><div><label>Named Contact</label><input id="e_contactName" type="text"></div></div>
+        <div class="form-row"><div><label>Email</label><input id="e_email" type="email"></div><div class="w200"><label>Channel</label><select id="e_channel"><option>Email</option><option>Contact Form</option><option>DM</option></select></div><div class="w100"><label>Reviews</label><input id="e_reviewCount" type="text" placeholder="e.g. 47"></div></div>
+        <div class="form-row"><div class="w200"><label>Angle</label><select id="e_angle"><option>After-Hours</option><option>Coordination</option><option>Conversion</option></select></div><div class="w120"><label>Reply</label><select id="e_reply"><option value="N">No</option><option value="Y">Yes</option></select></div><div><label>Reply Type</label><select id="e_replyType"><option value="">(none)</option><option>Disqualified</option><option>Interested</option><option>Not Interested</option><option>Converted</option><option>Other</option></select></div></div>
+        <div class="form-row"><div class="w200"><label>Source</label><select id="e_source"><option value="manual">Manual</option><option value="qualifier">Qualifier</option></select></div></div>
+        <div style="margin-bottom:12px"><label>Notes</label><textarea id="e_notes"></textarea></div>
+        <div class="flex">
+          <button id="editSave" type="button" class="btn btn-primary">Save</button>
+          <button id="editCancel" type="button" class="btn btn-ghost">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Backup restore modal -->
+  <div id="backupBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="backupModal" class="modal" role="dialog" aria-modal="true" aria-label="Restore from backup">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <h3 style="margin-bottom:0">Restore from Backup</h3>
+        <button id="backupClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+      </div>
+      <div id="backupList"></div>
+      <div style="margin-top:16px;font-size:12px;color:var(--muted)">Up to 5 automatic backups are kept. Restoring will overwrite your current data.</div>
+    </div>
+  </div>
+
+  <!-- Send All Due Today modal -->
+  <div id="sendAllBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="sendAllModal" class="modal" role="dialog" aria-modal="true" aria-label="Send All Due Today">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="margin-bottom:0">Send All Due Today</h3>
+        <button id="sendAllClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Review below then confirm. Emails send sequentially via your connected Outlook account.</p>
+      <div id="sendAllList" style="margin-bottom:16px"></div>
+      <div id="sendAllProgress" style="display:none;font-size:12px;color:var(--muted);margin-bottom:12px;padding:8px 10px;background:var(--elevated);border-radius:6px;text-align:center"></div>
+      <button class="btn btn-primary" id="btnConfirmSendAll" style="width:100%">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'vdhq_tracker_v1';
+    const BACKUP_KEY  = 'vdhq_backup_v1';
+    let leads = [];
+
+    // ── Reply Analyser constants ─────────────────────────────────────────────
+    const RA_SYSTEM_PROMPT = `You are an expert B2B sales analyst for Versa Digital HQ, a business that sells dental intake automation to independent UK dental clinics. The product is a front-end intake layer that captures, organises and routes enquiries automatically — reducing missed bookings and manual back-and-forth. The owner Lawrence cold emails clinic owners and principal dentists. You are analysing replies to his cold outreach emails. Be specific, direct and actionable. No fluff.`;
+    const RA_BADGE_MAP = {'Hot Lead':'ra-badge-hot','Gatekeeper':'ra-badge-gatekeeper','Soft No':'ra-badge-sofno','Hard No':'ra-badge-hardno','Needs Nurturing':'ra-badge-nurturing','Wrong Person':'ra-badge-wrongperson'};
+    const RA_TYPE_MAP = {'Hot Lead':'Interested','Gatekeeper':'Other','Soft No':'Not Interested','Hard No':'Disqualified','Needs Nurturing':'Other','Wrong Person':'Other'};
+    const RA_AMBER_TYPES = ['Soft No','Needs Nurturing','Gatekeeper','Wrong Person'];
+    const raResults = {}; // keyed by lead id, stores analysis result for session
+
+    function todayISO(){ const d=new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
+    function isValidDateStr(s){ if(!s) return false; const d=new Date(s); return !isNaN(d.getTime()); }
+    function addDays(dateStr,days){ if(!isValidDateStr(dateStr)) return ''; const d=new Date(dateStr); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+    function normDateStr(s){ if(!s) return ''; if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10); const m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/); if(m) return m[3]+'-'+m[2]+'-'+m[1]; return ''; }
+    function formatDateISOtoUK(iso){ if(!iso) return ''; const m=iso.match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return iso; return `${m[3]}/${m[2]}/${m[1]}`; }
+    function formatDateISOtoShortUK(iso){ if(!iso) return ''; const m=iso.match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return iso; return `${m[3]}/${m[2]}`; }
+
+    function formatBackupTimestamp(iso){ try{ const d=new Date(iso); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } }
+
+    function saveBackup(){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); const backups=bRaw?JSON.parse(bRaw):[]; const snapshot=localStorage.getItem(STORAGE_KEY); backups.unshift({timestamp:new Date().toISOString(),data:JSON.parse(snapshot||'[]')}); if(backups.length>5) backups.length=5; localStorage.setItem(BACKUP_KEY,JSON.stringify(backups)); }catch(e){ console.warn('[saveBackup]',e.message); } }
+
+    function load(){
+      const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
+      if(!leads.length){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); if(bRaw){ const backups=JSON.parse(bRaw); if(backups.length&&(backups[0].data||[]).length){ const b=backups[0]; const ts=formatBackupTimestamp(b.timestamp); if(confirm('No leads found but a backup exists from '+ts+' with '+b.data.length+' leads. Restore it?')){ leads=b.data; localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); } } } }catch(e){} }
+      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(l.replyAnalysis===undefined) l.replyAnalysis=''; if(!l.channel) l.channel='Email'; }); renderAll();
+    }
+    function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); saveBackup(); renderAll(); }
+
+    function openBackupModal(){ renderBackupList(); const bd=document.getElementById('backupBackdrop'); const md=document.getElementById('backupModal'); bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
+    function closeBackupModal(){ const bd=document.getElementById('backupBackdrop'); const md=document.getElementById('backupModal'); md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
+    function renderBackupList(){ const container=document.getElementById('backupList'); const bRaw=localStorage.getItem(BACKUP_KEY); const backups=bRaw?JSON.parse(bRaw):[]; if(!backups.length){ container.innerHTML='<div style="color:var(--muted);font-size:13px;padding:12px 0">No backups found.</div>'; return; } container.innerHTML=''; backups.forEach((b,i)=>{ const ts=formatBackupTimestamp(b.timestamp); const count=(b.data||[]).length; const row=document.createElement('div'); row.className='backup-row'; row.innerHTML=`<div><div class="backup-ts">${escapeHtml(ts)}</div><div class="backup-count">${count} lead${count===1?'':'s'}</div></div><button class="btn btn-ghost" style="flex-shrink:0" data-idx="${i}">Restore</button>`; row.querySelector('button').addEventListener('click',()=>restoreFromBackup(i)); container.appendChild(row); }); }
+    function restoreFromBackup(idx){ const bRaw=localStorage.getItem(BACKUP_KEY); if(!bRaw) return; const backups=JSON.parse(bRaw); const b=backups[idx]; if(!b) return; const ts=formatBackupTimestamp(b.timestamp); const count=(b.data||[]).length; if(!confirm('Restore '+count+' lead'+(count===1?'':'s')+' from '+ts+'? This will overwrite your current data.')) return; localStorage.setItem(STORAGE_KEY,JSON.stringify(b.data||[])); closeBackupModal(); location.reload(); }
+
+    function ensureFUDates(lead){ try{ if(!lead.dateSent) return; if(!isValidDateStr(lead.dateSent)) return; lead.fu1Date=addDays(lead.dateSent,3); lead.fu2Date=addDays(lead.dateSent,7); lead.fu3Date=addDays(lead.dateSent,14); if(lead.fu1Sent===undefined) lead.fu1Sent=false; if(lead.fu2Sent===undefined) lead.fu2Sent=false; if(lead.fu3Sent===undefined) lead.fu3Sent=false; }catch(e){ console.warn('[ensureFUDates] skipped lead id='+lead.id+':',e.message); } }
+
+    function addLead(data){ const lead=Object.assign({id:Date.now(),dateAdded:new Date().toISOString()},data); if(!lead.source) lead.source='manual'; ensureFUDates(lead); leads.unshift(lead); save(); }
+
+    function markFUSent(id,fu){ const lead=leads.find(l=>l.id==id); if(!lead) return;
+      if(fu==='fu1'){ if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; } else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); } }
+      if(fu==='fu2'){ if(lead.fu2Sent){ lead.fu2Sent=false; delete lead.fu2SentOn; } else { lead.fu2Sent=true; lead.fu2SentOn=todayISO(); } }
+      if(fu==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); } }
+      save(); }
+
+    function toggleReply(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply=(lead.reply==='Y')?'N':'Y'; save(); }
+
+    function toggleDNC(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(lead.doNotContact){ if(!confirm('Remove the Do Not Contact flag from this clinic?')) return; lead.doNotContact=false; } else { if(!confirm('Mark this clinic as Do Not Contact? This cannot be easily undone.')) return; lead.doNotContact=true; } save(); }
+
+    function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; save(); }
+
+    function statusDotClass(l){ if((l.replyType||'').toLowerCase()==='disqualified') return 'sdot-disq'; if(l.reply==='Y') return 'sdot-replied'; const td=todayISO(); if((l.fu1Date===td&&!l.fu1Sent)||(l.fu2Date===td&&!l.fu2Sent)||(l.fu3Date===td&&!l.fu3Sent)) return 'sdot-due'; return 'sdot-pending'; }
+
+    function renderDashboard(){
+      const container=document.getElementById('dashboard'); container.innerHTML='';
+      const dueItems=[]; const td=todayISO();
+      leads.forEach(l=>{ if(l.reply==='Y') return; if(l.fu1Date===td&&!l.fu1Sent) dueItems.push({lead:l,type:'FU1',fu:'fu1'}); if(l.fu2Date===td&&!l.fu2Sent) dueItems.push({lead:l,type:'FU2',fu:'fu2'}); if(l.fu3Date===td&&!l.fu3Sent) dueItems.push({lead:l,type:'FU3',fu:'fu3'}); });
+      if(dueItems.length===0){ container.innerHTML='<div class="dash-empty">All clear — no follow-ups due today.</div>'; return; }
+      dueItems.slice(0,20).forEach(item=>{
+        const l=item.lead; const row=document.createElement('div'); row.className='dash-row';
+        const isSent=l[item.fu+'Sent'];
+        row.innerHTML=`<span class="dash-fu-label">${item.type}</span><div class="dash-row-info"><div class="dash-row-name">${escapeHtml(l.clinicName||'(no name)')}</div><div class="dash-row-sub">${escapeHtml(l.contactName||'')}${l.email?' · '+escapeHtml(l.email):''}</div></div><button class="fu-btn ${isSent?'fu-sent':''}" data-id="${l.id}" data-fu="${item.fu}">${isSent?'&#10003; Sent':'Mark Sent'}</button>`;
+        const fuBtn=row.querySelector('.fu-btn[data-fu]'); if(fuBtn) fuBtn.addEventListener('click',()=>markFUSent(fuBtn.dataset.id,fuBtn.dataset.fu));
+        container.appendChild(row);
+      });
+    }
+
+    function renderFilters(){ const citySel=document.getElementById('filterCity'); const cities=Array.from(new Set(leads.map(l=>l.city).filter(Boolean))).sort(); citySel.innerHTML='<option value="">All cities</option>'+cities.map(c=>`<option>${escapeHtml(c)}</option>`).join(''); }
+
+    function renderTable(){
+      const container=document.getElementById('leadsList'); container.innerHTML='';
+      const search=document.getElementById('filterSearch').value.toLowerCase();
+      const cityFilter=document.getElementById('filterCity').value;
+      const angleFilter=document.getElementById('filterAngle').value;
+      const replyFilter=document.getElementById('filterReply').value;
+      const td=todayISO();
+      leads.forEach(l=>{
+        if(search&&!((l.clinicName||'').toLowerCase().includes(search)||(l.contactName||'').toLowerCase().includes(search))) return;
+        if(cityFilter&&l.city!==cityFilter) return;
+        if(angleFilter&&l.angle!==angleFilter) return;
+        if(replyFilter&&l.reply!==replyFilter) return;
+        const fu1Due=l.fu1Date===td&&!l.fu1Sent; const fu2Due=l.fu2Date===td&&!l.fu2Sent; const fu3Due=l.fu3Date===td&&!l.fu3Sent;
+        const row=document.createElement('div'); row.className='lead-row';
+        const main=document.createElement('div'); main.className='lead-row-main';
+        main.innerHTML=`<span class="sdot ${statusDotClass(l)}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${l.city?' · '+escapeHtml(l.city):''}</span></div>${l.angle?`<span class="angle-chip">${escapeHtml(l.angle)}</span>`:''}<div class="fu-chips"><span class="fu-chip ${l.fu1Sent?'fu-chip-sent':fu1Due?'fu-chip-due':''}">FU1</span><span class="fu-chip ${l.fu2Sent?'fu-chip-sent':fu2Due?'fu-chip-due':''}">FU2</span><span class="fu-chip ${l.fu3Sent?'fu-chip-sent':fu3Due?'fu-chip-due':''}">FU3</span></div>${l.reply==='Y'?'<span class="reply-y-chip">Replied</span>':''}`;
+        const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
+        expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions"><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button></div>`;
+        main.addEventListener('click',()=>toggleExpand(l.id));
+        row.appendChild(main); row.appendChild(expand); container.appendChild(row);
+      });
+      // restore expanded row if one was open before re-render
+      if(expandedLeadId){ const el=document.getElementById('expand-'+expandedLeadId); if(el) el.style.display='block'; }
+    }
+
+    function toggleExpand(id){
+      const expand=document.getElementById('expand-'+id); if(!expand) return;
+      const isOpen=expand.style.display!=='none';
+      document.querySelectorAll('.lead-row-expand').forEach(e=>e.style.display='none');
+      if(!isOpen){ expand.style.display='block'; expandedLeadId=id; } else { expandedLeadId=null; }
+    }
+
+    function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); ensureFUDates(lead); save(); }
+
+    function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(lead.reply==='Y') return 'Replied'; if(_rt==='Disqualified') return 'Disqualified'; if(!lead.dateSent) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; return 'Sent'; }
+
+    function getNextFUDate(lead){ const fus=[{date:lead.fu1Date,sent:lead.fu1Sent},{date:lead.fu2Date,sent:lead.fu2Sent},{date:lead.fu3Date,sent:lead.fu3Sent}]; for(const fu of fus){ if(fu.date&&!fu.sent) return fu.date; } return null; }
+
+    function computeFUUrgency(lead){ const td=todayISO(); const fus=[{date:lead.fu1Date,sent:lead.fu1Sent,label:'FU1'},{date:lead.fu2Date,sent:lead.fu2Sent,label:'FU2'},{date:lead.fu3Date,sent:lead.fu3Sent,label:'FU3'}]; for(const fu of fus){ if(!fu.date||fu.sent) continue; if(fu.date<td) return {label:fu.label+' Overdue',dotClass:'fu-urg-overdue'}; if(fu.date===td) return {label:fu.label+' Today',dotClass:'fu-urg-today'}; const days=Math.round((new Date(fu.date)-new Date(td))/86400000); if(days<=2) return {label:fu.label+' in '+days+(days===1?' day':' days'),dotClass:'fu-urg-soon'}; return null; } return null; }
+
+    function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested'}; return m[status]||'sdot-p-notsent'; }
+
+    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
+
+    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; renderPipeline(); }
+
+    function renderPipeline(){
+      const container=document.getElementById('pipelineList'); if(!container) return; container.innerHTML='';
+      const td=todayISO();
+      const sq=(document.getElementById('pipelineSearch')||{value:''}).value.toLowerCase().trim();
+      // Separate Not Interested from active leads (source/city/search filters apply to both; status filter only to active)
+      const passesBaseFilters=l=>{
+        if(pipelineFilter.source!=='All'){ const src=(l.source||'manual').toLowerCase(); if(pipelineFilter.source==='Qualifier'&&src!=='qualifier') return false; if(pipelineFilter.source==='Manual'&&src!=='manual') return false; }
+        if(pipelineFilter.city!=='All'){ const c=(l.city||'').toLowerCase().trim(); const known=['london','manchester','birmingham','leeds']; if(pipelineFilter.city==='London'&&c!=='london') return false; if(pipelineFilter.city==='Manchester'&&c!=='manchester') return false; if(pipelineFilter.city==='Birmingham'&&c!=='birmingham') return false; if(pipelineFilter.city==='Leeds'&&c!=='leeds') return false; if(pipelineFilter.city==='Other'&&known.includes(c)) return false; }
+        if(sq&&!((l.clinicName||'').toLowerCase().includes(sq)||(l.contactName||'').toLowerCase().includes(sq))) return false;
+        return true;
+      };
+      const niLeads=leads.filter(l=>computeStatus(l)==='Not Interested'&&passesBaseFilters(l));
+      let filtered=leads.filter(l=>{
+        if(computeStatus(l)==='Not Interested') return false;
+        const status=computeStatus(l);
+        if(pipelineFilter.status!=='All'){ if(pipelineFilter.status==='Follow Up Due'){ const fuDue=(l.fu1Date&&l.fu1Date<=td&&!l.fu1Sent)||(l.fu2Date&&l.fu2Date<=td&&!l.fu2Sent)||(l.fu3Date&&l.fu3Date<=td&&!l.fu3Sent); if(!fuDue||status==='Replied'||status==='Converted') return false; } else { if(status!==pipelineFilter.status) return false; } }
+        return passesBaseFilters(l);
+      });
+      if(pipelineFilter.sort==='oldest') filtered.sort((a,b)=>a.id-b.id);
+      else if(pipelineFilter.sort==='fuSoonest'){ filtered.sort((a,b)=>{ const fa=getNextFUDate(a); const fb=getNextFUDate(b); if(!fa&&!fb) return 0; if(!fa) return 1; if(!fb) return -1; return fa.localeCompare(fb); }); }
+      else filtered.sort((a,b)=>b.id-a.id);
+      // DNC always at the bottom regardless of sort
+      filtered.sort((a,b)=>{ if(a.doNotContact&&!b.doNotContact) return 1; if(!a.doNotContact&&b.doNotContact) return -1; return 0; });
+      updatePipelineFilterBadge();
+      // Count excludes Not Interested
+      const countEl=document.getElementById('pipelineCount'); if(countEl) countEl.textContent='Showing '+filtered.length+' lead'+(filtered.length===1?'':'s');
+      if(filtered.length===0&&niLeads.length===0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#9635;</div><div>No leads match your current filters. <a href="#" id="emptyResetLink" style="color:#C9A84C;text-decoration:underline">Reset filters</a></div></div>'; const link=container.querySelector('#emptyResetLink'); if(link) link.addEventListener('click',e=>{ e.preventDefault(); resetPipelineFilters(); }); return; }
+      if(filtered.length===0&&niLeads.length>0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#9635;</div><div>No active leads match your current filters.</div></div>'; }
+      filtered.forEach(l=>{
+        const status=computeStatus(l);
+        const urgency=computeFUUrgency(l);
+        const _da=l.dateAdded||(l.id?new Date(l.id).toISOString():''); const _daD=_da?new Date(_da):null; const dateAdded=_daD?(_da.includes('T')?_daD.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+_daD.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):_daD.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})):'—';
+        const fu1Due=l.fu1Date&&l.fu1Date<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&l.fu2Date<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&l.fu3Date<=td&&!l.fu3Sent;
+        const isQual=(l.source||'manual')==='qualifier';
+        const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
+        const urgHtml=urgency?`<span class="fu-urgency ${urgency.dotClass}"><span class="fu-urg-dot"></span>${escapeHtml(urgency.label)}</span>`:'';
+        const row=document.createElement('div'); row.className='lead-row';
+        const main=document.createElement('div'); main.className='lead-row-main';
+        main.innerHTML=`<span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="row-right">${urgHtml}<span class="date-added-label">${dateAdded}</span></div>`;
+        const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
+        const hasDraft=!!(l.draftSubject||l.draftBody);
+        // Reply on record section (only if replyText saved)
+        let onRecordHtml='';
+        if(l.replyText){ let sb='',sm='',sna=''; try{ const ra=JSON.parse(l.replyAnalysis||'{}'); const rt=String(ra.replyType||''); const bc=RA_BADGE_MAP[rt]||'ra-badge-wrongperson'; sb=rt?`<span class="ra-badge ${bc}">${escapeHtml(rt)}</span>`:''; sm=ra.meaning?`<div class="ra-result-row"><span class="ra-result-label">Meaning</span><div class="ra-result-text">${escapeHtml(ra.meaning)}</div></div>`:''; sna=ra.nextAction?`<div class="ra-result-row"><span class="ra-result-label">Next Action</span><div class="ra-result-text">${escapeHtml(ra.nextAction)}</div></div>`:''; }catch(e){} onRecordHtml=`<div class="ra-on-record"><div class="ra-on-record-header" id="ror-hdr-${l.id}"><span class="ra-on-record-title">Reply on record</span><span class="ra-on-record-toggle" id="ror-tog-${l.id}">&#9658; Show</span></div><div class="ra-on-record-body" id="ror-body-${l.id}">${sb}${sm}${sna}<div class="ra-result-row"><span class="ra-result-label">Reply Text</span><div class="ra-result-text" style="white-space:pre-wrap">${escapeHtml(l.replyText)}</div></div></div></div>`; }
+        // Log Reply section (always shown)
+        const logReplyHtml=`<div class="ra-section"><span class="ra-section-label">Log Reply</span><textarea class="ra-textarea" id="ra-txt-${l.id}" placeholder="Paste the reply you received..."></textarea><div class="ra-api-prompt" id="ra-apiprompt-${l.id}" style="display:none"><span class="ra-api-prompt-label">Enter your Anthropic API key to use this feature</span><input type="password" class="ra-api-input" id="ra-key-${l.id}" placeholder="sk-ant-..." autocomplete="off" spellcheck="false"><button class="btn-ra-savekey" id="ra-savekey-${l.id}">Save Key</button></div><button class="btn-ra-analyse" id="ra-btn-${l.id}">Analyse Reply</button><div class="ra-loading" id="ra-loading-${l.id}">Analysing reply...</div><div class="ra-error" id="ra-error-${l.id}"></div><div class="ra-results" id="ra-results-${l.id}"><div id="ra-badge-${l.id}" class="ra-badge"></div><div class="ra-result-row" style="margin-top:6px"><span class="ra-result-label">Meaning</span><div class="ra-result-text" id="ra-meaning-${l.id}"></div></div><div class="ra-result-row"><span class="ra-result-label">Next Action</span><div class="ra-result-text" id="ra-nextaction-${l.id}"></div></div><div class="ra-result-row"><span class="ra-result-label">Suggested Response</span><div class="ra-suggested-box" id="ra-suggested-${l.id}"></div><div class="ra-action-row"><button class="btn-ra-copy" id="ra-copybtn-${l.id}">Copy Response</button></div></div><div id="ra-watchout-${l.id}" style="display:none"></div></div><button class="btn-ra-save" id="ra-savebtn-${l.id}">Save Reply</button></div>`;
+        const dncBadgeHtml=l.doNotContact?'<span class="dnc-badge">DO NOT CONTACT</span>':'';
+        const scoreBadgeHtml=(l.score==='Hot')?'<span class="score-badge-hot">HOT LEAD</span>':(l.score==='Warm')?'<span class="score-badge-warm">WARM LEAD</span>':'';
+        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div><div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.angle?`<div class="expand-field"><span class="ef-label">Angle</span><span class="ef-val">${escapeHtml(l.angle)}</span></div>`:''} ${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><span class="expand-draft-label">Initial Email Draft</span><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
+        expand.innerHTML += onRecordHtml + logReplyHtml;
+        main.addEventListener('click',()=>toggleExpand(l.id));
+        // Bind expand row buttons directly so they work after filter changes (when renderPipeline is called without attachButtons)
+        expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
+        const replyBtn=expand.querySelector('[data-action="toggleReply"]'); if(replyBtn) replyBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleReply(replyBtn.dataset.id); });
+        const editBtn=expand.querySelector('[data-action="edit"]'); if(editBtn) editBtn.addEventListener('click',e=>{ e.stopPropagation(); openEdit(editBtn.dataset.id); });
+        const markSentBtn=expand.querySelector('[data-action="markSent"]'); if(markSentBtn) markSentBtn.addEventListener('click',e=>{ e.stopPropagation(); markAsSentFromInbox(markSentBtn.dataset.id); });
+        const dncBtn=expand.querySelector('[data-action="toggleDNC"]'); if(dncBtn) dncBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleDNC(dncBtn.dataset.id); });
+        const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn) deleteBtn.addEventListener('click',e=>{ e.stopPropagation(); deleteLead(deleteBtn.dataset.id); });
+        const btnCopyDs=expand.querySelector(`#btnCopyDs-${l.id}`); if(btnCopyDs) btnCopyDs.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(l.draftSubject||'').then(()=>{ btnCopyDs.textContent='Copied!'; setTimeout(()=>btnCopyDs.textContent='Copy Subject',1600); }); });
+        const btnCopyDb=expand.querySelector(`#btnCopyDb-${l.id}`); if(btnCopyDb) btnCopyDb.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(l.draftBody||'').then(()=>{ btnCopyDb.textContent='Copied!'; setTimeout(()=>btnCopyDb.textContent='Copy Email',1600); }); });
+        bindExpandRA(l.id, expand);
+        row.appendChild(main); row.appendChild(expand); container.appendChild(row);
+      });
+      if(expandedLeadId){ const el=document.getElementById('expand-'+expandedLeadId); if(el) el.style.display='block'; }
+
+      // ── Not Interested collapsed section ──────────────────────────────────
+      if(niLeads.length>0){
+        const niSection=document.createElement('div'); niSection.className='ni-section';
+        const niHeader=document.createElement('div'); niHeader.className='ni-section-header'; niHeader.id='niSectionHeader';
+        niHeader.innerHTML=`<span class="ni-section-toggle" id="niToggleArrow">&#9658;</span><span>Not Interested (${niLeads.length})</span>`;
+        const niBody=document.createElement('div'); niBody.className='ni-section-body'; niBody.id='niSectionBody'; niBody.style.display='none';
+        niHeader.addEventListener('click',()=>{ const open=niBody.style.display!=='none'; niBody.style.display=open?'none':'block'; document.getElementById('niToggleArrow').innerHTML=open?'&#9658;':'&#9660;'; });
+        niLeads.sort((a,b)=>b.id-a.id).forEach(l=>{
+          const status='Not Interested';
+          const isQual=(l.source||'manual')==='qualifier';
+          const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
+          const fu1Due=l.fu1Date&&l.fu1Date<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&l.fu2Date<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&l.fu3Date<=td&&!l.fu3Sent;
+          const _da=l.dateAdded||(l.id?new Date(l.id).toISOString():''); const _daD=_da?new Date(_da):null; const dateAdded=_daD?(_da.includes('T')?_daD.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+_daD.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):_daD.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})):'—';
+          const row=document.createElement('div'); row.className='lead-row';
+          const main=document.createElement('div'); main.className='lead-row-main';
+          main.innerHTML=`<span class="sdot sdot-p-notinterested"></span><div class="lead-row-info"><span class="lead-name" style="color:#888;font-style:italic">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="row-right"><span class="date-added-label">${dateAdded}</span></div>`;
+          const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
+          const hasDraft=!!(l.draftSubject||l.draftBody);
+          const dncBadgeHtml=l.doNotContact?'<span class="dnc-badge">DO NOT CONTACT</span>':'';
+          const niBadgeHtml='<span class="ni-badge">NOT INTERESTED</span>';
+          expand.innerHTML=`${dncBadgeHtml}${niBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-actions"><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><span class="expand-draft-label">Initial Email Draft</span><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
+          main.addEventListener('click',()=>toggleExpand(l.id));
+          const editBtn=expand.querySelector('[data-action="edit"]'); if(editBtn) editBtn.addEventListener('click',e=>{ e.stopPropagation(); openEdit(editBtn.dataset.id); });
+          const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn) deleteBtn.addEventListener('click',e=>{ e.stopPropagation(); deleteLead(deleteBtn.dataset.id); });
+          const btnCopyDs=expand.querySelector(`#btnCopyDs-${l.id}`); if(btnCopyDs) btnCopyDs.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(l.draftSubject||'').then(()=>{ btnCopyDs.textContent='Copied!'; setTimeout(()=>btnCopyDs.textContent='Copy Subject',1600); }); });
+          const btnCopyDb=expand.querySelector(`#btnCopyDb-${l.id}`); if(btnCopyDb) btnCopyDb.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(l.draftBody||'').then(()=>{ btnCopyDb.textContent='Copied!'; setTimeout(()=>btnCopyDb.textContent='Copy Email',1600); }); });
+          row.appendChild(main); row.appendChild(expand); niBody.appendChild(row);
+        });
+        niSection.appendChild(niHeader); niSection.appendChild(niBody); container.appendChild(niSection);
+        if(expandedLeadId){ const el=document.getElementById('expand-'+expandedLeadId); if(el){ el.style.display='block'; const nb=document.getElementById('niSectionBody'); const na=document.getElementById('niToggleArrow'); if(nb&&el.closest('.ni-section-body')){ nb.style.display='block'; if(na) na.innerHTML='&#9660;'; } } }
+      }
+    }
+
+    // ── Inline Reply Analyser ────────────────────────────────────────────────
+
+    function bindExpandRA(id, expandEl){
+      // Reply on record toggle
+      const rorHdr=expandEl.querySelector(`#ror-hdr-${id}`);
+      if(rorHdr){ rorHdr.addEventListener('click',e=>{ e.stopPropagation(); const body=expandEl.querySelector(`#ror-body-${id}`); const tog=expandEl.querySelector(`#ror-tog-${id}`); if(!body) return; const open=body.style.display!=='none'; body.style.display=open?'none':'block'; tog.innerHTML=open?'&#9658; Show':'&#9660; Hide'; }); }
+      // Save Key button
+      const saveKeyBtn=expandEl.querySelector(`#ra-savekey-${id}`);
+      if(saveKeyBtn){ saveKeyBtn.addEventListener('click',e=>{ e.stopPropagation(); const keyInput=expandEl.querySelector(`#ra-key-${id}`); const k=(keyInput&&keyInput.value.trim())||''; if(!k){ return; } sessionStorage.setItem('vdhq_api_key',k); expandEl.querySelector(`#ra-apiprompt-${id}`).style.display='none'; runInlineAnalysis(id,expandEl); }); }
+      // Analyse button
+      const analyseBtn=expandEl.querySelector(`#ra-btn-${id}`);
+      if(analyseBtn){ analyseBtn.addEventListener('click',e=>{ e.stopPropagation(); runInlineAnalysis(id,expandEl); }); }
+      // Copy response button
+      const copyBtn=expandEl.querySelector(`#ra-copybtn-${id}`);
+      if(copyBtn){ copyBtn.addEventListener('click',e=>{ e.stopPropagation(); const box=expandEl.querySelector(`#ra-suggested-${id}`); if(!box) return; navigator.clipboard.writeText(box.textContent||'').then(()=>{ copyBtn.textContent='Copied!'; setTimeout(()=>copyBtn.textContent='Copy Response',1600); }); }); }
+      // Save Reply button
+      const saveBtn=expandEl.querySelector(`#ra-savebtn-${id}`);
+      if(saveBtn){ saveBtn.addEventListener('click',e=>{ e.stopPropagation(); saveInlineReply(id,expandEl); }); }
+    }
+
+    async function runInlineAnalysis(id, expandEl){
+      const lead=leads.find(l=>l.id==id); if(!lead) return;
+      const replyTxt=(expandEl.querySelector(`#ra-txt-${id}`)?.value||'').trim();
+      const loadingEl=expandEl.querySelector(`#ra-loading-${id}`);
+      const errorEl=expandEl.querySelector(`#ra-error-${id}`);
+      const resultsEl=expandEl.querySelector(`#ra-results-${id}`);
+      const analyseBtn=expandEl.querySelector(`#ra-btn-${id}`);
+      const saveBtn=expandEl.querySelector(`#ra-savebtn-${id}`);
+      const apiPrompt=expandEl.querySelector(`#ra-apiprompt-${id}`);
+      const setError=msg=>{ if(errorEl){ errorEl.textContent=msg; errorEl.style.display='block'; } };
+      const clearError=()=>{ if(errorEl) errorEl.style.display='none'; };
+      clearError();
+      if(!replyTxt){ setError('Please paste the reply you received.'); return; }
+      let apiKey=sessionStorage.getItem('vdhq_api_key')||'';
+      if(!apiKey){ if(apiPrompt) apiPrompt.style.display='block'; return; }
+      if(loadingEl) loadingEl.style.display='block';
+      if(analyseBtn) analyseBtn.disabled=true;
+      if(resultsEl) resultsEl.style.display='none';
+      if(saveBtn) saveBtn.style.display='none';
+      const angleCtx=lead.angle?`The outreach angle used was: ${lead.angle}.`:'';
+      const origCtx=lead.draftBody?`\n\nOriginal email sent:\n${lead.draftBody}`:'';
+      const userContent=`${angleCtx}${origCtx}\n\nReply received:\n${replyTxt}`;
+      const prompt=`Analyse the following reply to a cold outreach email and return a JSON object with these exact fields:\n\n- replyType: one of exactly: "Hot Lead", "Gatekeeper", "Soft No", "Hard No", "Needs Nurturing", "Wrong Person"\n- meaning: 1-2 sentences explaining what this reply actually means in plain English\n- nextAction: one clear, specific action Lawrence should take next (one sentence)\n- suggestedResponse: a short, ready-to-send reply Lawrence can copy and send (or empty string if no reply needed)\n- watchOut: one sentence flagging any risk or thing to be careful about (or empty string if none)\n\nReply type definitions:\n- Hot Lead: genuine interest, wants to know more, open to a call or demo\n- Gatekeeper: reply is from reception/admin/someone who is not the decision maker, passing to management or blocking\n- Soft No: polite disinterest, not right now, not for us — but not a firm close\n- Hard No: definitive rejection, do not contact again, strongly negative\n- Needs Nurturing: curious or slightly warm but not ready — needs more information or time\n- Wrong Person: replied to confirm they are not the right contact, directs elsewhere\n\nReturn ONLY a raw JSON object. No markdown, no code fences, no explanation. Just the JSON.\n\n${userContent}`;
+      try{
+        const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,system:RA_SYSTEM_PROMPT,messages:[{role:'user',content:prompt}]})});
+        if(!res.ok){ const eb=await res.json().catch(()=>({})); throw new Error(eb.error?.message||'API error '+res.status); }
+        const data=await res.json();
+        const raw=(data.content?.[0]?.text||'').trim();
+        let result; try{ result=JSON.parse(raw.replace(/^```json?\s*/i,'').replace(/```\s*$/,'').trim()); }catch(e){ throw new Error('Unexpected response format: '+raw.slice(0,80)); }
+        raResults[id]=result;
+        if(loadingEl) loadingEl.style.display='none';
+        if(analyseBtn) analyseBtn.disabled=false;
+        renderInlineRAResult(id,expandEl,result);
+        if(saveBtn) saveBtn.style.display='block';
+      }catch(err){
+        if(loadingEl) loadingEl.style.display='none';
+        if(analyseBtn) analyseBtn.disabled=false;
+        setError('Analysis failed: '+err.message);
+      }
+    }
+
+    function renderInlineRAResult(id, expandEl, r){
+      const replyType=String(r.replyType||'').trim();
+      const badgeEl=expandEl.querySelector(`#ra-badge-${id}`);
+      if(badgeEl){ badgeEl.textContent=replyType; badgeEl.className='ra-badge '+(RA_BADGE_MAP[replyType]||'ra-badge-wrongperson'); }
+      const meaningEl=expandEl.querySelector(`#ra-meaning-${id}`); if(meaningEl) meaningEl.textContent=r.meaning||'';
+      const naEl=expandEl.querySelector(`#ra-nextaction-${id}`); if(naEl) naEl.textContent=r.nextAction||'';
+      const sugEl=expandEl.querySelector(`#ra-suggested-${id}`); if(sugEl) sugEl.textContent=r.suggestedResponse||(r.suggestedResponse===''?'(No reply needed)':'');
+      const woEl=expandEl.querySelector(`#ra-watchout-${id}`);
+      if(woEl){ if(r.watchOut){ woEl.textContent=r.watchOut; woEl.className='ra-watchout'+(RA_AMBER_TYPES.includes(replyType)?' amber':''); woEl.style.display='block'; } else { woEl.style.display='none'; } }
+      const resultsEl=expandEl.querySelector(`#ra-results-${id}`); if(resultsEl) resultsEl.style.display='block';
+    }
+
+    function saveInlineReply(id, expandEl){
+      const lead=leads.find(l=>l.id==id); if(!lead) return;
+      const result=raResults[id]; if(!result) return;
+      const replyTxt=(expandEl.querySelector(`#ra-txt-${id}`)?.value||'').trim();
+      if(!replyTxt) return;
+      const mappedType=RA_TYPE_MAP[String(result.replyType||'')]||'Other';
+      lead.reply='Y';
+      lead.replyType=mappedType;
+      lead.replyText=replyTxt;
+      lead.replyAnalysis=JSON.stringify(result);
+      save();
+    }
+
+    function bindPipeline(){
+      document.querySelectorAll('.status-filter-btn').forEach(b=>{ b.addEventListener('click',()=>{ pipelineFilter.status=b.dataset.status; document.querySelectorAll('.status-filter-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.status===pipelineFilter.status)); renderPipeline(); }); });
+      const src=document.getElementById('pFilterSource'); if(src) src.addEventListener('change',()=>{ pipelineFilter.source=src.value; renderPipeline(); });
+      const city=document.getElementById('pFilterCity'); if(city) city.addEventListener('change',()=>{ pipelineFilter.city=city.value; renderPipeline(); });
+      const sort=document.getElementById('pFilterSort'); if(sort) sort.addEventListener('change',()=>{ pipelineFilter.sort=sort.value; renderPipeline(); });
+      const resetBtn=document.getElementById('btnResetFilters'); if(resetBtn) resetBtn.addEventListener('click',resetPipelineFilters);
+      const psearch=document.getElementById('pipelineSearch'); if(psearch) psearch.addEventListener('input',()=>renderPipeline());
+    }
+
+    function renderInbox(){
+      const container=document.getElementById('inboxList'); if(!container) return; container.innerHTML='';
+      const inboxLeads=leads.filter(l=>l.source==='qualifier'&&!l.dateSent&&!l.doNotContact&&computeStatus(l)!=='Not Interested').sort((a,b)=>b.id-a.id);
+      const badge=document.getElementById('inboxNavBadge');
+      if(badge){ if(inboxLeads.length>0){ badge.textContent=inboxLeads.length; badge.style.display='inline-flex'; } else { badge.textContent=''; badge.style.display='none'; } }
+      if(inboxLeads.length===0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#9993;</div><div>No unsent qualifier leads. Add clinics via the Qualifier tool.</div></div>'; return; }
+      inboxLeads.forEach(l=>{
+        const dateAdded=l.id?new Date(l.id).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+        const row=document.createElement('div'); row.className='lead-row';
+        const main=document.createElement('div'); main.className='lead-row-main'; main.style.cursor='default';
+        main.innerHTML=`<span class="sdot sdot-pending"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${l.city?' · '+escapeHtml(l.city):''}</span></div><span class="source-badge source-qualifier">Qualifier</span><span class="date-added-label">${dateAdded}</span><button class="btn-mark-sent" data-id="${l.id}">Mark as Sent</button>`;
+        row.appendChild(main); container.appendChild(row);
+      });
+      container.querySelectorAll('.btn-mark-sent').forEach(btn=>{ btn.addEventListener('click',()=>markAsSentFromInbox(btn.dataset.id)); });
+    }
+
+    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),4);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();} save(); }
+
+    function markRepliedFromFollowUps(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply='Y'; save(); }
+
+    function goToFUEmail(leadId, fuType){
+      showTab('email');
+      const sel=document.getElementById('emailLeadSelect'); if(!sel) return;
+      sel.value=leadId;
+      emailAutofill();
+      setActiveType(fuType);
+    }
+
+    function toggleFollowUpExpand(id){ const expand=document.getElementById('fuexpand-'+id); if(!expand) return; const isOpen=expand.style.display!=='none'; document.querySelectorAll('[id^="fuexpand-"]').forEach(e=>e.style.display='none'); if(!isOpen){ expand.style.display='block'; expandedFollowUpId=id; } else { expandedFollowUpId=null; } }
+
+    function renderFollowUps(){
+      const container=document.getElementById('followUpsList'); if(!container) return; container.innerHTML='';
+      const td=todayISO();
+      const items=[];
+      leads.forEach(l=>{
+        if(l.doNotContact) return;
+        const status=computeStatus(l);
+        if(status==='Replied'||status==='Converted'||status==='Not Interested') return;
+        const fus=[{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
+        for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<=td) items.push({lead:l,fuKey:fu.key,fuLabel:fu.label,fuDate:nd,overdue:nd<td}); break; }
+      });
+      const badge=document.getElementById('followUpsNavBadge');
+      if(badge){ if(items.length>0){badge.textContent=items.length;badge.style.display='inline-flex';}else{badge.textContent='';badge.style.display='none';} }
+      if(items.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
+      const overdue=items.filter(i=>i.overdue).sort((a,b)=>a.fuDate.localeCompare(b.fuDate));
+      const dueToday=items.filter(i=>!i.overdue).sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||''));
+      [[overdue,'OVERDUE'],[dueToday,'DUE TODAY']].forEach(([group,sectionLabel])=>{
+        if(!group.length) return;
+        const labelEl=document.createElement('div'); labelEl.innerHTML=`<span class="fu-section-label">${sectionLabel}</span>`; container.appendChild(labelEl);
+        const card=document.createElement('div'); card.className='card'; card.style.padding='0 12px';
+        const list=document.createElement('div'); list.className='leads-table';
+        group.forEach(item=>{
+          const l=item.lead; const isQual=(l.source||'manual')==='qualifier';
+          const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
+          const badgeCls=item.overdue?'fu-due-badge-overdue':'fu-due-badge-today';
+          const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
+          const row=document.createElement('div'); row.className='lead-row';
+          const main=document.createElement('div'); main.className='fu-row-main';
+          main.innerHTML=`<span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge ${badgeCls}">${item.fuLabel} ${item.overdue?'Overdue':'Due'}</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent" data-id="${l.id}" data-fukey="${item.fuKey}">Mark FU Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="${item.fuKey.toUpperCase()}">Send FU Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
+          expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div>`;
+          // Bind expand FU toggle buttons directly
+          expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
+          row.appendChild(main); row.appendChild(expand); list.appendChild(row);
+        });
+        card.appendChild(list); container.appendChild(card);
+        list.querySelectorAll('.btn-fu-mark-sent').forEach(btn=>btn.addEventListener('click',()=>markFUFromFollowUps(btn.dataset.id,btn.dataset.fukey)));
+        list.querySelectorAll('[data-action="fuReply"]').forEach(btn=>btn.addEventListener('click',()=>markRepliedFromFollowUps(btn.dataset.id)));
+        list.querySelectorAll('.btn-fu-email').forEach(btn=>btn.addEventListener('click',()=>goToFUEmail(btn.dataset.id,btn.dataset.futype)));
+        list.querySelectorAll('[data-action="fuExpand"]').forEach(btn=>btn.addEventListener('click',()=>toggleFollowUpExpand(btn.dataset.id)));
+        if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
+      });
+    }
+
+    function renderStats(){ const td=todayISO(); let pending=0; leads.forEach(l=>{ if(l.reply==='Y') return; if(l.fu1Date===td&&!l.fu1Sent) pending++; if(l.fu2Date===td&&!l.fu2Sent) pending++; if(l.fu3Date===td&&!l.fu3Sent) pending++; }); const inboxCount=leads.filter(l=>l.source==='qualifier'&&!l.dateSent).length; document.getElementById('statTotal').textContent=leads.length; const statInbox=document.getElementById('statInbox'); if(statInbox) statInbox.textContent=inboxCount; document.getElementById('statReplied').textContent=leads.filter(l=>l.reply==='Y').length; document.getElementById('statPending').textContent=pending; document.getElementById('statPendingNoReply').textContent=leads.filter(l=>l.reply!=='Y').length; }
+
+    function renderAll(){ renderDashboard(); renderPipeline(); renderInbox(); renderFollowUps(); renderStats(); attachButtons(); }
+
+    function attachButtons(){
+      document.getElementById('btnClear').onclick=()=>{ if(confirm('Clear all saved leads?')){ leads=[]; save(); } };
+      document.getElementById('btnRestoreBackup').onclick=()=>openBackupModal();
+      document.getElementById('backupClose').onclick=()=>closeBackupModal();
+      document.getElementById('backupBackdrop').addEventListener('click',e=>{ if(e.target===document.getElementById('backupBackdrop')) closeBackupModal(); });
+      document.getElementById('btnFixSources').onclick=()=>{ if(!confirm('Mark all leads with a saved email draft as Qualifier source? This will update their source field.')) return; let count=0; leads.forEach(l=>{ if(l.draftSubject){ l.source='qualifier'; count++; } }); save(); alert(count+' lead'+(count===1?'':'s')+' updated to Qualifier source.'); };
+      document.getElementById('btnExport').onclick=exportCSV;
+      const fileInput=document.getElementById('csvFile'); document.getElementById('btnImport').onclick=()=>fileInput.click();
+      fileInput.onchange=e=>{ const f=e.target.files[0]; if(!f) return; const reader=new FileReader(); reader.onload=evt=>{ try{ importCSV(evt.target.result); alert('Imported CSV rows'); } catch(err){ alert('Import failed: '+err.message); } fileInput.value=''; }; reader.readAsText(f); };
+      document.querySelectorAll('.tabBtn').forEach(b=>{ b.onclick=()=>{ showTab(b.dataset.tab); }; });
+      document.getElementById('editCancel').onclick=()=>{ closeModal(); };
+      document.getElementById('editClose').onclick=()=>{ closeModal(); };
+      document.getElementById('editSave').onclick=()=>{ saveModalEdit(); };
+    }
+
+    let editingId=null;
+    function openEdit(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; editingId=id; document.getElementById('e_clinicName').value=lead.clinicName||''; document.getElementById('e_dateSent').value=lead.dateSent||''; document.getElementById('e_city').value=lead.city||''; document.getElementById('e_address').value=lead.address||''; document.getElementById('e_website').value=lead.website||''; document.getElementById('e_contactName').value=lead.contactName||''; document.getElementById('e_email').value=lead.email||''; document.getElementById('e_channel').value=lead.channel||'Email'; document.getElementById('e_angle').value=lead.angle||'After-Hours'; document.getElementById('e_source').value=lead.source||'manual'; document.getElementById('e_reply').value=lead.reply||'N'; document.getElementById('e_replyType').value=lead.replyType||''; document.getElementById('e_notes').value=lead.notes||''; document.getElementById('e_reviewCount').value=lead.reviewCount||''; showModal(); }
+
+    function showModal(){ const bd=document.getElementById('editBackdrop'); const md=document.getElementById('editModal'); bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
+    function closeModal(){ const bd=document.getElementById('editBackdrop'); const md=document.getElementById('editModal'); md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); editingId=null; }
+
+    function openAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); bd.classList.add('open'); pn.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
+    function closeAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); pn.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
+
+    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.angle=document.getElementById('e_angle').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim(); ensureFUDates(lead); save(); closeModal(); }
+
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+    function bindUI(){
+      document.getElementById('leadForm').addEventListener('submit',e=>{ e.preventDefault(); const data={clinicName:document.getElementById('clinicName').value.trim(),city:document.getElementById('city').value.trim(),address:document.getElementById('address').value.trim(),website:document.getElementById('website').value.trim(),contactName:document.getElementById('contactName').value.trim(),email:document.getElementById('email').value.trim(),channel:document.getElementById('channel').value,angle:document.getElementById('angle').value,dateSent:document.getElementById('dateSent').value||'',reply:document.getElementById('reply').value,replyType:document.getElementById('replyType').value.trim(),notes:document.getElementById('notes').value.trim(),reviewCount:document.getElementById('reviewCount').value.trim()}; addLead(data); e.target.reset(); closeAddLeadPanel(); });
+
+      document.getElementById('btnFillTest').onclick=()=>{ addLead({clinicName:'Sunrise Dental',city:'Manchester',address:'1 Main St',website:'sunrise.example',contactName:'Dr Alice Shah',email:'alice@sunrise.test',channel:'Email',angle:'Conversion',dateSent:todayISO(),reply:'N',replyType:'',notes:'Test lead'}); };
+
+      document.getElementById('btnAddLeadTrigger').addEventListener('click',openAddLeadPanel);
+      document.getElementById('addLeadClose').addEventListener('click',closeAddLeadPanel);
+      document.getElementById('addLeadBackdrop').addEventListener('click',e=>{ if(e.target===document.getElementById('addLeadBackdrop')) closeAddLeadPanel(); });
+
+      document.getElementById('hamburger').onclick=openMobileSidebar;
+      document.getElementById('sidebarOverlay').onclick=closeMobileSidebar;
+
+      document.getElementById('btnConnectOutlook').addEventListener('click', connectOutlook);
+      document.getElementById('btnSendOutlook').addEventListener('click', sendViaOutlook);
+      document.getElementById('btnSendAllDue').addEventListener('click', openSendAllModal);
+      document.getElementById('sendAllClose').addEventListener('click', closeSendAllModal);
+      document.getElementById('sendAllBackdrop').addEventListener('click', e=>{ if(e.target===document.getElementById('sendAllBackdrop')) closeSendAllModal(); });
+
+      document.querySelector('.tabBtn[data-tab="dashboard"]').click();
+    }
+
+    function openMobileSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').style.display='block'; }
+    function closeMobileSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').style.display='none'; }
+
+    function showTab(name){
+      const panes=document.querySelectorAll('.tabPane');
+      panes.forEach(p=>{ if(p.id==='tab-'+name){ p.style.display='block'; p.classList.add('active'); } else { p.classList.remove('active'); p.style.display='none'; } });
+      document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+      const titles={dashboard:'Dashboard',inbox:'Inbox',pipeline:'Pipeline',followups:'Follow Ups',email:'Email'};
+      const mobileTitle=document.getElementById('mobileTitle'); if(mobileTitle) mobileTitle.textContent=titles[name]||name;
+      if(name==='email') populateEmailLeadDropdown();
+      closeMobileSidebar();
+    }
+
+    function exportCSV(){ if(!leads.length){ alert('No leads to export'); return; }
+      const headers=['Clinic Name','City','Address','Website','Named Contact','Email Address','Channel','Angle','Date Sent','FU1 Date','FU1 Sent','FU2 Date','FU2 Sent','FU3 Date','FU3 Sent','Reply','Reply Type','Notes','Review Count','Do Not Contact','Reply Text','Reply Analysis'];
+      const rows=leads.map(l=>[l.clinicName||'',l.city||'',l.address||'',l.website||'',l.contactName||'',l.email||'',l.channel||'',l.angle||'',l.dateSent||'',l.fu1Date||'',l.fu1Sent?'Y':'',l.fu2Date||'',l.fu2Sent?'Y':'',l.fu3Date||'',l.fu3Sent?'Y':'',l.reply||'',l.replyType||'',l.notes||'',l.reviewCount||'',l.doNotContact?'Y':'',l.replyText||'',l.replyAnalysis||'']);
+      const csv=[headers.join(','),...rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))].join('\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='vdhq-leads.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+
+    function importCSV(text){ const lines=text.split(/\r?\n/).filter(Boolean); if(lines.length<1) throw new Error('CSV empty'); const hdr=lines.shift().split(',').map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase()); const maps=hdr.map(h=>h.toLowerCase()); lines.forEach(line=>{ const cols=parseCSVLine(line,hdr.length); const obj={}; for(let i=0;i<cols.length;i++){ const key=maps[i]||('col'+i); obj[key]=cols[i].replace(/^"|"$/g,''); }
+      const lead={clinicName:obj['clinic name']||obj['clinic']||'',city:obj['city']||'',address:obj['address']||'',website:obj['website']||'',contactName:obj['named contact']||obj['contact']||'',email:obj['email address']||obj['email']||'',channel:obj['channel']||'',angle:obj['angle']||'',dateSent:obj['date sent']||'',fu1Date:obj['fu1 date']||'',fu2Date:obj['fu2 date']||'',fu3Date:obj['fu3 date']||'',fu1Sent:(obj['fu1 sent']||'').toUpperCase()==='Y',fu2Sent:(obj['fu2 sent']||'').toUpperCase()==='Y',fu3Sent:(obj['fu3 sent']||'').toUpperCase()==='Y',reply:(obj['reply']||'').toUpperCase()==='Y'?'Y':'N',replyType:obj['reply type']||'',notes:obj['notes']||'',reviewCount:obj['review count']||obj['reviews']||''};
+      if(!lead.fu1Date&&lead.dateSent) lead.fu1Date=addDays(lead.dateSent,3);
+      if(!lead.fu2Date&&lead.dateSent) lead.fu2Date=addDays(lead.dateSent,7);
+      if(!lead.fu3Date&&lead.dateSent) lead.fu3Date=addDays(lead.dateSent,14);
+      lead.id=Date.now()+Math.floor(Math.random()*1000); leads.unshift(lead); }); save(); }
+
+    function parseCSVLine(line,expected){ const cols=[]; let cur=''; let inQ=false; for(let i=0;i<line.length;i++){ const ch=line[i]; if(ch==='"'){ if(inQ&&line[i+1]==='"'){ cur+='"'; i++; } else { inQ=!inQ; } } else if(ch===','&&!inQ){ cols.push(cur); cur=''; } else { cur+=ch; } } cols.push(cur); while(cols.length<expected) cols.push(''); return cols; }
+
+    // ── Email Sequence Manager ──────────────────────────────────────────────
+    const EMAIL_TEMPLATES = {
+      'After-Hours': {
+        'Direct Observation': {
+          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nTried booking a new patient appointment on your website earlier - ended up on a contact form with no instant confirmation.\n\nWhat happens to those enquiries when reception isn't available?\n\nWe build simple intake systems for dental clinics that automatically capture and route enquiries after hours - so nothing gets missed.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up on my message from a few days ago - wanted to check if after-hours enquiry handling is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nWanted to check in one more time - happy to share a quick overview of how the system works if that would make it easier to assess.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right I completely understand.\n\nIf after-hours enquiry handling becomes a priority down the line, feel free to reach out.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Patient Perspective': {
+          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLooked at your website as a new patient would - the earliest I could get a confirmed appointment is whenever someone calls me back.\n\nHow are those enquiries handled after hours when reception is unavailable?\n\nWe build simple intake systems that capture and route new patient enquiries automatically - so the response is instant, not next-morning.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if the after-hours gap is something you're actively looking to address.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to send across a quick overview of how the system works if that helps assess whether it's relevant.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem at all.\n\nFeel free to reach out if after-hours handling becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Specific Gap': {
+          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nNoticed your Google listing shows phone as the primary booking option for [Clinic Name].\n\nWhat happens to new patient enquiries that come in after 6pm?\n\nWe build simple intake systems for dental clinics that automatically capture and route those enquiries - so nothing falls through overnight.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if overnight enquiry handling is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Observation + Compliment': {
+          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\n[Clinic Name] clearly has a strong reputation - [X] Google reviews for an independent practice is impressive.\n\nOne thing I noticed - new patient enquiries currently go via contact form rather than instant confirmation. What happens to those after hours when the team isn't available?\n\nWe build simple intake systems that capture and route enquiries automatically - so strong reputation translates to zero missed bookings.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if capturing after-hours enquiries is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if after-hours handling becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Industry Insight': {
+          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nMost independent dental clinics I've looked at across the UK share the same gap - enquiries come in via form or phone but there's no automated response after hours.\n\nCurious whether that's something [Clinic Name] experiences too.\n\nWe build simple intake systems that capture and route new patient enquiries automatically - so nothing gets missed overnight.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if the after-hours gap is something you're looking to address.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to share a quick overview of how other clinics have approached this if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out when this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Trigger Event': {
+          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nNoticed [Clinic Name] recently added [TRIGGER] - those tend to be impulse enquiries that drop off quickly without instant confirmation.\n\nWhat happens to those requests when reception isn't available?\n\nWe build simple intake systems that capture and route enquiries automatically - so impulse interest doesn't go cold overnight.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if capturing after-hours enquiries for [TRIGGER] is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        }
+      },
+      'Coordination': {
+        'Direct Observation': {
+          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nTried booking a new patient appointment on your website earlier - the process ends at a contact form, which I imagine requires manual follow-up to confirm.\n\nHow much time does your team spend coordinating those bookings daily?\n\nWe build simple intake systems that organise and route enquiries automatically - cutting the back-and-forth before it reaches your team.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if reducing manual booking coordination is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to send across a quick overview of how the system works if that helps assess whether it's relevant.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem at all.\n\nFeel free to reach out if reducing manual coordination becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Patient Perspective': {
+          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nLooked at your website as a new patient would - submitting an enquiry requires waiting for a callback to confirm anything.\n\nHow much manual coordination does that create for your reception team?\n\nWe build simple intake systems that handle the back-and-forth automatically - so your team spends less time on admin and more time where it matters.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if reducing admin for your reception team is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if reducing team admin becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Specific Gap': {
+          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nNoticed new patient enquiries at [Clinic Name] come in via [phone/contact form] - which typically means manual follow-up to confirm each one.\n\nHow much of your team's time goes into coordinating those bookings daily?\n\nWe build simple intake systems that organise and route enquiries automatically - before they ever reach the team.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if cutting down on manual booking coordination is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Observation + Compliment': {
+          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\n[Clinic Name] clearly runs a busy practice - [X] Google reviews suggests consistent patient demand.\n\nOne thing I noticed - enquiries come in via contact form which likely creates manual coordination work for your team every day.\n\nWe build simple intake systems that handle that back-and-forth automatically - so your team's time goes where it matters most.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if reducing manual coordination for your team is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if reducing team admin becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Industry Insight': {
+          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nMost independent dental clinics I've spoken to across the UK share the same bottleneck - reception teams spending significant time each day manually coordinating bookings from forms and phone enquiries.\n\nCurious whether that resonates at [Clinic Name].\n\nWe build simple intake systems that automate that coordination - so it happens before it ever reaches your team.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if the coordination bottleneck is something you're actively looking to address.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share how other clinics have approached this if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out when reducing coordination becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Trigger Event': {
+          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nNoticed [Clinic Name] recently added [TRIGGER] - new service lines typically bring a surge of enquiries that create extra coordination work for the team.\n\nHow are those being managed currently?\n\nWe build simple intake systems that organise and route enquiries automatically - so additional services don't mean additional admin.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if managing the extra coordination from [TRIGGER] is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        }
+      },
+      'Conversion': {
+        'Direct Observation': {
+          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nTried booking a new patient appointment on your website earlier - the process ends at a contact form rather than an instant confirmed booking.\n\nDo you track how many of those enquiries actually convert to appointments?\n\nWe build simple intake systems that reduce that drop-off - enquiries get captured and confirmed instantly rather than waiting on manual follow-up.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if enquiry conversion is something you're actively looking at.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a brief overview of how the system works if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if improving enquiry conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Patient Perspective': {
+          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLooked at your website as a new patient would - there's no instant confirmation after submitting an enquiry.\n\nIn that gap between submission and callback, patients often book elsewhere.\n\nWe build simple intake systems that close that gap - enquiries get an instant structured response rather than silence.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if closing the gap between enquiry and confirmation is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if improving conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Specific Gap': {
+          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nNoticed new patient enquiries at [Clinic Name] go via [phone/contact form] rather than instant confirmation.\n\nThat gap between enquiry and confirmed appointment is typically where new patients drop off and book elsewhere.\n\nWe build simple intake systems that close that gap automatically - so interest converts before it goes cold.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if reducing drop-off between enquiry and confirmed booking is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Observation + Compliment': {
+          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\n[Clinic Name] clearly attracts strong interest - [X] Google reviews suggests patients are actively looking you up.\n\nOne thing I noticed - the enquiry process ends at a contact form rather than instant confirmation, which is typically where conversion drops off.\n\nWe build simple intake systems that close that gap - so the interest your reputation generates actually converts.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if improving enquiry conversion is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if improving conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Industry Insight': {
+          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nMost independent dental clinics across the UK have the same conversion gap - new patient enquiries come in via form or phone but without instant confirmation, a significant portion book elsewhere before anyone follows up.\n\nCurious whether that's something [Clinic Name] has noticed.\n\nWe build simple intake systems that close that gap automatically - enquiries get an instant structured response rather than silence.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if the conversion gap is something you're actively looking to address.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share how other clinics have approached this if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out when improving conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        },
+        'Trigger Event': {
+          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nNoticed [Clinic Name] recently added [TRIGGER] - high-interest services like that tend to generate enquiries that are time-sensitive.\n\nWithout instant confirmation, that interest often converts elsewhere before anyone follows up.\n\nWe build simple intake systems that capture and confirm those enquiries automatically - so new service interest doesn't go to waste.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU1': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if converting [TRIGGER] enquiries faster is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+          'FU2': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
+          'FU3': { subject: 'Re: [Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if improving conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
+        }
+      }
+    };
+
+    const FU_TEMPLATES = {
+      'After-Hours': {
+        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my note from earlier this week about after-hours enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nWanted to add one thing to my previous note.\n\nMost independent clinics I speak to aren't aware of how many enquiries arrive outside reception hours until they actually look at the data. It's rarely a small number.\n\nIf that's worth exploring, I'm happy to take a look at your current setup on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
+        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nI'll keep this brief - this is my last note on this.\n\nIf after-hours enquiries aren't a priority right now, completely understood. If that changes, you know where I am.\n\nLawrence\nVersa Digital HQ` }
+      },
+      'Coordination': {
+        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust checking back in on my note about the time your team spends coordinating new patient enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nOne thing I didn't mention in my last note - the coordination problem compounds as the practice grows. More enquiries means more manual handling, which means more staff time absorbed before a single patient is booked.\n\nHappy to walk through what a leaner process looks like on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
+        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nLast note from me on this.\n\nIf streamlining how your team handles new patient enquiries isn't on the radar right now, no problem at all. Happy to pick this up whenever the timing is right.\n\nLawrence\nVersa Digital HQ` }
+      },
+      'Conversion': {
+        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my earlier note about enquiries dropping off before they convert to booked appointments.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nSomething worth adding to my last note - the drop-off between enquiry and booking almost always happens in the first two hours. After that, the patient has either heard back or moved on.\n\nHappy to show you how other independent clinics have closed that gap.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
+        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nLast note from me.\n\nIf reducing drop-off between enquiry and booking isn't something you're looking at right now, completely understood. I'll leave the door open.\n\nLawrence\nVersa Digital HQ` }
+      }
+    };
+
+    let expandedLeadId = null;
+    let expandedFollowUpId = null;
+    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest'};
+
+    let emailState = { leadId:null, angle:null, hook:null, type:null, trigger:'', reviewOverride:'' };
+
+    function populateEmailLeadDropdown(){
+      const sel=document.getElementById('emailLeadSelect'); const current=sel.value;
+      sel.innerHTML='<option value="">— choose a lead —</option>';
+      leads.forEach(l=>{ const opt=document.createElement('option'); opt.value=l.id; opt.textContent=(l.clinicName||'(no name)')+(l.contactName?' - '+l.contactName:'')+(l.city?' ('+l.city+')':''); sel.appendChild(opt); });
+      if(current&&leads.find(l=>l.id==current)) sel.value=current;
+    }
+
+    function emailAutofill(){
+      const sel=document.getElementById('emailLeadSelect'); const id=sel.value;
+      const autofill=document.getElementById('emailAutofill');
+      if(!id){ autofill.style.display='none'; emailState.leadId=null; refreshEmailPreview(); return; }
+      const lead=leads.find(l=>l.id==id); if(!lead){ autofill.style.display='none'; return; }
+      emailState.leadId=id;
+      document.getElementById('af_clinic').textContent=lead.clinicName||'—';
+      document.getElementById('af_contact').textContent=lead.contactName||'—';
+      document.getElementById('af_city').textContent=lead.city||'—';
+      document.getElementById('af_channel').textContent=lead.channel||'—';
+      document.getElementById('af_reviews').textContent=lead.reviewCount||'—';
+      if(emailState.hook==='Observation + Compliment'){ const ri=document.getElementById('reviewOverrideInput'); if(ri){ ri.value=lead.reviewCount||''; emailState.reviewOverride=lead.reviewCount||''; } }
+      autofill.style.display='grid';
+      // Auto-populate angle and hook from lead data if set
+      const autoNote=document.getElementById('emailAutoNote');
+      const validAngles=['After-Hours','Coordination','Conversion'];
+      const validHooks=['Direct Observation','Patient Perspective','Specific Gap','Observation + Compliment','Industry Insight','Trigger Event'];
+      let autoPopulated=false;
+      if(lead.angle&&validAngles.includes(lead.angle)){ setActiveAngle(lead.angle,true); autoPopulated=true; }
+      if(lead.hook&&validHooks.includes(lead.hook)){ setActiveHook(lead.hook,true); autoPopulated=true; }
+      if(autoNote) autoNote.style.display=autoPopulated?'block':'none';
+      refreshEmailPreview();
+    }
+
+    function setActiveAngle(angle,suppressNote){
+      emailState.angle=angle;
+      document.querySelectorAll('[data-angle]').forEach(b=>b.classList.toggle('active-angle',b.dataset.angle===angle));
+      if(!suppressNote){ const n=document.getElementById('emailAutoNote'); if(n) n.style.display='none'; }
+      refreshEmailPreview();
+    }
+
+    function setActiveHook(hook,suppressNote){
+      emailState.hook=hook;
+      document.querySelectorAll('[data-hook]').forEach(b=>b.classList.toggle('active-hook',b.dataset.hook===hook));
+      if(!suppressNote){ const n=document.getElementById('emailAutoNote'); if(n) n.style.display='none'; }
+      const isOC=hook==='Observation + Compliment'; const isTE=hook==='Trigger Event';
+      document.getElementById('hookWarnOC').style.display=isOC?'block':'none';
+      document.getElementById('hookWarnTE').style.display=isTE?'block':'none';
+      document.getElementById('reviewOverrideWrap').style.display=isOC?'block':'none';
+      document.getElementById('triggerWrap').style.display=isTE?'block':'none';
+      if(!isTE){ emailState.trigger=''; const ti=document.getElementById('triggerInput'); if(ti) ti.value=''; }
+      if(isOC){ const lead=emailState.leadId?leads.find(l=>l.id==emailState.leadId):null; const ri=document.getElementById('reviewOverrideInput'); const val=(lead&&lead.reviewCount)||''; if(ri) ri.value=val; emailState.reviewOverride=val; } else { emailState.reviewOverride=''; }
+      refreshEmailPreview();
+    }
+
+    function setActiveType(type){
+      emailState.type=type;
+      document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active-type',b.dataset.type===type));
+      const isFU=type==='FU1'||type==='FU2'||type==='FU3';
+      const hookCard=document.getElementById('hookCard');
+      if(hookCard) hookCard.style.display=isFU?'none':'block';
+      refreshEmailPreview();
+    }
+
+    function refreshEmailPreview(){
+      const wrap=document.getElementById('emailPreviewWrap'); const placeholder=document.getElementById('emailPreviewPlaceholder');
+      const {leadId,angle,hook,type,trigger,reviewOverride}=emailState;
+      const isFU=type==='FU1'||type==='FU2'||type==='FU3';
+      if(!leadId||!angle||!type||(type==='Initial'&&!hook)){ wrap.style.display='none'; placeholder.style.display='block'; return; }
+      const lead=leads.find(l=>l.id==leadId); if(!lead){ wrap.style.display='none'; placeholder.style.display='block'; return; }
+      const tpl=isFU
+        ? (FU_TEMPLATES[angle]&&FU_TEMPLATES[angle][type])
+        : (EMAIL_TEMPLATES[angle]&&EMAIL_TEMPLATES[angle][hook]&&EMAIL_TEMPLATES[angle][hook][type]);
+      if(!tpl){ wrap.style.display='none'; placeholder.style.display='block'; return; }
+      const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
+      const channel=(lead.channel||'phone/contact form').toLowerCase();
+      const reviews=lead.reviewCount||reviewOverride||'[X]'; const trig=trigger||'[TRIGGER]';
+      const contactForBody=lead.contactName||'there';
+      const contactForSubject=lead.contactName||lead.clinicName||'[Clinic Name]';
+      const subject=tpl.subject
+        .replace(/\[Contact name\]/g,contactForSubject)
+        .replace(/\[Contact\]/g,contact)
+        .replace(/\[Clinic Name\]/g,clinic);
+      const body=tpl.body
+        .replace(/\[name\]/g,contactForBody)
+        .replace(/\[Contact\]/g,contact)
+        .replace(/\[Clinic Name\]/g,clinic)
+        .replace(/\[phone\/contact form\]/g,channel)
+        .replace(/\[Channel\]/g,channel)
+        .replace(/\[X\]/g,reviews)
+        .replace(/\[TRIGGER\]/g,trig);
+      document.getElementById('emailSubjectPreview').textContent='Subject: '+subject;
+      const bodyHtml=escapeHtml(body).replace('versadigital.co/demo','<a href="https://versadigital.co/demo" target="_blank" style="color:#5E6AD2">versadigital.co/demo</a>');
+      document.getElementById('emailBodyPreview').innerHTML=bodyHtml;
+      const tipEl=document.getElementById('fu2DemoTip'); if(tipEl) tipEl.style.display=type==='FU2'?'block':'none';
+      placeholder.style.display='none'; wrap.style.display='block';
+    }
+
+    function showCopyConfirm(msg){ const el=document.getElementById('copyConfirm'); el.textContent=msg||'Copied!'; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1800); }
+
+    function bindEmailTab(){
+      document.getElementById('emailLeadSelect').addEventListener('change',emailAutofill);
+      document.querySelectorAll('[data-angle]').forEach(b=>{ b.addEventListener('click',()=>setActiveAngle(b.dataset.angle)); });
+      document.querySelectorAll('[data-hook]').forEach(b=>{ b.addEventListener('click',()=>setActiveHook(b.dataset.hook)); });
+      document.querySelectorAll('[data-type]').forEach(b=>{ b.addEventListener('click',()=>setActiveType(b.dataset.type)); });
+      document.getElementById('triggerInput').addEventListener('input',e=>{ emailState.trigger=e.target.value; refreshEmailPreview(); });
+      document.getElementById('reviewOverrideInput').addEventListener('input',e=>{ emailState.reviewOverride=e.target.value; refreshEmailPreview(); });
+      document.getElementById('btnCopySubject').addEventListener('click',()=>{ const text=document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,''); navigator.clipboard.writeText(text).then(()=>showCopyConfirm('Subject copied!')); });
+      document.getElementById('btnCopyEmail').addEventListener('click',()=>{
+        const bodyEl=document.getElementById('emailBodyPreview');
+        const plainBody=bodyEl.textContent;
+        const afterCopy=()=>{ showCopyConfirm('Email copied!'); if(emailState.leadId&&emailState.angle){ const lead=leads.find(l=>l.id==emailState.leadId); if(lead){ lead.angle=emailState.angle; save(); } } };
+        if(emailState.type==='FU2'&&window.ClipboardItem){
+          const htmlForClipboard=bodyEl.innerHTML.replace(/\n/g,'<br>');
+          const htmlBlob=new Blob([`<html><body><div style="font-family:Arial,sans-serif;font-size:14px">${htmlForClipboard}</div></body></html>`],{type:'text/html'});
+          const textBlob=new Blob([plainBody],{type:'text/plain'});
+          navigator.clipboard.write([new ClipboardItem({'text/html':htmlBlob,'text/plain':textBlob})]).then(afterCopy).catch(()=>navigator.clipboard.writeText(plainBody).then(afterCopy));
+        } else {
+          navigator.clipboard.writeText(plainBody).then(afterCopy);
+        }
+      });
+    }
+
+    // ── Microsoft Graph / Outlook Integration ───────────────────────────────
+    const MSAL_CONFIG = {
+      auth: {
+        clientId: '8a7775b3-2c5a-4d16-8002-378da8dc1fbb',
+        authority: 'https://login.microsoftonline.com/consumers',
+        redirectUri: 'https://lawrence-sundar.github.io/vdhq-tracker-9x4k'
+      },
+      cache: { cacheLocation: 'sessionStorage', storeAuthStateInCookie: false }
+    };
+    const GRAPH_SCOPES = ['Mail.Send','User.Read'];
+    let msalInstance = null;
+    let outlookAccount = null;
+
+    function msalInit(){
+      if(!window.msal) return;
+      if(msalInstance) return;
+      msalInstance = new msal.PublicClientApplication(MSAL_CONFIG);
+      const accounts = msalInstance.getAllAccounts();
+      if(accounts.length > 0){ outlookAccount = accounts[0]; updateOutlookUI(); }
+    }
+
+    async function connectOutlook(){
+      if(!window.msal){ alert('Microsoft login library is still loading. Please try again in a moment.'); return; }
+      if(!msalInstance) msalInit();
+      try{
+        const resp = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES });
+        outlookAccount = resp.account;
+        updateOutlookUI();
+      } catch(e){
+        if(e.errorCode !== 'user_cancelled') alert('Could not connect to Outlook: ' + (e.message || e));
+      }
+    }
+
+    async function getGraphToken(){
+      if(!msalInstance || !outlookAccount) throw new Error('Not connected to Outlook. Click Connect Outlook first.');
+      try{
+        const resp = await msalInstance.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: outlookAccount });
+        return resp.accessToken;
+      } catch(e){
+        const resp = await msalInstance.acquireTokenPopup({ scopes: GRAPH_SCOPES, account: outlookAccount });
+        return resp.accessToken;
+      }
+    }
+
+    async function sendGraphEmail(to, subject, htmlBody){
+      const token = await getGraphToken();
+      const payload = { message: { subject, body: { contentType: 'HTML', content: htmlBody }, toRecipients: [{ emailAddress: { address: to } }] }, saveToSentItems: true };
+      const resp = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if(!resp.ok){ const err = await resp.json().catch(() => ({})); throw new Error(err.error?.message || 'Send failed: ' + resp.status); }
+    }
+
+    function updateOutlookUI(){
+      const connectBtn = document.getElementById('btnConnectOutlook');
+      const connectedEl = document.getElementById('outlookConnected');
+      const emailLabel = document.getElementById('outlookEmail');
+      const sendBtn = document.getElementById('btnSendOutlook');
+      const sendAllBtn = document.getElementById('btnSendAllDue');
+      if(outlookAccount){
+        if(connectBtn) connectBtn.style.display = 'none';
+        if(connectedEl){ connectedEl.style.display = 'flex'; }
+        if(emailLabel) emailLabel.textContent = outlookAccount.username || outlookAccount.name || 'Connected';
+        if(sendBtn) sendBtn.style.display = 'inline-block';
+        if(sendAllBtn) sendAllBtn.style.display = 'inline-block';
+      } else {
+        if(connectBtn) connectBtn.style.display = 'block';
+        if(connectedEl) connectedEl.style.display = 'none';
+        if(sendBtn) sendBtn.style.display = 'none';
+        if(sendAllBtn) sendAllBtn.style.display = 'none';
+      }
+    }
+
+    async function sendViaOutlook(){
+      const wrap = document.getElementById('emailPreviewWrap');
+      if(!wrap || wrap.style.display === 'none'){ alert('Generate an email first.'); return; }
+      if(!outlookAccount){ alert('Connect Outlook first.'); return; }
+      const lead = emailState.leadId ? leads.find(l => l.id == emailState.leadId) : null;
+      if(!lead){ alert('No lead selected.'); return; }
+      if(!lead.email){ alert('This lead has no email address. Add one via Edit before sending.'); return; }
+      const subject = document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /, '');
+      const bodyEl = document.getElementById('emailBodyPreview');
+      const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + bodyEl.innerHTML.replace(/\n/g,'<br>') + '</div>';
+      const btn = document.getElementById('btnSendOutlook');
+      const origText = btn.textContent;
+      btn.textContent = 'Sending...'; btn.disabled = true;
+      try{
+        await sendGraphEmail(lead.email, subject, htmlBody);
+        const type = emailState.type;
+        if(type === 'FU1' || type === 'FU2' || type === 'FU3'){
+          markFUFromFollowUps(lead.id, type.toLowerCase());
+        } else if(type === 'Initial' && !lead.dateSent){
+          lead.dateSent = todayISO(); ensureFUDates(lead); save();
+        }
+        showCopyConfirm('Sent via Outlook!');
+        btn.textContent = 'Sent!';
+        setTimeout(()=>{ btn.textContent = origText; btn.disabled = false; }, 2500);
+      } catch(e){
+        alert('Send failed: ' + e.message);
+        btn.textContent = origText; btn.disabled = false;
+      }
+    }
+
+    function getDueItems(){
+      const td = todayISO(); const items = [];
+      leads.forEach(l=>{
+        if(l.doNotContact) return;
+        const status = computeStatus(l);
+        if(status === 'Replied' || status === 'Converted' || status === 'Not Interested') return;
+        const fus = [{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
+        for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd = normDateStr(fu.date); if(nd && nd <= td){ items.push({lead:l,fuKey:fu.key,fuLabel:fu.label}); break; } }
+      });
+      return items;
+    }
+
+    function openSendAllModal(){
+      if(!outlookAccount){ alert('Connect Outlook first.'); return; }
+      const items = getDueItems();
+      if(!items.length){ alert('No follow-ups due today or overdue.'); return; }
+      const withEmail = items.filter(i => i.lead.email);
+      const withoutEmail = items.filter(i => !i.lead.email);
+      const listEl = document.getElementById('sendAllList');
+      listEl.innerHTML = '';
+      withEmail.forEach(item=>{
+        const l = item.lead;
+        const angle = l.angle || 'After-Hours';
+        const tpl = FU_TEMPLATES[angle] && FU_TEMPLATES[angle][item.fuLabel];
+        const contactForSubject = l.contactName || l.clinicName || '[Clinic Name]';
+        const subject = tpl ? tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,l.clinicName||'[Clinic Name]') : item.fuLabel + ' follow-up';
+        const row = document.createElement('div'); row.className = 'send-all-row';
+        row.dataset.id = l.id; row.dataset.fukey = item.fuKey; row.dataset.fulabel = item.fuLabel;
+        row.innerHTML = `<div class="send-all-status" id="sas-${l.id}-${item.fuKey}"></div><div class="send-all-info"><div class="send-all-name">${escapeHtml(l.clinicName||'(no name)')}</div><div class="send-all-email-addr">${escapeHtml(l.email)}</div><div class="send-all-subject">${escapeHtml(subject)}</div></div><span class="fu-due-badge fu-due-badge-today">${item.fuLabel}</span>`;
+        listEl.appendChild(row);
+      });
+      if(withoutEmail.length){
+        const note = document.createElement('div');
+        note.style.cssText = 'margin-top:10px;font-size:11px;color:#888;padding:8px 10px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)';
+        note.innerHTML = `<strong style="color:#F0A429">${withoutEmail.length} lead${withoutEmail.length===1?'':'s'} skipped</strong> - no email on record: ` + withoutEmail.map(i=>escapeHtml(i.lead.clinicName||'(no name)')).join(', ');
+        listEl.appendChild(note);
+      }
+      const confirmBtn = document.getElementById('btnConfirmSendAll');
+      const progressEl = document.getElementById('sendAllProgress');
+      if(confirmBtn){ confirmBtn.disabled = false; confirmBtn.textContent = `Send ${withEmail.length} Email${withEmail.length===1?'':'s'}`; confirmBtn.onclick = runSendAll; }
+      if(progressEl) progressEl.style.display = 'none';
+      const bd = document.getElementById('sendAllBackdrop'); const md = document.getElementById('sendAllModal');
+      bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false');
+    }
+
+    function closeSendAllModal(){
+      const bd = document.getElementById('sendAllBackdrop'); const md = document.getElementById('sendAllModal');
+      md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true');
+    }
+
+    async function runSendAll(){
+      const listEl = document.getElementById('sendAllList');
+      const rows = listEl.querySelectorAll('.send-all-row');
+      const confirmBtn = document.getElementById('btnConfirmSendAll');
+      const progressEl = document.getElementById('sendAllProgress');
+      if(!rows.length) return;
+      confirmBtn.disabled = true;
+      if(progressEl){ progressEl.textContent = '0 / ' + rows.length; progressEl.style.display = 'block'; }
+      let sent = 0, failed = 0; const total = rows.length;
+      for(const row of rows){
+        const id = row.dataset.id; const fuKey = row.dataset.fukey; const fuLabel = row.dataset.fulabel;
+        const statusEl = document.getElementById(`sas-${id}-${fuKey}`);
+        const lead = leads.find(l => l.id == id);
+        if(!lead || !lead.email) continue;
+        if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:11px">Sending...</span>';
+        const angle = lead.angle || 'After-Hours';
+        const tpl = FU_TEMPLATES[angle] && FU_TEMPLATES[angle][fuLabel];
+        if(!tpl){ if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:11px">No template</span>'; failed++; continue; }
+        const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
+        const contactForBody = lead.contactName || 'there';
+        const clinic = lead.clinicName || '[Clinic Name]';
+        const subject = tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
+        const body = tpl.body.replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
+        const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>') + '</div>';
+        try{
+          await sendGraphEmail(lead.email, subject, htmlBody);
+          markFUFromFollowUps(id, fuKey);
+          sent++;
+          if(statusEl) statusEl.innerHTML = '<span style="color:#4CAF7D;font-size:11px">&#10003; Sent</span>';
+        } catch(e){
+          failed++;
+          if(statusEl) statusEl.innerHTML = `<span style="color:#E5484D;font-size:11px" title="${escapeHtml(e.message)}">Failed</span>`;
+        }
+        if(progressEl) progressEl.textContent = (sent + failed) + ' / ' + total;
+      }
+      if(progressEl) progressEl.textContent = 'Done - ' + sent + ' sent' + (failed ? ', ' + failed + ' failed' : '');
+      if(confirmBtn){ confirmBtn.textContent = 'Close'; confirmBtn.disabled = false; confirmBtn.onclick = closeSendAllModal; }
+    }
+
+    // Init
+    bindUI(); bindEmailTab(); bindPipeline(); load();
+    setTimeout(()=>showTab('dashboard'),80);
+    // MSAL loads async via defer — init after all resources ready
+    window.addEventListener('load', msalInit);
+  </script>
+</body>
+</html>

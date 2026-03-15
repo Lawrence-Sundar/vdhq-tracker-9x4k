@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Clinic Qualifier - Versa Digital HQ</title>
+  <style>
+    :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
+    *{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#050708 0%,var(--bg) 100%);color:#e6eef2;min-height:100vh}
+    .container{max-width:760px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    h1{font-size:18px;margin:0}
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .card{background:var(--card);border-radius:10px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px rgba(2,6,8,0.6)}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input[type=text],input[type=password],input[type=url],input[type=email]{width:100%;padding:9px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#071018;color:inherit;font-size:13px;outline:none;transition:border-color .15s}
+    input:focus{border-color:var(--accent)}
+    button.primary{background:linear-gradient(180deg,var(--accent),#5ccff6);border:none;color:#002;cursor:pointer;padding:9px 20px;border-radius:6px;font-size:13px;font-weight:600;white-space:nowrap}
+    button.primary:disabled{opacity:.4;cursor:not-allowed}
+    button.copy-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--muted);padding:4px 11px;border-radius:5px;font-size:12px;cursor:pointer;transition:border-color .15s,color .15s}
+    button.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* Score badge */
+    .score-badge{display:inline-block;padding:7px 20px;border-radius:8px;font-size:24px;font-weight:700;letter-spacing:.02em}
+    .score-hot{background:linear-gradient(180deg,#14532d,#16a34a);color:#d1fae5}
+    .score-warm{background:linear-gradient(180deg,#78350f,#d97706);color:#fef3c7}
+    .score-cold{background:linear-gradient(180deg,#7f1d1d,#dc2626);color:#fee2e2}
+
+    .section-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 10px 0;font-weight:600}
+
+    .signal-list{list-style:none;margin:0;padding:0}
+    .signal-list li{padding:6px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:flex-start;gap:10px;line-height:1.45}
+    .signal-list li:last-child{border-bottom:none}
+    .signal-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+
+    .recommendation-box{background:#071018;border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:10px 14px;font-size:13px;line-height:1.6}
+
+    .email-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);gap:12px}
+    .email-row:last-child{border-bottom:none}
+    .email-addr{font-size:13px;font-family:monospace;color:var(--accent);word-break:break-all}
+
+    .names-wrap{display:flex;flex-wrap:wrap;gap:8px}
+    .name-pill{background:#071018;padding:5px 12px;border-radius:6px;font-size:12px}
+
+    .reasoning-text{font-size:13px;color:var(--muted);line-height:1.55;margin-top:8px;font-style:italic;max-width:500px}
+
+    /* Spinner */
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(125,211,252,0.15);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    #loadingState{display:none;padding:14px 0;font-size:13px;color:var(--muted);align-items:center}
+    #errorState{display:none;margin-top:4px}
+    .error-box{background:#1a0505;border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--danger);line-height:1.55}
+
+    #results{display:none}
+
+    @media(max-width:580px){.container{padding:12px} .score-badge{font-size:18px} button.primary{padding:9px 14px}}
+
+    /* Duplicate warning */
+    .dup-box{background:#16120a;border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--warn);line-height:1.55}
+    .dup-box .dup-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+    /* Extracted metadata grid */
+    .meta-row{display:flex;align-items:baseline;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);gap:12px;font-size:13px}
+    .meta-row:last-child{border-bottom:none}
+    .meta-label{color:var(--muted);font-size:12px;flex-shrink:0;min-width:110px}
+    .meta-val{text-align:right;word-break:break-word}
+
+    /* Flag banners */
+    .flag-banner{background:#16120a;border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--warn);line-height:1.5;margin-bottom:14px}
+
+    /* Cold panel */
+    .cold-card{background:#1a0505;border:1px solid rgba(248,113,113,0.2)}
+    .cold-title{font-size:14px;font-weight:600;color:var(--danger);margin-bottom:8px}
+    .cold-reason{font-size:13px;color:rgba(248,113,113,0.85);line-height:1.55}
+    .disqualifier-list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+    .disqualifier-list li{font-size:13px;color:var(--danger);display:flex;gap:8px;align-items:flex-start;line-height:1.45}
+
+    /* Out-of-area panel */
+    .ota-card{background:#16120a;border:1px solid rgba(251,191,36,0.3)}
+    .ota-title{font-size:13px;color:var(--warn);line-height:1.55;margin-bottom:12px}
+    .ota-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    /* Email radio selector */
+    .email-radio-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer}
+    .email-radio-row:last-child{border-bottom:none}
+    .email-radio-row input[type=radio]{accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+
+    /* Draft email CTA */
+    .btn-draft{background:linear-gradient(180deg,#C9A84C,#a8863b);border:none;color:#0a0800;cursor:pointer;padding:13px 24px;border-radius:6px;font-size:14px;font-weight:700;width:100%;letter-spacing:.01em;transition:opacity .15s;margin-bottom:4px}
+    .btn-draft:hover{opacity:.88}
+
+    /* Secondary grey button */
+    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--muted);cursor:pointer;padding:9px 20px;border-radius:6px;font-size:13px;font-weight:500;transition:border-color .15s,color .15s}
+    button.secondary:hover{border-color:rgba(255,255,255,0.3);color:#e6eef2}
+    button.secondary:disabled{opacity:.4;cursor:not-allowed}
+
+    /* Email draft section */
+    .back-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .15s;display:inline-block;margin-bottom:14px}
+    .back-link:hover{color:var(--accent)}
+    .auto-select-display{font-size:12px;color:var(--muted);margin-bottom:14px;padding:8px 10px;background:#071018;border-radius:6px;line-height:1.6}
+    .angle-hook-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+    .draft-select{width:100%;padding:8px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#071018;color:#e6eef2;font-size:13px;outline:none;cursor:pointer;transition:border-color .15s}
+    .draft-select:focus{border-color:var(--accent)}
+    .draft-field-wrap{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .draft-field{font-size:13px;font-family:monospace;color:#e6eef2;line-height:1.5;flex:1;word-break:break-word}
+    .draft-body-field{font-size:13px;color:#e6eef2;line-height:1.8;white-space:pre-wrap;word-break:break-word;background:#071018;border-radius:6px;padding:10px 12px}
+    .btn-confirm{background:linear-gradient(180deg,#C9A84C,#a8863b);border:none;color:#0a0800;cursor:pointer;padding:13px 24px;border-radius:6px;font-size:14px;font-weight:700;width:100%;letter-spacing:.01em;transition:opacity .15s;margin-bottom:4px}
+    .btn-confirm:hover{opacity:.88}
+    @media(max-width:580px){.angle-hook-grid{grid-template-columns:1fr}}
+
+    /* Future Targets panel */
+    .btn-ft-header{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--muted);cursor:pointer;padding:5px 12px;border-radius:5px;font-size:12px;transition:border-color .15s,color .15s;white-space:nowrap}
+    .btn-ft-header:hover{border-color:var(--accent);color:var(--accent)}
+    .ft-empty{font-size:13px;color:var(--muted);padding:4px 0}
+    .ft-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+    .ft-row:last-child{border-bottom:none}
+    .ft-name{font-size:13px;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .ft-url{font-size:11px;color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}
+    .ft-actions{display:flex;gap:6px;flex-shrink:0}
+    .btn-ft-remove{background:transparent;border:1px solid rgba(248,113,113,0.3);color:var(--danger);padding:4px 9px;border-radius:5px;font-size:12px;cursor:pointer;transition:border-color .15s}
+    .btn-ft-remove:hover{border-color:var(--danger)}
+
+    /* Confirm state */
+    .confirm-card{background:#071a0a;border:1px solid rgba(74,222,128,0.25)}
+    .confirm-msg{font-size:13px;color:var(--success);line-height:1.55;font-weight:500}
+    .mark-sent-card{background:#0d1117;border:1px solid rgba(255,255,255,0.06)}
+    .mark-sent-msg{font-size:13px;color:var(--muted);line-height:1.7}
+    .confirm-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:4px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Clinic Qualifier - Versa Digital HQ</h1>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="muted small">AI-powered lead scoring</div>
+        <button class="btn-ft-header" id="btnToggleFT">Future Targets (0)</button>
+      </div>
+    </header>
+
+    <!-- Future Targets panel -->
+    <div id="futureTargetsPanel" style="display:none" class="card">
+      <div class="section-label" style="margin-bottom:10px">Future Targets</div>
+      <div id="ftList"></div>
+    </div>
+
+    <!-- API Key -->
+    <div class="card">
+      <label>Anthropic API Key</label>
+      <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+      <div class="muted small" style="margin-top:6px">Held in memory only - never stored or sent anywhere except the Anthropic API.</div>
+    </div>
+
+    <!-- URL Input -->
+    <div class="card">
+      <label>Clinic Website URL</label>
+      <div style="display:flex;gap:8px">
+        <input type="url" id="clinicUrl" placeholder="https://exampledentalclinic.co.uk" style="flex:1">
+        <button class="primary" id="btnAnalyse" onclick="runAnalysis()">Analyse</button>
+      </div>
+      <div class="muted small" style="margin-top:6px">Page is fetched via a CORS proxy, stripped to plain text, then analysed by Claude Haiku.</div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingState">
+      <span class="spinner"></span><span id="loadingMsg">Fetching page...</span>
+    </div>
+
+    <!-- Duplicate warning -->
+    <div id="dupWarning" style="display:none">
+      <div class="dup-box">
+        <div id="dupMsg"></div>
+        <div class="dup-actions">
+          <button class="primary" id="btnContinueAnyway">Continue Anyway</button>
+          <button class="copy-btn" id="btnViewTracker">View in Tracker ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="errorState">
+      <div class="error-box" id="errorMsg"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+
+      <!-- Score — always visible when results shown -->
+      <div class="card" id="scoreCard">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div class="section-label">Qualification Score</div>
+            <div id="scoreBadge" class="score-badge"></div>
+            <div id="reasoningText" class="reasoning-text"></div>
+          </div>
+          <div class="muted small" id="analysedUrl" style="text-align:right;max-width:240px;word-break:break-all;margin-top:4px"></div>
+        </div>
+      </div>
+
+      <!-- Cold stop panel -->
+      <div id="coldPanel" style="display:none">
+        <div class="card cold-card">
+          <div class="cold-title">✕ Not Suitable</div>
+          <div id="coldReason" class="cold-reason"></div>
+          <ul id="disqualifierList" class="disqualifier-list"></ul>
+        </div>
+        <div style="margin-bottom:14px">
+          <button class="secondary" id="btnSaveFuture">Save as Future Target</button>
+        </div>
+      </div>
+
+      <!-- Out-of-area panel -->
+      <div id="outOfAreaPanel" style="display:none">
+        <div class="card ota-card">
+          <div id="outOfAreaMsg" class="ota-title"></div>
+          <div class="ota-actions">
+            <button class="primary" id="btnProceedAnyway">Proceed Anyway</button>
+            <button class="secondary" id="btnDiscard">Discard</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flag banners (Hot/Warm only) -->
+      <div id="flagChannel" class="flag-banner" style="display:none"></div>
+      <div id="flagContact" class="flag-banner" style="display:none"></div>
+
+      <!-- Recommendation -->
+      <div class="card" id="recommendationCard" style="display:none">
+        <div class="section-label">Recommended Action</div>
+        <div class="recommendation-box" id="recommendation"></div>
+      </div>
+
+      <!-- Signals -->
+      <div class="card" id="signalsCard" style="display:none">
+        <div class="section-label">Detected Signals</div>
+        <ul class="signal-list" id="signalList"></ul>
+      </div>
+
+      <!-- Extracted metadata -->
+      <div class="card" id="metaCard" style="display:none">
+        <div class="section-label">Extracted Data</div>
+        <div id="metaGrid"></div>
+      </div>
+
+      <!-- Emails (single copy or multi radio-selector) -->
+      <div class="card" id="emailsCard" style="display:none">
+        <div class="section-label" id="emailsCardLabel">Email Addresses Found</div>
+        <div id="emailsList"></div>
+        <div id="emailSelector"></div>
+      </div>
+
+      <!-- Names (unused — contact shown in metadata) -->
+      <div class="card" id="namesCard" style="display:none">
+        <div class="section-label">Staff / Dentist Names Found</div>
+        <div class="names-wrap" id="namesList"></div>
+      </div>
+
+      <!-- Editable email field -->
+      <div id="emailToSendCard" style="display:none">
+        <div class="section-label">Email to Send To</div>
+        <input type="email" id="emailToSendInput" placeholder="Enter email address manually" autocomplete="off" spellcheck="false">
+      </div>
+
+      <!-- Editable named contact field -->
+      <div id="namedContactCard" style="display:none">
+        <div class="section-label">Named Contact</div>
+        <input type="text" id="namedContactInput" placeholder="Enter named contact manually" autocomplete="off" spellcheck="false">
+      </div>
+
+      <!-- Review Draft Email CTA -->
+      <div id="draftCtaWrap" style="display:none">
+        <button class="btn-draft" id="btnReviewDraft">Review Draft Email →</button>
+      </div>
+
+    </div>
+
+    <!-- Email Draft Section -->
+    <div id="emailDraftSection" style="display:none">
+
+      <a href="#" class="back-link" id="btnBackToResults">← Back to Results</a>
+
+      <!-- Angle + Hook setup -->
+      <div class="card">
+        <div class="section-label">Email Setup</div>
+        <div id="autoSelectDisplay" class="auto-select-display"></div>
+        <div class="angle-hook-grid">
+          <div>
+            <label>Angle</label>
+            <select id="selectAngle" class="draft-select">
+              <option value="After-Hours">After-Hours</option>
+              <option value="Manual Coordination">Manual Coordination</option>
+              <option value="Conversion">Conversion</option>
+            </select>
+          </div>
+          <div>
+            <label>Hook</label>
+            <select id="selectHook" class="draft-select">
+              <option value="Observation + Compliment" id="hookOptOC">Observation + Compliment</option>
+              <option value="Direct Observation">Direct Observation</option>
+              <option value="Industry Insight">Industry Insight</option>
+              <option value="Trigger Event" disabled>Trigger Event (manual research required)</option>
+            </select>
+          </div>
+        </div>
+        <button class="primary" id="btnGenerateEmail">Generate Email</button>
+      </div>
+
+      <!-- Draft loading -->
+      <div id="draftLoadingState" style="display:none;padding:10px 0;font-size:13px;color:var(--muted);align-items:center">
+        <span class="spinner"></span><span>Generating email draft...</span>
+      </div>
+
+      <!-- Draft output -->
+      <div id="draftOutput" style="display:none">
+
+        <div class="card">
+          <div class="section-label">Email Address</div>
+          <div class="draft-field-wrap">
+            <div id="draftEmailAddress" class="draft-field"></div>
+            <button class="copy-btn" id="btnCopyDraftEmail">Copy</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-label">Subject Line</div>
+          <div class="draft-field-wrap">
+            <div id="draftSubject" class="draft-field"></div>
+            <button class="copy-btn" id="btnCopySubject">Copy</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-label">Email Body</div>
+          <div id="draftBody" class="draft-body-field"></div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="copy-btn" id="btnCopyEmail">Copy Email</button>
+            <button class="secondary" id="btnRegenerate">Regenerate</button>
+          </div>
+        </div>
+
+        <button class="btn-confirm" id="btnConfirmTracker">Confirm &amp; Add to Tracker →</button>
+
+      </div>
+
+      <!-- Confirm state (shown after tracker add) -->
+      <div id="confirmState" style="display:none">
+        <div class="card confirm-card">
+          <div id="confirmMsg" class="confirm-msg"></div>
+        </div>
+        <div id="markSentState" style="display:none" class="card mark-sent-card">
+          <div id="markSentMsg" class="mark-sent-msg"></div>
+        </div>
+        <div class="confirm-actions">
+          <button class="primary" id="btnMarkSent">Mark as Sent</button>
+          <button class="secondary" id="btnAddAnother">Add Another Clinic</button>
+          <a href="#" id="btnViewTrackerFinal" class="back-link" style="margin:0">View in Tracker ↗</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const TRACKER_KEY = 'vdhq_tracker_v1';
+    let pendingUrl    = '';
+    let pendingApiKey = '';
+    let selectedEmail = '';
+    let selectedAngle = '';
+    let selectedHook  = '';
+
+    // ── UI helpers ──
+    function setLoading(on, msg) {
+      const el = document.getElementById('loadingState');
+      el.style.display = on ? 'flex' : 'none';
+      if (msg) document.getElementById('loadingMsg').textContent = msg;
+      document.getElementById('btnAnalyse').disabled = on;
+    }
+    function showError(msg) {
+      document.getElementById('errorMsg').textContent = msg;
+      document.getElementById('errorState').style.display = 'block';
+    }
+    function clearError() { document.getElementById('errorState').style.display = 'none'; }
+    function hideDupWarning() { document.getElementById('dupWarning').style.display = 'none'; }
+
+    // ── Duplicate check ──
+    function checkDuplicate(url) {
+      try {
+        const raw = localStorage.getItem(TRACKER_KEY);
+        if (!raw) return null;
+        const leads = JSON.parse(raw);
+        if (!Array.isArray(leads)) return null;
+        const norm = s => String(s || '').toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '').trim();
+        const inputNorm = norm(url);
+        if (!inputNorm) return null;
+        return leads.find(l => {
+          const stored = norm(l.website || '');
+          if (!stored) return false;
+          return stored.includes(inputNorm) || inputNorm.includes(stored);
+        }) || null;
+      } catch { return null; }
+    }
+
+    // ── HTML → plain text ──
+    function htmlToText(html) {
+      html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+      html = html.replace(/<style[\s\S]*?<\/style>/gi, '');
+      html = html.replace(/<nav[\s\S]*?<\/nav>/gi, '');
+      html = html.replace(/<footer[\s\S]*?<\/footer>/gi, '');
+      html = html.replace(/<[^>]+>/g, ' ');
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      const text = (div.textContent || div.innerText || '');
+      return text.replace(/\s+/g, ' ').trim().slice(0, 12000);
+    }
+
+    // ── Entry point ──
+    function runAnalysis() {
+      const apiKey = document.getElementById('apiKey').value.trim();
+      const url    = document.getElementById('clinicUrl').value.trim();
+
+      clearError();
+      hideDupWarning();
+      document.getElementById('results').style.display = 'none';
+
+      if (!apiKey) { showError('Please enter your Anthropic API key.'); return; }
+      if (!url)    { showError('Please enter a clinic website URL.'); return; }
+
+      const match = checkDuplicate(url);
+      if (match) {
+        pendingUrl    = url;
+        pendingApiKey = apiKey;
+        const name = match.clinicName || match.website || 'a clinic with this URL';
+        document.getElementById('dupMsg').textContent =
+          '⚠ This clinic may already be in your tracker (' + name + '). Check before continuing.';
+        document.getElementById('dupWarning').style.display = 'block';
+        return;
+      }
+
+      proceedWithAnalysis(url, apiKey);
+    }
+
+    function continueAnyway() {
+      hideDupWarning();
+      proceedWithAnalysis(pendingUrl, pendingApiKey);
+    }
+
+    // ── API call 1 — qualifier ──
+    async function proceedWithAnalysis(url, apiKey) {
+      clearError();
+      document.getElementById('results').style.display = 'none';
+      setLoading(true, 'Fetching page...');
+
+      let pageText = '';
+      try {
+        let fetchedHtml = null;
+
+        // Proxy 1: allorigins (returns JSON wrapper with .contents)
+        try {
+          const p1res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url),
+                                    { signal: AbortSignal.timeout(8000) });
+          if (p1res.ok) {
+            const p1data = await p1res.json();
+            if (p1data.contents && p1data.contents.length > 50) fetchedHtml = p1data.contents;
+          }
+        } catch { /* fall through to backup proxy */ }
+
+        // Proxy 2: corsproxy.io (returns raw HTML directly)
+        if (!fetchedHtml) {
+          setLoading(true, 'Retrying with backup proxy...');
+          const p2res = await fetch('https://corsproxy.io/?' + encodeURIComponent(url),
+                                    { signal: AbortSignal.timeout(10000) });
+          if (!p2res.ok) throw new Error('Both proxies failed (HTTP ' + p2res.status + '). The site may block automated access.');
+          fetchedHtml = await p2res.text();
+          if (!fetchedHtml || fetchedHtml.length < 50) throw new Error('Both proxies returned no usable content. The site may block automated access.');
+        }
+
+        pageText = htmlToText(fetchedHtml);
+        if (pageText.length < 80) throw new Error('Very little text was extracted. The site may be JavaScript-rendered or blocked. Try a different page.');
+      } catch (err) {
+        setLoading(false);
+        showError('Could not fetch the page: ' + err.message);
+        return;
+      }
+
+      setLoading(true, 'Analysing with Claude...');
+
+      const systemPrompt = `You are a sales qualifier for a UK dental clinic intake automation company called Versa Digital HQ. You analyse dental clinic websites and extract structured data to qualify them as outreach targets. When detecting the booking channel, look carefully for any of the following portal indicators in the page text: "Book Online", "Book Now", "Book Appointment", "Doctify", "Treatwell", "Dental Cloud", "Jane App", "dental portal", "online booking", "book with us". If any of these are present, set booking_channel to "online_portal" and has_live_booking_portal to true, even if the full portal URL is not visible. Set booking_channel_confidence to "inferred" in this case. Do not default to phone if portal indicators are present.`;
+
+      const userPrompt = `Analyse the following webpage text from a dental clinic website and return a JSON object with EXACTLY these fields:
+
+- score: "Hot", "Warm", or "Cold"
+- score_reason: one sentence explaining the score
+- clinic_name: detected clinic name as a string, or null
+- contact_name: best contact name — priority: 1) practice manager or practice coordinator name if found, 2) "Dr [Surname]" if a principal dentist found and no practice manager/coordinator, 3) null if neither found
+- contact_name_confidence: "found" (named on page), "inferred" (role only, no name), or "not_found"
+- emails: array of all email addresses detected (empty array if none)
+- primary_email: the single best email for outreach, or null
+- booking_channel: "phone" | "whatsapp" | "contact_form" | "google_form" | "online_portal" | "unknown"
+- booking_channel_confidence: "confirmed" (clearly stated) | "inferred" (implied) | "unknown"
+- review_count: number of Google reviews if mentioned on the page, or null
+- address: full street address if detected, or null
+- city: "London" | "Manchester" | "Birmingham" | "Leeds" | "Other" | "unknown"
+- city_name: actual city or area name detected, or null
+- has_live_booking_portal: true if a live online booking widget or portal is detected, false otherwise
+- disqualifiers: array of strings listing reasons this clinic is Cold (empty array if Hot or Warm)
+- detected_signals: array of strings describing positive signals (concise and factual)
+- hook_eligibility: object with exactly two fields:
+  - observation_compliment: true ONLY if review_count is not null, false otherwise
+  - trigger_event: always false
+
+Scoring rules:
+- Hot = manual intake only (phone or contact form, no booking portal), appears independent and private, 1–2 locations
+- Warm = mixed signals, some automation present but unclear, or insufficient information
+- Cold = live online booking portal detected (Dentally, Exact, SOE, Fresha, Zocdoc, or any "Book Online" widget), NHS-heavy, or part of a chain
+
+Return ONLY a raw JSON object. No markdown, no code fences, no explanation.
+
+Webpage text:
+${pageText}`;
+
+      try {
+        const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 1000,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: userPrompt }]
+          })
+        });
+
+        if (!apiRes.ok) {
+          const errBody = await apiRes.json().catch(() => ({}));
+          throw new Error(errBody.error?.message || 'API returned HTTP ' + apiRes.status);
+        }
+
+        const apiData = await apiRes.json();
+        const rawText = (apiData.content?.[0]?.text || '').trim();
+
+        let result;
+        try {
+          const clean = rawText.replace(/^```json?\s*/i, '').replace(/```\s*$/, '').trim();
+          result = JSON.parse(clean);
+        } catch {
+          throw new Error('Claude returned an unexpected format. Response started with: ' + rawText.slice(0, 120));
+        }
+
+        // Store result for later stages
+        window._lastResult = result;
+        window._lastUrl    = url;
+        window._apiKey     = apiKey;
+
+        setLoading(false);
+        renderResults(result, url);
+
+      } catch (err) {
+        setLoading(false);
+        showError('Analysis failed: ' + err.message);
+      }
+    }
+
+    // ── Helpers ──
+    function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+    function show(id, d) { const el = document.getElementById(id); if (el) el.style.display = d || 'block'; }
+
+    function resetResultPanels() {
+      ['coldPanel','outOfAreaPanel','flagChannel','flagContact',
+       'recommendationCard','signalsCard','metaCard','emailsCard',
+       'namesCard','emailToSendCard','namedContactCard','draftCtaWrap'].forEach(id => hide(id));
+    }
+
+    // ── Main render dispatcher ──
+    function renderResults(r, url) {
+      const score = String(r.score || '').trim();
+      resetResultPanels();
+
+      // Score badge — always shown
+      const badge = document.getElementById('scoreBadge');
+      badge.textContent = score;
+      badge.className = 'score-badge';
+      if (score === 'Hot')       badge.classList.add('score-hot');
+      else if (score === 'Warm') badge.classList.add('score-warm');
+      else                       badge.classList.add('score-cold');
+      document.getElementById('reasoningText').textContent = r.score_reason || '';
+      document.getElementById('analysedUrl').textContent = url;
+
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      if (score === 'Cold') { showColdPanel(r); return; }
+      if (r.city === 'Other') { showOutOfAreaPanel(r); return; }
+      showHotWarmContent(r);
+    }
+
+    // ── Cold panel ──
+    function showColdPanel(r) {
+      document.getElementById('coldReason').textContent =
+        r.score_reason || 'This clinic does not meet the qualification criteria.';
+      const list = document.getElementById('disqualifierList');
+      list.innerHTML = '';
+      (Array.isArray(r.disqualifiers) ? r.disqualifiers : []).forEach(d => {
+        const li = document.createElement('li');
+        li.innerHTML = '<span style="flex-shrink:0">✕</span><span>' + esc(d) + '</span>';
+        list.appendChild(li);
+      });
+      show('coldPanel');
+    }
+
+    // ── Out-of-area panel ──
+    function showOutOfAreaPanel(r) {
+      const city = r.city_name || 'an area outside your target cities';
+      document.getElementById('outOfAreaMsg').textContent =
+        '⚠ This clinic is outside your current target cities (' + city + '). Proceed or discard.';
+      show('outOfAreaPanel');
+    }
+
+    // ── Hot / Warm full content ──
+    function showHotWarmContent(r) {
+      // Flag: booking channel unknown
+      if (r.booking_channel_confidence === 'unknown') {
+        document.getElementById('flagChannel').textContent =
+          '⚠ Booking channel could not be confirmed — angle selection may be inaccurate. Review before sending.';
+        show('flagChannel');
+      }
+      // Flag: no named contact
+      if (r.contact_name_confidence === 'not_found') {
+        document.getElementById('flagContact').textContent =
+          '⚠ No named contact found — email will need a name added before sending.';
+        show('flagContact');
+      }
+
+      // Recommendation
+      document.getElementById('recommendation').textContent =
+        r.score === 'Hot' ? 'Strong target — proceed to email draft.' :
+                            'Warm target — verify signals before outreach.';
+      show('recommendationCard');
+
+      // Signals
+      const signalList = document.getElementById('signalList');
+      signalList.innerHTML = '';
+      const signals = Array.isArray(r.detected_signals) ? r.detected_signals : [];
+      if (signals.length === 0) {
+        signalList.innerHTML = '<li><span class="muted small">No specific signals detected.</span></li>';
+      } else {
+        signals.forEach(s => {
+          const li = document.createElement('li');
+          li.innerHTML = '<span class="signal-dot"></span><span>' + esc(s) + '</span>';
+          signalList.appendChild(li);
+        });
+      }
+      show('signalsCard');
+
+      // Metadata
+      const metaGrid = document.getElementById('metaGrid');
+      metaGrid.innerHTML = '';
+      [
+        ['Clinic',          r.clinic_name || '—'],
+        ['Contact',         r.contact_name
+                              ? r.contact_name + ' (' + (r.contact_name_confidence || '') + ')'
+                              : 'Not found'],
+        ['City',            r.city_name || r.city || '—'],
+        ['Booking channel', r.booking_channel
+                              ? r.booking_channel + ' (' + (r.booking_channel_confidence || '') + ')'
+                              : '—'],
+        ['Review count',    r.review_count != null ? String(r.review_count) : 'Not detected'],
+        ['Live portal',     r.has_live_booking_portal ? 'Yes' : 'No'],
+        ['Hook: obs+comp',  r.hook_eligibility?.observation_compliment ? '✓ Eligible' : '✗ Not eligible'],
+      ].forEach(([label, val]) => {
+        const row = document.createElement('div');
+        row.className = 'meta-row';
+        row.innerHTML = '<span class="meta-label">' + esc(label) + '</span><span class="meta-val">' + esc(val) + '</span>';
+        metaGrid.appendChild(row);
+      });
+      show('metaCard');
+
+      // Emails
+      const emails = Array.isArray(r.emails) ? r.emails : [];
+      if (emails.length > 0) {
+        const emailsList    = document.getElementById('emailsList');
+        const emailSelector = document.getElementById('emailSelector');
+        emailsList.innerHTML = '';
+        emailSelector.innerHTML = '';
+
+        if (emails.length === 1) {
+          document.getElementById('emailsCardLabel').textContent = 'Email Address Found';
+          selectedEmail = emails[0];
+          const row = document.createElement('div');
+          row.className = 'email-row';
+          const safeE = esc(emails[0]);
+          row.innerHTML = `<span class="email-addr">${safeE}</span><button class="copy-btn" data-copy="${safeE}">Copy</button>`;
+          emailsList.appendChild(row);
+          emailsList.querySelectorAll('button[data-copy]').forEach(btn =>
+            btn.addEventListener('click', () => copyText(btn.dataset.copy, btn))
+          );
+        } else {
+          document.getElementById('emailsCardLabel').textContent = 'Which email should we use?';
+          selectedEmail = r.primary_email || emails[0];
+          emails.forEach((e, i) => {
+            const row = document.createElement('div');
+            row.className = 'email-radio-row';
+            const id = 'email_opt_' + i;
+            const checked = e === selectedEmail ? 'checked' : '';
+            row.innerHTML = `<input type="radio" name="emailChoice" id="${id}" value="${esc(e)}" ${checked}>
+              <label for="${id}" class="email-addr" style="cursor:pointer;margin:0">${esc(e)}</label>`;
+            emailSelector.appendChild(row);
+          });
+          emailSelector.querySelectorAll('input[type=radio]').forEach(radio =>
+            radio.addEventListener('change', () => { selectedEmail = radio.value; })
+          );
+        }
+        show('emailsCard');
+      }
+
+      // Editable email field — pre-populate with scraped email, leave empty if none found
+      const emailToSendInput = document.getElementById('emailToSendInput');
+      if (emailToSendInput) emailToSendInput.value = selectedEmail || '';
+      show('emailToSendCard');
+
+      // Editable named contact field — pre-populate with scraped contact name, leave empty if none found
+      const namedContactInput = document.getElementById('namedContactInput');
+      if (namedContactInput) namedContactInput.value = r.contact_name || '';
+      show('namedContactCard');
+
+      // Draft CTA
+      show('draftCtaWrap');
+    }
+
+    // ── Utilities ──
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.color = 'var(--success)';
+        btn.style.borderColor = 'var(--success)';
+        setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 1800);
+      });
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+
+    // ── Event listeners ──
+    document.getElementById('clinicUrl').addEventListener('keydown', e => {
+      if (e.key === 'Enter') runAnalysis();
+    });
+    document.getElementById('btnContinueAnyway').addEventListener('click', continueAnyway);
+    document.getElementById('btnViewTracker').addEventListener('click', () => {
+      window.open('../tracker-app/index.html', '_blank');
+    });
+    document.getElementById('btnProceedAnyway').addEventListener('click', () => {
+      hide('outOfAreaPanel');
+      showHotWarmContent(window._lastResult);
+    });
+    document.getElementById('btnDiscard').addEventListener('click', () => {
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('clinicUrl').value = '';
+    });
+    document.getElementById('btnSaveFuture').addEventListener('click', () => {
+      const r   = window._lastResult || {};
+      const url = window._lastUrl || '';
+      try {
+        const raw = localStorage.getItem('futureTargets');
+        const targets = raw ? JSON.parse(raw) : [];
+        targets.push({ clinicName: r.clinic_name || '', url, savedAt: new Date().toISOString().slice(0,10) });
+        localStorage.setItem('futureTargets', JSON.stringify(targets));
+        const btn = document.getElementById('btnSaveFuture');
+        btn.textContent = '✓ Saved';
+        btn.disabled = true;
+        updateFutureTargetsBtn();
+      } catch { showError('Could not save to storage.'); }
+    });
+
+    // ── Stage 5: Future Targets ──
+    function getFutureTargets() {
+      try {
+        const raw = localStorage.getItem('futureTargets');
+        return raw ? JSON.parse(raw) : [];
+      } catch { return []; }
+    }
+
+    function updateFutureTargetsBtn() {
+      const count = getFutureTargets().length;
+      document.getElementById('btnToggleFT').textContent = 'Future Targets (' + count + ')';
+    }
+
+    function renderFutureTargets() {
+      const targets = getFutureTargets();
+      const list = document.getElementById('ftList');
+      if (targets.length === 0) {
+        list.innerHTML = '<div class="ft-empty">No future targets saved yet. Qualify a Cold clinic and click "Save as Future Target".</div>';
+        return;
+      }
+      list.innerHTML = '';
+      targets.forEach((t, i) => {
+        const row = document.createElement('div');
+        row.className = 'ft-row';
+        const name = esc(t.clinicName || t.url || 'Unknown');
+        const url  = esc(t.url || '');
+        row.innerHTML = `<div class="ft-name" title="${url}">${name}<span class="ft-url">${url}</span></div>
+          <div class="ft-actions">
+            <button class="copy-btn" data-idx="${i}" id="btnQualify_${i}">Qualify Now</button>
+            <button class="btn-ft-remove" data-idx="${i}" id="btnRemoveFT_${i}">Remove</button>
+          </div>`;
+        row.querySelector('[id^="btnQualify_"]').addEventListener('click', () => qualifyFutureTarget(i));
+        row.querySelector('[id^="btnRemoveFT_"]').addEventListener('click', () => removeFutureTarget(i));
+        list.appendChild(row);
+      });
+    }
+
+    function removeFutureTarget(idx) {
+      const targets = getFutureTargets();
+      targets.splice(idx, 1);
+      localStorage.setItem('futureTargets', JSON.stringify(targets));
+      renderFutureTargets();
+      updateFutureTargetsBtn();
+    }
+
+    function qualifyFutureTarget(idx) {
+      const targets = getFutureTargets();
+      const t = targets[idx];
+      if (!t || !t.url) return;
+      document.getElementById('clinicUrl').value = t.url;
+      hide('futureTargetsPanel');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('clinicUrl').focus();
+    }
+
+    document.getElementById('btnToggleFT').addEventListener('click', () => {
+      const panel = document.getElementById('futureTargetsPanel');
+      if (panel.style.display === 'none') {
+        renderFutureTargets();
+        show('futureTargetsPanel');
+      } else {
+        hide('futureTargetsPanel');
+      }
+    });
+
+    // Init count on load
+    updateFutureTargetsBtn();
+    document.getElementById('btnReviewDraft').addEventListener('click', openDraftSection);
+
+    document.getElementById('btnBackToResults').addEventListener('click', e => {
+      e.preventDefault();
+      hide('emailDraftSection');
+      show('results');
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    document.getElementById('btnGenerateEmail').addEventListener('click', generateEmailDraft);
+    document.getElementById('btnRegenerate').addEventListener('click', generateEmailDraft);
+
+    document.getElementById('btnCopyDraftEmail').addEventListener('click', () => {
+      copyText(document.getElementById('draftEmailAddress').textContent,
+               document.getElementById('btnCopyDraftEmail'));
+    });
+    document.getElementById('btnCopySubject').addEventListener('click', () => {
+      copyText(document.getElementById('draftSubject').textContent,
+               document.getElementById('btnCopySubject'));
+    });
+    document.getElementById('btnCopyEmail').addEventListener('click', () => {
+      copyText(document.getElementById('draftBody').textContent,
+               document.getElementById('btnCopyEmail'));
+    });
+
+    document.getElementById('btnConfirmTracker').addEventListener('click', confirmAddToTracker);
+    document.getElementById('btnMarkSent').addEventListener('click', markAsSent);
+    document.getElementById('btnAddAnother').addEventListener('click', resetAll);
+    document.getElementById('btnViewTrackerFinal').addEventListener('click', e => {
+      e.preventDefault();
+      window.open('../tracker-app/index.html', '_blank');
+    });
+
+    // ── Stage 4: date helpers ──
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+    function addDaysISO(n) {
+      const d = new Date();
+      d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
+    function formatDate(iso) {
+      if (!iso) return iso;
+      const [y, m, day] = iso.split('-');
+      return day + '/' + m + '/' + y;
+    }
+
+    // ── Stage 4: confirm & add to tracker ──
+    function confirmAddToTracker() {
+      const r = window._lastResult;
+      if (!r) { showError('Missing result data — please re-run analysis.'); return; }
+
+      // Guard: block confirm if the email draft has not been generated yet
+      const _draftSubject = window._lastDraft ? (window._lastDraft.subject || '') : '';
+      const _draftBody    = window._lastDraft ? (window._lastDraft.body    || '') : '';
+      if (!_draftSubject || !_draftBody) {
+        showError('Data not ready — please regenerate the email before confirming.');
+        return;
+      }
+
+      const lead = {
+        id:          Date.now(),
+        clinicName:  r.clinic_name   || '',
+        city:        r.city_name     || r.city || '',
+        address:     r.address        || '',
+        website:     window._lastUrl  || '',
+        contactName: (document.getElementById('namedContactInput') ? document.getElementById('namedContactInput').value.trim() : r.contact_name) || '',
+        email:       (document.getElementById('emailToSendInput') ? document.getElementById('emailToSendInput').value.trim() : selectedEmail) || '',
+        channel:     r.booking_channel || '',
+        angle:       selectedAngle   || '',
+        dateSent:    '',
+        fu1Date:     addDaysISO(3),
+        fu2Date:     addDaysISO(7),
+        fu3Date:     addDaysISO(14),
+        fu1Sent:     false,
+        fu2Sent:     false,
+        fu3Sent:     false,
+        reply:       'N',
+        replyType:   '',
+        notes:       '',
+        reviewCount:  r.review_count != null ? String(r.review_count) : '',
+        score:        r.score || '',
+        draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
+        draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : ''
+      };
+
+      try {
+        const raw    = localStorage.getItem(TRACKER_KEY);
+        const leads  = raw ? JSON.parse(raw) : [];
+        leads.push(lead);
+        localStorage.setItem(TRACKER_KEY, JSON.stringify(leads));
+        window._createdLeadId = lead.id;
+      } catch {
+        showError('Could not save to tracker storage.');
+        return;
+      }
+
+      // Hide confirm button, show confirm state
+      hide('btnConfirmTracker');
+      clearError();
+
+      const name = lead.clinicName || lead.website || 'the clinic';
+      document.getElementById('confirmMsg').textContent =
+        '✓ ' + name + ' added to tracker. Not marked as sent yet — email is still a draft.';
+      show('confirmState');
+      document.getElementById('confirmState').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ── Stage 4: mark as sent ──
+    function markAsSent() {
+      const id = window._createdLeadId;
+      if (!id) { showError('No lead ID found — please add to tracker first.'); return; }
+
+      try {
+        const raw   = localStorage.getItem(TRACKER_KEY);
+        const leads = raw ? JSON.parse(raw) : [];
+        const idx   = leads.findIndex(l => l.id === id);
+        if (idx === -1) { showError('Lead not found in tracker.'); return; }
+
+        const today = todayISO();
+        leads[idx].dateSent = today;
+        leads[idx].fu1Date  = addDaysISO(3);
+        leads[idx].fu2Date  = addDaysISO(7);
+        leads[idx].fu3Date  = addDaysISO(14);
+        localStorage.setItem(TRACKER_KEY, JSON.stringify(leads));
+
+        // Update UI
+        document.getElementById('btnMarkSent').disabled = true;
+        document.getElementById('btnMarkSent').textContent = '✓ Marked as Sent';
+        document.getElementById('markSentMsg').innerHTML =
+          'Sent ' + formatDate(today) + ' · FU1 due ' + formatDate(addDaysISO(3)) +
+          ' · FU2 due ' + formatDate(addDaysISO(7)) +
+          ' · FU3 due ' + formatDate(addDaysISO(14));
+        show('markSentState');
+      } catch {
+        showError('Could not update tracker storage.');
+      }
+    }
+
+    // ── Stage 4: reset for another clinic ──
+    function resetAll() {
+      // Clear session state
+      window._lastResult     = null;
+      window._lastUrl        = null;
+      window._lastDraft      = null;
+      window._createdLeadId  = null;
+      selectedEmail = '';
+      selectedAngle = '';
+      selectedHook  = '';
+
+      // Reset inputs
+      document.getElementById('clinicUrl').value = '';
+      const _ets = document.getElementById('emailToSendInput'); if (_ets) _ets.value = '';
+      const _nci = document.getElementById('namedContactInput'); if (_nci) _nci.value = '';
+
+      // Reset draft section
+      hide('emailDraftSection');
+      hide('draftOutput');
+      hide('draftLoadingState');
+      hide('confirmState');
+      hide('markSentState');
+      show('btnConfirmTracker');
+      document.getElementById('btnMarkSent').disabled = false;
+      document.getElementById('btnMarkSent').textContent = 'Mark as Sent';
+
+      // Reset results
+      hide('results');
+      clearError();
+      hideDupWarning();
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('clinicUrl').focus();
+    }
+
+    // ── Stage 3: open draft section ──
+    function openDraftSection() {
+      const r = window._lastResult;
+      if (!r) return;
+
+      // Auto-select angle
+      const ch = r.booking_channel || '';
+      if (ch === 'contact_form' || ch === 'google_form') selectedAngle = 'Manual Coordination';
+      else selectedAngle = 'After-Hours';
+
+      // Auto-select hook
+      const hasReviews = r.review_count != null;
+      const hasContact = r.contact_name_confidence !== 'not_found';
+      if (hasReviews && hasContact)  selectedHook = 'Observation + Compliment';
+      else if (hasContact)           selectedHook = 'Direct Observation';
+      else                           selectedHook = 'Industry Insight';
+
+      // Set dropdowns
+      document.getElementById('selectAngle').value = selectedAngle;
+      document.getElementById('hookOptOC').disabled = !hasReviews;
+      document.getElementById('selectHook').value = selectedHook;
+
+      // Show auto-selection summary
+      document.getElementById('autoSelectDisplay').textContent =
+        'Auto-selected — Angle: ' + selectedAngle + ' | Hook: ' + selectedHook;
+
+      // Reset output and confirm state
+      hide('draftOutput');
+      hide('draftLoadingState');
+      hide('confirmState');
+      hide('markSentState');
+      show('btnConfirmTracker');
+      clearError();
+
+      // Swap views
+      hide('results');
+      show('emailDraftSection');
+      document.getElementById('emailDraftSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ── Stage 3: API call 2 — email generation ──
+    async function generateEmailDraft() {
+      const r      = window._lastResult;
+      const apiKey = window._apiKey;
+      if (!r || !apiKey) { showError('Missing data — please re-run the analysis first.'); return; }
+
+      selectedAngle = document.getElementById('selectAngle').value;
+      selectedHook  = document.getElementById('selectHook').value;
+
+      clearError();
+      hide('draftOutput');
+      show('draftLoadingState', 'flex');
+      document.getElementById('btnGenerateEmail').disabled = true;
+      document.getElementById('btnRegenerate').disabled    = true;
+
+      const contact = (document.getElementById('namedContactInput') ? document.getElementById('namedContactInput').value.trim() : '') || r.contact_name || 'the practice owner';
+      const clinic  = r.clinic_name  || 'the clinic';
+      const city    = r.city_name    || r.city || '';
+      const channel = r.booking_channel || 'unknown';
+      const reviews = r.review_count != null ? String(r.review_count) : 'not available';
+      const systemPrompt = `You are writing a cold outreach email on behalf of Lawrence at Versa Digital HQ. Lawrence helps independent dental clinics automate their patient intake process.
+RULES — follow every one without exception:
+- Maximum 3 paragraphs in the body (not counting greeting or sign-off)
+- Maximum 100 words total across the body paragraphs only
+- Start with a greeting line: "Hi [contact name]," on its own line before paragraph 1. Use the exact contact name provided.
+- No statistics, percentages, or numerical claims of any kind
+- No em dashes — use regular hyphens or rephrase
+- Never mention "Versa Digital" or any product name in the body
+- Refer to the solution only as "the system" or "an automated intake layer"
+- Never explain features — describe outcomes only
+- No contradiction mid-email
+- End the body paragraphs with exactly: "Worth a quick conversation?"
+- After "Worth a quick conversation?", sign off on separate lines: first line is "Lawrence", second line is "Versa Digital HQ"
+- In the body JSON field, separate the greeting, each paragraph, and the sign-off block with a blank line (two newline characters \n\n between each section)
+STRUCTURE — three paragraphs, one job each:
+- Paragraph 1: One specific observation about this clinic's intake setup based on the detected data provided. What you noticed. Nothing else.
+- Paragraph 2: The consequence of that gap — what it costs them in patient loss or staff time. One sentence maximum.
+- Paragraph 3: What the system does, described in one concrete visual sentence. Where it sits, what it handles, what the outcome is.
+TONE:
+- Direct and confident — not salesy
+- Conversational — not corporate
+- Specific to this clinic — never generic
+- No filler phrases: never use "I hope this finds you well", "I wanted to reach out", "touch base", "synergy", "innovative solution"
+DATA YOU WILL RECEIVE:
+- Clinic name
+- Contact name
+- City
+- Booking channel (phone / contact form / WhatsApp / unknown)
+- Review count (if detected)
+- Selected angle (After-Hours / Manual Coordination / Conversion)
+- Selected hook type
+Use the booking channel and angle to determine what specific observation to open with. Use the contact name in the greeting line and in the subject line. Do not use it anywhere else in the body paragraphs.
+SUBJECT LINE FORMAT:
+- "[Contact name] – [specific topic]?" — conversational, specific, no more than 8 words
+- Examples: "Dr Patel – after-hours enquiries?", "Donna – patient follow-up gap?"
+Return a JSON object with exactly two fields: subject and body. No preamble, no explanation, no markdown. Raw JSON only.`;
+
+      const userPrompt = `Write a cold outreach email using the details below.
+
+Clinic: ${clinic}
+Contact: ${contact}
+City: ${city}
+Booking channel: ${channel}
+Google review count: ${reviews}
+Angle: ${selectedAngle}
+Hook: ${selectedHook}
+
+Angle definitions:
+- After-Hours: focus on enquiries arriving outside reception hours going unanswered
+- Manual Coordination: focus on the manual back-and-forth staff handle for booking coordination
+- Conversion: focus on patients who submit an enquiry but don't convert due to slow follow-up
+
+Hook definitions:
+- Observation + Compliment: open by noting their strong Google reviews (${reviews}), then observe the intake gap
+- Direct Observation: open by describing what you observed on their website (form, phone, no instant confirmation)
+- Industry Insight: open with a general observation about how dental clinics lose patients through intake gaps
+
+Return ONLY a raw JSON object with exactly two fields: { "subject": "...", "body": "..." }
+No markdown, no code fences, no explanation.`;
+
+      try {
+        const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 1000,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: userPrompt }]
+          })
+        });
+
+        if (!apiRes.ok) {
+          const errBody = await apiRes.json().catch(() => ({}));
+          throw new Error(errBody.error?.message || 'API returned HTTP ' + apiRes.status);
+        }
+
+        const apiData = await apiRes.json();
+        const rawText = (apiData.content?.[0]?.text || '').trim();
+
+        let draft;
+        try {
+          const clean = rawText.replace(/^```json?\s*/i, '').replace(/```\s*$/, '').trim();
+          draft = JSON.parse(clean);
+        } catch {
+          throw new Error('Claude returned an unexpected format. Started with: ' + rawText.slice(0, 120));
+        }
+
+        window._lastDraft = draft;
+        hide('draftLoadingState');
+        const _emailInput=document.getElementById('emailToSendInput'); document.getElementById('draftEmailAddress').textContent=_emailInput?_emailInput.value.trim():'';
+        document.getElementById('draftSubject').textContent = draft.subject || '';
+        document.getElementById('draftBody').textContent    = draft.body    || '';
+        show('draftOutput');
+        document.getElementById('draftOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        hide('draftLoadingState');
+        showError('Email generation failed: ' + err.message);
+      } finally {
+        document.getElementById('btnGenerateEmail').disabled = false;
+        document.getElementById('btnRegenerate').disabled    = false;
+      }
+    }
+  </script>
+</body>
+</html>
