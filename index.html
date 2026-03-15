@@ -1446,7 +1446,7 @@
       if(!window.msal){ alert('Microsoft login library is still loading. Please try again in a moment.'); return; }
       if(!msalInstance) msalInit();
       try{
-        const resp = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES });
+        const resp = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES, prompt: 'select_account' });
         outlookAccount = resp.account;
         updateOutlookUI();
       } catch(e){
