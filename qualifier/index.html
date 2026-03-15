@@ -572,6 +572,16 @@ ${pageText}`;
     function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
     function show(id, d) { const el = document.getElementById(id); if (el) el.style.display = d || 'block'; }
 
+    function buildGreetingName(s){
+      s=(s||'').replace(/\s*\(.*?\)\s*/g,'').trim();
+      if(!s||s.toLowerCase()==='not found') return 'there';
+      if(/\bDr\.?\b/i.test(s)){
+        const parts=s.replace(/\bDr\.?\s*/i,'').trim().split(/\s+/);
+        return 'Dr '+parts[parts.length-1];
+      }
+      return s.split(/\s+/)[0]||'there';
+    }
+
     function resetResultPanels() {
       ['coldPanel','outOfAreaPanel','flagChannel','flagContact',
        'recommendationCard','signalsCard','metaCard','emailsCard',
@@ -1079,6 +1089,7 @@ ${pageText}`;
       document.getElementById('btnRegenerate').disabled    = true;
 
       const contact = (document.getElementById('namedContactInput') ? document.getElementById('namedContactInput').value.trim() : '') || r.contact_name || 'the practice owner';
+      const greetingContact = buildGreetingName(contact);
       const clinic  = r.clinic_name  || 'the clinic';
       const city    = r.city_name    || r.city || '';
       const channel = r.booking_channel || 'unknown';
@@ -1087,7 +1098,7 @@ ${pageText}`;
 RULES — follow every one without exception:
 - Maximum 3 paragraphs in the body (not counting greeting or sign-off)
 - Maximum 100 words total across the body paragraphs only
-- Start with a greeting line: "Hi [contact name]," on its own line before paragraph 1. Use the exact contact name provided.
+- Start with a greeting line: "Hi [greeting name]," on its own line before paragraph 1. Use the exact value from the Greeting field provided — do not modify it.
 - No statistics, percentages, or numerical claims of any kind
 - No em dashes — use regular hyphens or rephrase
 - Never mention "Versa Digital" or any product name in the body
@@ -1114,7 +1125,7 @@ DATA YOU WILL RECEIVE:
 - Review count (if detected)
 - Selected angle (After-Hours / Manual Coordination / Conversion)
 - Selected hook type
-Use the booking channel and angle to determine what specific observation to open with. Use the contact name in the greeting line and in the subject line. Do not use it anywhere else in the body paragraphs.
+Use the booking channel and angle to determine what specific observation to open with. Use the Contact name in the subject line. Use the Greeting name in the greeting line. Do not use either name anywhere else in the body paragraphs.
 SUBJECT LINE FORMAT:
 - "[Contact name] – [specific topic]?" — conversational, specific, no more than 8 words
 - Examples: "Dr Patel – after-hours enquiries?", "Donna – patient follow-up gap?"
@@ -1124,6 +1135,7 @@ Return a JSON object with exactly two fields: subject and body. No preamble, no 
 
 Clinic: ${clinic}
 Contact: ${contact}
+Greeting: ${greetingContact}
 City: ${city}
 Booking channel: ${channel}
 Google review count: ${reviews}

@@ -1110,6 +1110,16 @@
 
     function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
+    function buildGreetingName(s){
+      s=(s||'').replace(/\s*\(.*?\)\s*/g,'').trim();
+      if(!s||s.toLowerCase()==='not found') return 'there';
+      if(/\bDr\.?\b/i.test(s)){
+        const parts=s.replace(/\bDr\.?\s*/i,'').trim().split(/\s+/);
+        return 'Dr '+parts[parts.length-1];
+      }
+      return s.split(/\s+/)[0]||'there';
+    }
+
     function bindUI(){
       document.getElementById('leadForm').addEventListener('submit',e=>{ e.preventDefault(); const data={clinicName:document.getElementById('clinicName').value.trim(),city:document.getElementById('city').value.trim(),address:document.getElementById('address').value.trim(),website:document.getElementById('website').value.trim(),contactName:document.getElementById('contactName').value.trim(),email:document.getElementById('email').value.trim(),channel:document.getElementById('channel').value,angle:document.getElementById('angle').value,dateSent:document.getElementById('dateSent').value||'',reply:document.getElementById('reply').value,replyType:document.getElementById('replyType').value.trim(),notes:document.getElementById('notes').value.trim(),reviewCount:document.getElementById('reviewCount').value.trim()}; addLead(data); e.target.reset(); closeAddLeadPanel(); });
 
@@ -1375,7 +1385,7 @@
       const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
       const channel=(lead.channel||'phone/contact form').toLowerCase();
       const reviews=lead.reviewCount||reviewOverride||'[X]'; const trig=trigger||'[TRIGGER]';
-      const contactForBody=lead.contactName||'there';
+      const contactForBody=buildGreetingName(lead.contactName);
       const contactForSubject=lead.contactName||lead.clinicName||'[Clinic Name]';
       const subject=tpl.subject
         .replace(/\[Contact name\]/g,contactForSubject)
@@ -1383,7 +1393,7 @@
         .replace(/\[Clinic Name\]/g,clinic);
       const body=tpl.body
         .replace(/\[name\]/g,contactForBody)
-        .replace(/\[Contact\]/g,contact)
+        .replace(/\[Contact\]/g,contactForBody)
         .replace(/\[Clinic Name\]/g,clinic)
         .replace(/\[phone\/contact form\]/g,channel)
         .replace(/\[Channel\]/g,channel)
@@ -1591,10 +1601,10 @@
         const tpl = FU_TEMPLATES[angle] && FU_TEMPLATES[angle][fuLabel];
         if(!tpl){ if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:11px">No template</span>'; failed++; continue; }
         const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
-        const contactForBody = lead.contactName || 'there';
+        const contactForBody = buildGreetingName(lead.contactName);
         const clinic = lead.clinicName || '[Clinic Name]';
         const subject = tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
-        const body = tpl.body.replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
+        const body = tpl.body.replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic);
         const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>') + '</div>';
         try{
           await sendGraphEmail(lead.email, subject, htmlBody);
