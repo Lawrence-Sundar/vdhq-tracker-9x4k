@@ -1533,6 +1533,7 @@
       const origText = btn.textContent;
       btn.textContent = 'Sending...'; btn.disabled = true;
       try{
+        console.log('finalSubject:', finalSubject);
         await sendGraphEmail(lead.email, finalSubject, htmlBody);
         if(isFU){
           markFUFromFollowUps(lead.id, selectedType.toLowerCase());
