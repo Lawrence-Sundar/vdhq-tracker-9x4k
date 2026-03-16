@@ -1292,19 +1292,19 @@
 
     const FU_TEMPLATES = {
       'After-Hours': {
-        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my note from earlier this week about after-hours enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nWanted to add one thing to my previous note.\n\nMost independent clinics I speak to aren't aware of how many enquiries arrive outside reception hours until they actually look at the data. It's rarely a small number.\n\nIf that's worth exploring, I'm happy to take a look at your current setup on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nI'll keep this brief - this is my last note on this.\n\nIf after-hours enquiries aren't a priority right now, completely understood. If that changes, you know where I am.\n\nLawrence\nVersa Digital HQ` }
+        'FU1': { subject: 'Re: [Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my note from earlier this week about after-hours enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+        'FU2': { subject: 'Re: [Contact name] \u2013 one more thought', body: `Hi [name],\n\nWanted to add one thing to my previous note.\n\nMost independent clinics I speak to aren't aware of how many enquiries arrive outside reception hours until they actually look at the data. It's rarely a small number.\n\nIf that's worth exploring, I'm happy to take a look at your current setup on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
+        'FU3': { subject: 'Re: [Contact name] \u2013 closing the loop', body: `Hi [name],\n\nI'll keep this brief - this is my last note on this.\n\nIf after-hours enquiries aren't a priority right now, completely understood. If that changes, you know where I am.\n\nLawrence\nVersa Digital HQ` }
       },
       'Coordination': {
-        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust checking back in on my note about the time your team spends coordinating new patient enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nOne thing I didn't mention in my last note - the coordination problem compounds as the practice grows. More enquiries means more manual handling, which means more staff time absorbed before a single patient is booked.\n\nHappy to walk through what a leaner process looks like on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nLast note from me on this.\n\nIf streamlining how your team handles new patient enquiries isn't on the radar right now, no problem at all. Happy to pick this up whenever the timing is right.\n\nLawrence\nVersa Digital HQ` }
+        'FU1': { subject: 'Re: [Contact name] \u2013 following up', body: `Hi [name],\n\nJust checking back in on my note about the time your team spends coordinating new patient enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+        'FU2': { subject: 'Re: [Contact name] \u2013 one more thought', body: `Hi [name],\n\nOne thing I didn't mention in my last note - the coordination problem compounds as the practice grows. More enquiries means more manual handling, which means more staff time absorbed before a single patient is booked.\n\nHappy to walk through what a leaner process looks like on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
+        'FU3': { subject: 'Re: [Contact name] \u2013 closing the loop', body: `Hi [name],\n\nLast note from me on this.\n\nIf streamlining how your team handles new patient enquiries isn't on the radar right now, no problem at all. Happy to pick this up whenever the timing is right.\n\nLawrence\nVersa Digital HQ` }
       },
       'Conversion': {
-        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my earlier note about enquiries dropping off before they convert to booked appointments.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nSomething worth adding to my last note - the drop-off between enquiry and booking almost always happens in the first two hours. After that, the patient has either heard back or moved on.\n\nHappy to show you how other independent clinics have closed that gap.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nLast note from me.\n\nIf reducing drop-off between enquiry and booking isn't something you're looking at right now, completely understood. I'll leave the door open.\n\nLawrence\nVersa Digital HQ` }
+        'FU1': { subject: 'Re: [Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my earlier note about enquiries dropping off before they convert to booked appointments.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
+        'FU2': { subject: 'Re: [Contact name] \u2013 one more thought', body: `Hi [name],\n\nSomething worth adding to my last note - the drop-off between enquiry and booking almost always happens in the first two hours. After that, the patient has either heard back or moved on.\n\nHappy to show you how other independent clinics have closed that gap.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
+        'FU3': { subject: 'Re: [Contact name] \u2013 closing the loop', body: `Hi [name],\n\nLast note from me.\n\nIf reducing drop-off between enquiry and booking isn't something you're looking at right now, completely understood. I'll leave the door open.\n\nLawrence\nVersa Digital HQ` }
       }
     };
 
@@ -1390,11 +1390,10 @@
       const reviews=lead.reviewCount||reviewOverride||'[X]'; const trig=trigger||'[TRIGGER]';
       const contactForBody=buildGreetingName(lead.contactName);
       const contactForSubject=lead.contactName||lead.clinicName||'[Clinic Name]';
-      const rawSubject=tpl.subject
+      const subject=tpl.subject
         .replace(/\[Contact name\]/g,contactForSubject)
         .replace(/\[Contact\]/g,contact)
         .replace(/\[Clinic Name\]/g,clinic);
-      const subject=isFU?'Re: '+rawSubject:rawSubject;
       const body=tpl.body
         .replace(/\[name\]/g,contactForBody)
         .replace(/\[Contact\]/g,contactForBody)
@@ -1517,24 +1516,17 @@
       const isFU = ["FU1","FU2","FU3"].includes(selectedType);
       const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
       const clinic = lead.clinicName || '[Clinic Name]';
-      let baseSubject;
-      if(isFU){
-        const fuTpl = FU_TEMPLATES[lead.angle||'After-Hours'] && FU_TEMPLATES[lead.angle||'After-Hours'][selectedType];
-        baseSubject = fuTpl
-          ? fuTpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic)
-          : selectedType + ' - ' + (lead.clinicName||'follow-up');
-      } else {
-        baseSubject = document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,'');
-      }
-      const finalSubject = isFU ? "Re: " + baseSubject : baseSubject;
+      const fuTpl = isFU ? (FU_TEMPLATES[lead.angle||'After-Hours'] && FU_TEMPLATES[lead.angle||'After-Hours'][selectedType]) : null;
+      const subject = fuTpl
+        ? fuTpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic)
+        : document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,'');
       const bodyEl = document.getElementById('emailBodyPreview');
       const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + bodyEl.innerHTML.replace(/\n/g,'<br>') + '</div>';
       const btn = document.getElementById('btnSendOutlook');
       const origText = btn.textContent;
       btn.textContent = 'Sending...'; btn.disabled = true;
       try{
-        console.log('finalSubject:', finalSubject);
-        await sendGraphEmail(lead.email, finalSubject, htmlBody);
+        await sendGraphEmail(lead.email, subject, htmlBody);
         if(isFU){
           markFUFromFollowUps(lead.id, selectedType.toLowerCase());
         } else if(selectedType === 'Initial' && !lead.dateSent){
