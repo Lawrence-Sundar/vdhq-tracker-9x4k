@@ -379,11 +379,7 @@
     .li-status-booked{background:rgba(76,175,125,.25);color:#2d9e62}
     .li-status-ni{background:rgba(229,72,77,.12);color:#E5484D}
     .li-empty{color:var(--muted);font-size:13px;padding:24px 0;text-align:center}
-    .btn-li-find{padding:6px 14px;font-size:12px;font-weight:600;border-radius:6px;background:#C9A84C;color:#0a0800;border:none;cursor:pointer;white-space:nowrap}
-    .btn-li-find:hover{background:#B8933B}
-    .btn-li-find:disabled{opacity:.5;cursor:not-allowed}
-    .li-search-progress{font-size:12px;color:var(--muted);padding:7px 10px;background:var(--elevated);border-radius:6px;border:1px solid var(--border);margin-bottom:10px}
-    /* Send Initial modal */
+/* Send Initial modal */
     #sendInitialBackdrop{justify-content:center;align-items:center}
     #sendInitialModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
     #sendInitialModal.open{transform:translateY(0)}
@@ -587,9 +583,7 @@
           </select>
         </div>
         <label><input type="checkbox" id="liExcludeNoContact" checked> Exclude leads with no named contact</label>
-        <button class="btn-li-find" id="btnFindProfiles" onclick="findLinkedInProfiles()">Find LinkedIn Profiles</button>
       </div>
-      <div class="li-search-progress" id="liSearchProgress" style="display:none"></div>
       <div class="li-summary" id="liSummary"></div>
       <div class="li-notice">Verify each profile before sending a DM.</div>
       <div style="overflow-x:auto">
@@ -1775,85 +1769,14 @@
       save();
     }
 
-    const LI_API_KEY = 'AIzaSyCa4sX4Yo951b5aFsPSnM0h5PzqUFMCtsw';
-    const LI_CX = 'b2212a39c7a564173';
-
-    async function searchLinkedInQuery(query, cache){
-      if(Object.prototype.hasOwnProperty.call(cache, query)) return cache[query];
-      try {
-        const res = await fetch('https://www.googleapis.com/customsearch/v1?key=' + encodeURIComponent(LI_API_KEY) + '&cx=' + encodeURIComponent(LI_CX) + '&q=' + encodeURIComponent(query));
-        if(!res.ok){ cache[query] = null; return null; }
-        const data = await res.json();
-        console.log('CSE response:', JSON.stringify(data));
-        const allLinks = (data.items || []).map(i => i.link || '');
-        const link = allLinks.find(l => l.includes('linkedin.com/in/')) || null;
-        const url = link;
-        cache[query] = url;
-        return url;
-      } catch(e){ cache[query] = null; return null; }
-    }
-
-    async function findLinkedInProfiles(){
-      const btn = document.getElementById('btnFindProfiles');
-      const progressEl = document.getElementById('liSearchProgress');
-      const cityNorm = s => (s||'').toLowerCase().trim();
-      const knownCities = ['london','manchester','birmingham','leeds','bristol'];
-      const base = leads.filter(l => !l.doNotContact);
-      const candidates = base.filter(l => {
-        if(liFilter.excludeNoContact && !l.contactName) return false;
-        if(liFilter.city !== 'All'){
-          const c = cityNorm(l.city);
-          if(liFilter.city === 'Other' && knownCities.includes(c)) return false;
-          if(liFilter.city !== 'Other' && c !== liFilter.city.toLowerCase()) return false;
-        }
-        if(liFilter.status !== 'All' && getLinkedInStatus(l) !== liFilter.status) return false;
-        return true;
-      }).filter(l => !l.linkedinUrl);
-
-      if(!candidates.length){
-        alert('No leads to search — all visible leads already have a saved URL, or no leads match the current filters.');
-        return;
-      }
-
-      btn.disabled = true;
-      progressEl.style.display = 'block';
-      let cache = {};
-      try { cache = JSON.parse(sessionStorage.getItem('vdhq_linkedin_cache') || '{}'); } catch(e){}
-
-      const total = candidates.length;
-      let found = 0, notFound = 0;
-
-      for(let i = 0; i < candidates.length; i++){
-        const lead = candidates[i];
-        progressEl.textContent = 'Searching ' + (i + 1) + ' of ' + total + '...';
-
-        const primaryQ = '"' + (lead.contactName||'') + '" "' + (lead.clinicName||'') + '" linkedin';
-        const fallbackQ = '"' + (lead.contactName||'') + '" dentist "' + (lead.city||'') + '" linkedin';
-
-        let url = await searchLinkedInQuery(primaryQ, cache);
-        if(!url) url = await searchLinkedInQuery(fallbackQ, cache);
-
-        if(url){ lead.linkedinUrl = url; found++; } else { notFound++; }
-
-        try { sessionStorage.setItem('vdhq_linkedin_cache', JSON.stringify(cache)); } catch(e){}
-
-        if(i < candidates.length - 1) await new Promise(r => setTimeout(r, 1000));
-      }
-
-      save();
-      progressEl.textContent = found + ' profile' + (found === 1 ? '' : 's') + ' found / ' + notFound + ' not found';
-      btn.disabled = false;
-    }
 
     function bindLinkedIn(){
       const cityEl = document.getElementById('liFilterCity');
       const statusEl = document.getElementById('liFilterStatus');
       const excludeEl = document.getElementById('liExcludeNoContact');
-      const findBtn = document.getElementById('btnFindProfiles');
       if(cityEl) cityEl.addEventListener('change', () => { liFilter.city = cityEl.value; renderLinkedIn(); });
       if(statusEl) statusEl.addEventListener('change', () => { liFilter.status = statusEl.value; renderLinkedIn(); });
       if(excludeEl) excludeEl.addEventListener('change', () => { liFilter.excludeNoContact = excludeEl.checked; renderLinkedIn(); });
-      if(findBtn) findBtn.addEventListener('click', findLinkedInProfiles);
     }
 
     // Init
