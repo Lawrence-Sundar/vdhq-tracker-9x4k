@@ -1387,10 +1387,11 @@
       const reviews=lead.reviewCount||reviewOverride||'[X]'; const trig=trigger||'[TRIGGER]';
       const contactForBody=buildGreetingName(lead.contactName);
       const contactForSubject=lead.contactName||lead.clinicName||'[Clinic Name]';
-      const subject=tpl.subject
+      const rawSubject=tpl.subject
         .replace(/\[Contact name\]/g,contactForSubject)
         .replace(/\[Contact\]/g,contact)
         .replace(/\[Clinic Name\]/g,clinic);
+      const subject=isFU?'Re: '+rawSubject:rawSubject;
       const body=tpl.body
         .replace(/\[name\]/g,contactForBody)
         .replace(/\[Contact\]/g,contactForBody)
@@ -1557,7 +1558,7 @@
         const angle = l.angle || 'After-Hours';
         const tpl = FU_TEMPLATES[angle] && FU_TEMPLATES[angle][item.fuLabel];
         const contactForSubject = l.contactName || l.clinicName || '[Clinic Name]';
-        const subject = tpl ? tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,l.clinicName||'[Clinic Name]') : item.fuLabel + ' follow-up';
+        const subject = tpl ? 'Re: '+tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,l.clinicName||'[Clinic Name]') : 'Re: '+item.fuLabel+' follow-up';
         const row = document.createElement('div'); row.className = 'send-all-row';
         row.dataset.id = l.id; row.dataset.fukey = item.fuKey; row.dataset.fulabel = item.fuLabel;
         row.innerHTML = `<div class="send-all-status" id="sas-${l.id}-${item.fuKey}"></div><div class="send-all-info"><div class="send-all-name">${escapeHtml(l.clinicName||'(no name)')}</div><div class="send-all-email-addr">${escapeHtml(l.email)}</div><div class="send-all-subject">${escapeHtml(subject)}</div></div><span class="fu-due-badge fu-due-badge-today">${item.fuLabel}</span>`;
@@ -1603,7 +1604,7 @@
         const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
         const contactForBody = buildGreetingName(lead.contactName);
         const clinic = lead.clinicName || '[Clinic Name]';
-        const subject = tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
+        const subject = 'Re: '+tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
         const body = tpl.body.replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic);
         const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>') + '</div>';
         try{
