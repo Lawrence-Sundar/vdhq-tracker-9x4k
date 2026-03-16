@@ -1510,7 +1510,17 @@
       const lead = emailState.leadId ? leads.find(l => l.id == emailState.leadId) : null;
       if(!lead){ alert('No lead selected.'); return; }
       if(!lead.email){ alert('This lead has no email address. Add one via Edit before sending.'); return; }
-      const subject = document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /, '');
+      const type = emailState.type;
+      const isFU = type === 'FU1' || type === 'FU2' || type === 'FU3';
+      const tpl = isFU
+        ? (FU_TEMPLATES[lead.angle||'After-Hours'] && FU_TEMPLATES[lead.angle||'After-Hours'][type])
+        : null;
+      const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
+      const clinic = lead.clinicName || '[Clinic Name]';
+      const rawSubject = tpl
+        ? tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic)
+        : document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /, '');
+      const subject = isFU ? 'Re: ' + rawSubject : rawSubject;
       const bodyEl = document.getElementById('emailBodyPreview');
       const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + bodyEl.innerHTML.replace(/\n/g,'<br>') + '</div>';
       const btn = document.getElementById('btnSendOutlook');
@@ -1518,8 +1528,7 @@
       btn.textContent = 'Sending...'; btn.disabled = true;
       try{
         await sendGraphEmail(lead.email, subject, htmlBody);
-        const type = emailState.type;
-        if(type === 'FU1' || type === 'FU2' || type === 'FU3'){
+        if(isFU){
           markFUFromFollowUps(lead.id, type.toLowerCase());
         } else if(type === 'Initial' && !lead.dateSent){
           lead.dateSent = todayISO(); ensureFUDates(lead); save();
