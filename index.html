@@ -346,6 +346,39 @@
     #sendAllModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
     #sendAllModal.open{transform:translateY(0)}
     @media(max-width:640px){#sendAllModal{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;max-height:92vh;transform:translateY(20px)}#sendAllModal.open{transform:translateY(0)}}
+    /* LinkedIn tab */
+    .li-filters{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .li-filters select{padding:5px 8px;font-size:12px;border-radius:6px;border:1px solid var(--border);background:var(--elevated);color:var(--text);font-family:inherit;cursor:pointer}
+    .li-filters label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap}
+    .li-filters input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+    .li-summary{font-size:12px;color:var(--muted);margin-bottom:8px}
+    .li-summary span{color:var(--text);font-weight:500}
+    .li-notice{font-size:11px;color:#555;margin-bottom:14px}
+    .li-table{width:100%;border-collapse:collapse;font-size:13px}
+    .li-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+    .li-table td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+    .li-table tr:last-child td{border-bottom:none}
+    .li-table tr:hover td{background:var(--elevated)}
+    .li-url-wrap{display:flex;align-items:center;gap:6px}
+    .li-url-input{padding:5px 8px;font-size:12px;border-radius:5px;border:1px solid var(--border);background:#071018;color:inherit;font-family:inherit;width:180px;outline:none}
+    .li-url-input:focus{border-color:var(--accent)}
+    .li-save-btn{padding:4px 10px;font-size:11px;border-radius:5px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap}
+    .li-save-btn:hover{background:var(--accent-dim)}
+    .btn-li-view{padding:5px 11px;font-size:12px;border-radius:5px;background:#C9A84C;color:#0a0800;border:none;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;white-space:nowrap}
+    .btn-li-view:hover{background:#B8933B}
+    .li-edit-link{font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;margin-left:6px;background:none;border:none;padding:0}
+    .li-edit-link:hover{color:var(--text)}
+    .btn-li-dm{padding:5px 11px;font-size:12px;border-radius:5px;background:var(--accent);color:#fff;border:none;cursor:pointer;white-space:nowrap}
+    .btn-li-dm:hover{opacity:.85}
+    .li-dm-badge{display:inline-block;padding:4px 9px;font-size:11px;border-radius:5px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+    .li-status-badge{display:inline-block;padding:2px 8px;font-size:11px;border-radius:4px;font-weight:500}
+    .li-status-notsent{background:rgba(94,106,210,.12);color:#8a95e8}
+    .li-status-sent{background:rgba(76,175,125,.12);color:#4CAF7D}
+    .li-status-fu{background:rgba(240,164,41,.12);color:#F0A429}
+    .li-status-replied{background:rgba(76,175,125,.18);color:#4CAF7D}
+    .li-status-booked{background:rgba(76,175,125,.25);color:#2d9e62}
+    .li-status-ni{background:rgba(229,72,77,.12);color:#E5484D}
+    .li-empty{color:var(--muted);font-size:13px;padding:24px 0;text-align:center}
     /* Send Initial modal */
     #sendInitialBackdrop{justify-content:center;align-items:center}
     #sendInitialModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
@@ -390,6 +423,7 @@
       <button class="nav-item tabBtn" data-tab="inbox">Inbox <span class="nav-count-badge" id="inboxNavBadge" style="display:none"></span></button>
       <button class="nav-item tabBtn" data-tab="pipeline">Pipeline</button>
       <button class="nav-item tabBtn" data-tab="followups">Follow Ups <span class="nav-count-badge" id="followUpsNavBadge" style="display:none"></span></button>
+      <button class="nav-item tabBtn" data-tab="linkedin">LinkedIn</button>
       <button class="nav-item tabBtn" data-tab="email">Email</button>
     </nav>
 
@@ -510,6 +544,64 @@
         </div>
       </div>
       <div id="followUpsList"></div>
+    </section>
+
+    <!-- LinkedIn -->
+    <section id="tab-linkedin" class="tabPane">
+      <div class="page-header">
+        <div>
+          <div class="page-title">LinkedIn Outreach</div>
+          <div class="page-sub">Track profile visits and DMs alongside your email sequence.</div>
+        </div>
+      </div>
+      <div class="li-filters">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">City</span>
+          <select id="liFilterCity">
+            <option value="All">All</option>
+            <option value="London">London</option>
+            <option value="Manchester">Manchester</option>
+            <option value="Birmingham">Birmingham</option>
+            <option value="Leeds">Leeds</option>
+            <option value="Bristol">Bristol</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Status</span>
+          <select id="liFilterStatus">
+            <option value="All">All</option>
+            <option value="Not Sent">Not Sent</option>
+            <option value="Sent">Sent</option>
+            <option value="FU1">FU1</option>
+            <option value="FU2">FU2</option>
+            <option value="FU3">FU3</option>
+            <option value="Replied">Replied</option>
+            <option value="Booked">Booked</option>
+            <option value="Not Interested">Not Interested</option>
+            <option value="Do Not Contact">Do Not Contact</option>
+          </select>
+        </div>
+        <label><input type="checkbox" id="liExcludeNoContact" checked> Exclude leads with no named contact</label>
+      </div>
+      <div class="li-summary" id="liSummary"></div>
+      <div class="li-notice">Verify each profile before sending a DM.</div>
+      <div style="overflow-x:auto">
+        <table class="li-table">
+          <thead>
+            <tr>
+              <th>Contact Name</th>
+              <th>Clinic Name</th>
+              <th>City</th>
+              <th>LinkedIn Profile</th>
+              <th>Status</th>
+              <th>DM</th>
+            </tr>
+          </thead>
+          <tbody id="liTableBody"></tbody>
+        </table>
+        <div id="liEmpty" class="li-empty" style="display:none">No leads match the current filters.</div>
+      </div>
     </section>
 
     <!-- Email -->
@@ -1074,7 +1166,7 @@
 
     function renderStats(){ const td=todayISO(); let pending=0; leads.forEach(l=>{ if(l.reply==='Y') return; if(l.fu1Date===td&&!l.fu1Sent) pending++; if(l.fu2Date===td&&!l.fu2Sent) pending++; if(l.fu3Date===td&&!l.fu3Sent) pending++; }); const inboxCount=leads.filter(l=>l.source==='qualifier'&&!l.dateSent).length; document.getElementById('statTotal').textContent=leads.length; const statInbox=document.getElementById('statInbox'); if(statInbox) statInbox.textContent=inboxCount; document.getElementById('statReplied').textContent=leads.filter(l=>l.reply==='Y').length; document.getElementById('statPending').textContent=pending; document.getElementById('statPendingNoReply').textContent=leads.filter(l=>l.reply!=='Y').length; }
 
-    function renderAll(){ renderDashboard(); renderPipeline(); renderInbox(); renderFollowUps(); renderStats(); attachButtons(); }
+    function renderAll(){ renderDashboard(); renderPipeline(); renderInbox(); renderFollowUps(); renderLinkedIn(); renderStats(); attachButtons(); }
 
     function attachButtons(){
       document.getElementById('btnClear').onclick=()=>{ if(confirm('Clear all saved leads?')){ leads=[]; save(); } };
@@ -1148,7 +1240,7 @@
       const panes=document.querySelectorAll('.tabPane');
       panes.forEach(p=>{ if(p.id==='tab-'+name){ p.style.display='block'; p.classList.add('active'); } else { p.classList.remove('active'); p.style.display='none'; } });
       document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
-      const titles={dashboard:'Dashboard',inbox:'Inbox',pipeline:'Pipeline',followups:'Follow Ups',email:'Email'};
+      const titles={dashboard:'Dashboard',inbox:'Inbox',pipeline:'Pipeline',followups:'Follow Ups',linkedin:'LinkedIn',email:'Email'};
       const mobileTitle=document.getElementById('mobileTitle'); if(mobileTitle) mobileTitle.textContent=titles[name]||name;
       if(name==='email') populateEmailLeadDropdown();
       closeMobileSidebar();
@@ -1558,8 +1650,136 @@
       if(confirmBtn){ confirmBtn.textContent = 'Close'; confirmBtn.disabled = false; confirmBtn.onclick = closeSendAllModal; }
     }
 
+    // ── LinkedIn tab ─────────────────────────────────────────────────────────
+    let liFilter = { city: 'All', status: 'All', excludeNoContact: true };
+
+    function getLinkedInStatus(lead){
+      const cs = computeStatus(lead);
+      if(cs === 'Replied') return 'Replied';
+      if(cs === 'Converted') return 'Booked';
+      if(cs === 'Not Interested' || cs === 'Disqualified') return 'Not Interested';
+      if(cs === 'Do Not Contact') return 'Do Not Contact';
+      if(cs === 'Not Sent') return 'Not Sent';
+      // Has dateSent — determine FU stage by what's been sent
+      if(!lead.fu1Sent) return 'FU1';
+      if(!lead.fu2Sent) return 'FU2';
+      if(!lead.fu3Sent) return 'FU3';
+      return 'Sent';
+    }
+
+    function renderLinkedIn(){
+      const tbody = document.getElementById('liTableBody');
+      const emptyEl = document.getElementById('liEmpty');
+      const summaryEl = document.getElementById('liSummary');
+      if(!tbody) return;
+
+      const cityNorm = s => (s||'').toLowerCase().trim();
+      const knownCities = ['london','manchester','birmingham','leeds','bristol'];
+
+      // Base: exclude DNC always
+      const base = leads.filter(l => !l.doNotContact);
+
+      // Summary counts (across all non-DNC leads)
+      const dmsSent = base.filter(l => l.linkedinDMSent).length;
+      const profilesAdded = base.filter(l => l.linkedinUrl).length;
+
+      // Apply filters
+      let filtered = base.filter(l => {
+        if(liFilter.excludeNoContact && !l.contactName) return false;
+        if(liFilter.city !== 'All'){
+          const c = cityNorm(l.city);
+          if(liFilter.city === 'Other' && knownCities.includes(c)) return false;
+          if(liFilter.city !== 'Other' && c !== liFilter.city.toLowerCase()) return false;
+        }
+        if(liFilter.status !== 'All' && getLinkedInStatus(l) !== liFilter.status) return false;
+        return true;
+      });
+
+      const remaining = filtered.filter(l => !l.linkedinDMSent).length;
+      if(summaryEl) summaryEl.innerHTML = '<span>' + dmsSent + '</span> DMs sent / <span>' + profilesAdded + '</span> profiles added / <span>' + remaining + '</span> remaining';
+
+      tbody.innerHTML = '';
+      if(!filtered.length){
+        if(emptyEl) emptyEl.style.display = 'block';
+        return;
+      }
+      if(emptyEl) emptyEl.style.display = 'none';
+
+      filtered.forEach(l => {
+        const liStatus = getLinkedInStatus(l);
+        const statusClass = {
+          'Not Sent':'li-status-notsent','Sent':'li-status-sent',
+          'FU1':'li-status-fu','FU2':'li-status-fu','FU3':'li-status-fu',
+          'Replied':'li-status-replied','Booked':'li-status-booked',
+          'Not Interested':'li-status-ni'
+        }[liStatus] || 'li-status-notsent';
+
+        // LinkedIn profile cell
+        let profileCell;
+        if(l.linkedinUrl){
+          profileCell = '<div class="li-url-wrap"><a class="btn-li-view" href="' + escapeHtml(l.linkedinUrl) + '" target="_blank" rel="noopener">View Profile</a><button class="li-edit-link" onclick="editLinkedInUrl(' + l.id + ')">Edit</button></div>';
+        } else {
+          profileCell = '<div class="li-url-wrap"><input class="li-url-input" id="li-url-' + l.id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLinkedInUrl(' + l.id + ')">Save</button></div>';
+        }
+
+        // DM cell
+        let dmCell;
+        if(l.linkedinDMSent){
+          dmCell = '<span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span>';
+        } else {
+          dmCell = '<button class="btn-li-dm" onclick="markDMSent(' + l.id + ')">Mark DM Sent</button>';
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + escapeHtml(l.contactName || '—') + '</td>' +
+          '<td>' + escapeHtml(l.clinicName || '—') + '</td>' +
+          '<td>' + escapeHtml(l.city || '—') + '</td>' +
+          '<td>' + profileCell + '</td>' +
+          '<td><span class="li-status-badge ' + statusClass + '">' + escapeHtml(liStatus) + '</span></td>' +
+          '<td>' + dmCell + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function saveLinkedInUrl(id){
+      const input = document.getElementById('li-url-' + id);
+      if(!input) return;
+      const url = input.value.trim();
+      if(!url){ alert('Please paste a LinkedIn URL first.'); return; }
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      lead.linkedinUrl = url;
+      save();
+    }
+
+    function editLinkedInUrl(id){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      const newUrl = prompt('Edit LinkedIn URL:', lead.linkedinUrl || '');
+      if(newUrl === null) return; // cancelled
+      lead.linkedinUrl = newUrl.trim();
+      save();
+    }
+
+    function markDMSent(id){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      lead.linkedinDMSent = true;
+      lead.linkedinDMDate = todayISO();
+      save();
+    }
+
+    function bindLinkedIn(){
+      const cityEl = document.getElementById('liFilterCity');
+      const statusEl = document.getElementById('liFilterStatus');
+      const excludeEl = document.getElementById('liExcludeNoContact');
+      if(cityEl) cityEl.addEventListener('change', () => { liFilter.city = cityEl.value; renderLinkedIn(); });
+      if(statusEl) statusEl.addEventListener('change', () => { liFilter.status = statusEl.value; renderLinkedIn(); });
+      if(excludeEl) excludeEl.addEventListener('change', () => { liFilter.excludeNoContact = excludeEl.checked; renderLinkedIn(); });
+    }
+
     // Init
-    bindUI(); bindEmailTab(); bindPipeline(); load();
+    bindUI(); bindEmailTab(); bindPipeline(); bindLinkedIn(); load();
     setTimeout(()=>showTab('dashboard'),80);
     // MSAL loads async via defer — init after all resources ready
     window.addEventListener('load', msalInit);
