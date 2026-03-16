@@ -1784,8 +1784,9 @@
         const res = await fetch('https://www.googleapis.com/customsearch/v1?key=' + encodeURIComponent(LI_API_KEY) + '&cx=' + encodeURIComponent(LI_CX) + '&q=' + encodeURIComponent(query));
         if(!res.ok){ cache[query] = null; return null; }
         const data = await res.json();
-        const link = (data.items && data.items[0] && data.items[0].link) || null;
-        const url = (link && link.includes('linkedin.com/in/')) ? link : null;
+        const allLinks = (data.items || []).map(i => i.link || '');
+        const link = allLinks.find(l => l.includes('linkedin.com/in/')) || null;
+        const url = link;
         cache[query] = url;
         return url;
       } catch(e){ cache[query] = null; return null; }
@@ -1825,8 +1826,8 @@
         const lead = candidates[i];
         progressEl.textContent = 'Searching ' + (i + 1) + ' of ' + total + '...';
 
-        const primaryQ = 'site:linkedin.com/in "' + (lead.contactName||'') + '" "' + (lead.clinicName||'') + '"';
-        const fallbackQ = 'site:linkedin.com/in "' + (lead.contactName||'') + '" dentist "' + (lead.city||'') + '"';
+        const primaryQ = '"' + (lead.contactName||'') + '" "' + (lead.clinicName||'') + '" linkedin';
+        const fallbackQ = '"' + (lead.contactName||'') + '" dentist "' + (lead.city||'') + '" linkedin';
 
         let url = await searchLinkedInQuery(primaryQ, cache);
         if(!url) url = await searchLinkedInQuery(fallbackQ, cache);
