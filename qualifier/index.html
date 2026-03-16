@@ -53,6 +53,10 @@
     #loadingState{display:none;padding:14px 0;font-size:13px;color:var(--muted);align-items:center}
     #errorState{display:none;margin-top:4px}
     .error-box{background:#1a0505;border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--danger);line-height:1.55}
+    #pasteState{display:none;margin-top:8px}
+    #pasteState label{font-size:13px;color:#e6eef2;margin-bottom:8px;display:block;line-height:1.5}
+    #pasteTextarea{width:100%;height:160px;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#071018;color:inherit;font-size:13px;resize:vertical;outline:none;font-family:inherit;transition:border-color .15s}
+    #pasteTextarea:focus{border-color:var(--accent)}
 
     #results{display:none}
 
@@ -183,6 +187,15 @@
     <!-- Error -->
     <div id="errorState">
       <div class="error-box" id="errorMsg"></div>
+    </div>
+
+    <!-- Paste fallback -->
+    <div id="pasteState" class="card">
+      <label for="pasteTextarea">Couldn't fetch the page automatically. Paste the clinic's homepage text here:</label>
+      <textarea id="pasteTextarea" placeholder="Copy all visible text from the clinic's website and paste it here..."></textarea>
+      <div style="margin-top:10px">
+        <button class="primary" onclick="runWithPastedText()">Run Qualifier</button>
+      </div>
     </div>
 
     <!-- Results -->
@@ -382,7 +395,14 @@
       document.getElementById('errorMsg').textContent = msg;
       document.getElementById('errorState').style.display = 'block';
     }
-    function clearError() { document.getElementById('errorState').style.display = 'none'; }
+    function clearError() {
+      document.getElementById('errorState').style.display = 'none';
+      document.getElementById('pasteState').style.display = 'none';
+    }
+    function showPasteFallback() {
+      document.getElementById('pasteState').style.display = 'block';
+      document.getElementById('errorState').style.display = 'none';
+    }
     function hideDupWarning() { document.getElementById('dupWarning').style.display = 'none'; }
 
     // ── Duplicate check ──
@@ -481,10 +501,15 @@
         if (pageText.length < 80) throw new Error('Very little text was extracted. The site may be JavaScript-rendered or blocked. Try a different page.');
       } catch (err) {
         setLoading(false);
-        showError('Could not fetch the page: ' + err.message);
+        showPasteFallback();
         return;
       }
 
+      await runClaudeAnalysis(pageText, url, apiKey);
+    }
+
+    // ── API call 1 — qualifier (shared by fetch path and paste fallback) ──
+    async function runClaudeAnalysis(pageText, url, apiKey) {
       setLoading(true, 'Analysing with Claude...');
 
       const systemPrompt = `You are a sales qualifier for a UK dental clinic intake automation company called Versa Digital HQ. You analyse dental clinic websites and extract structured data to qualify them as outreach targets. When detecting the booking channel, look carefully for any of the following portal indicators in the page text: "Book Online", "Book Now", "Book Appointment", "Doctify", "Treatwell", "Dental Cloud", "Jane App", "dental portal", "online booking", "book with us". If any of these are present, set booking_channel to "online_portal" and has_live_booking_portal to true, even if the full portal URL is not visible. Set booking_channel_confidence to "inferred" in this case. Do not default to phone if portal indicators are present.`;
@@ -566,6 +591,23 @@ ${pageText}`;
         setLoading(false);
         showError('Analysis failed: ' + err.message);
       }
+    }
+
+    // ── Paste fallback handler ──
+    async function runWithPastedText() {
+      const pastedText = (document.getElementById('pasteTextarea').value || '').trim();
+      if (!pastedText) {
+        alert('Please paste some text from the clinic website before running.');
+        return;
+      }
+      const url = (document.getElementById('clinicUrl').value || '').trim();
+      const apiKey = (document.getElementById('apiKey').value || window._apiKey || '').trim();
+      if (!apiKey) {
+        showError('API key is required. Please enter it above.');
+        return;
+      }
+      document.getElementById('pasteState').style.display = 'none';
+      await runClaudeAnalysis(pastedText, url, apiKey);
     }
 
     // ── Helpers ──
