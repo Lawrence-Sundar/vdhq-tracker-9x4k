@@ -141,16 +141,11 @@
     .toggle-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:7px 13px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .12s;white-space:nowrap}
     .toggle-btn:hover{border-color:rgba(255,255,255,.12);color:var(--text)}
     .toggle-btn.active-angle{background:var(--accent);color:#fff;border-color:transparent}
-    .toggle-btn.active-hook{background:var(--warning);color:#0d0a00;border-color:transparent}
     .toggle-btn.active-type{background:var(--success);color:#001a0a;border-color:transparent}
     .email-autofill{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
     .autofill-field{background:var(--elevated);border-radius:6px;padding:8px 10px;border:1px solid var(--border)}
     .autofill-field span{display:block;font-size:10px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
     .autofill-field strong{font-size:12px}
-    .hook-warning{display:none;background:var(--warning-dim);border:1px solid rgba(240,164,41,.2);border-radius:6px;padding:9px 12px;font-size:12px;color:var(--warning);margin-top:8px}
-    .trigger-wrap{display:none;margin-top:8px}
-    .review-override-wrap{display:none;margin-top:8px}
-    .review-override-wrap input,.trigger-wrap input{width:200px}
     .email-preview-box{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;min-height:180px;color:#d4e8f0}
     .subject-line{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
     .email-actions{display:flex;gap:8px;margin-top:12px;align-items:center}
@@ -514,7 +509,7 @@
       <div class="page-header">
         <div>
           <div class="page-title">Email Sequence Manager</div>
-          <div class="page-sub">Select a lead, angle, hook and type to generate a ready-to-send email.</div>
+          <div class="page-sub">Select a lead, angle and follow-up type to generate a ready-to-send email.</div>
         </div>
       </div>
 
@@ -542,32 +537,9 @@
         <div class="email-auto-note" id="emailAutoNote" style="display:none">Auto-populated from qualifier data</div>
       </div>
 
-      <div class="card" id="hookCard">
-        <div class="email-section-label">Step 3 — Select Hook Type</div>
-        <div class="btn-group">
-          <button class="toggle-btn" data-hook="Direct Observation">Direct Observation</button>
-          <button class="toggle-btn" data-hook="Patient Perspective">Patient Perspective</button>
-          <button class="toggle-btn" data-hook="Specific Gap">Specific Gap</button>
-          <button class="toggle-btn" data-hook="Observation + Compliment">Observation + Compliment</button>
-          <button class="toggle-btn" data-hook="Industry Insight">Industry Insight</button>
-          <button class="toggle-btn" data-hook="Trigger Event">Trigger Event</button>
-        </div>
-        <div class="hook-warning" id="hookWarnOC">&#9888; This hook requires the clinic's Google review count. Check their listing before sending.</div>
-        <div class="review-override-wrap" id="reviewOverrideWrap">
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:none;letter-spacing:0">Review count (if not in lead record)</label>
-          <input type="text" id="reviewOverrideInput" placeholder="e.g. 47">
-        </div>
-        <div class="hook-warning" id="hookWarnTE">&#9888; This hook requires a specific recent trigger (new service, recent post). Only use if confirmed.</div>
-        <div class="trigger-wrap" id="triggerWrap">
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:none;letter-spacing:0">Trigger (e.g. teeth whitening, Invisalign)</label>
-          <input type="text" id="triggerInput" placeholder="e.g. teeth whitening">
-        </div>
-      </div>
-
       <div class="card">
-        <div class="email-section-label">Step 4 — Select Email Type</div>
+        <div class="email-section-label">Step 3 — Select Follow-Up Type</div>
         <div class="btn-group">
-          <button class="toggle-btn" data-type="Initial">Initial</button>
           <button class="toggle-btn" data-type="FU1">FU1</button>
           <button class="toggle-btn" data-type="FU2">FU2</button>
           <button class="toggle-btn" data-type="FU3">FU3</button>
@@ -575,7 +547,7 @@
       </div>
 
       <div class="card">
-        <div class="email-section-label">Step 5 — Generated Email</div>
+        <div class="email-section-label">Step 4 — Generated Email</div>
         <div id="emailPreviewWrap" style="display:none">
           <div class="subject-line" id="emailSubjectPreview"></div>
           <div class="email-preview-box" id="emailBodyPreview"></div>
@@ -587,7 +559,7 @@
           </div>
           <div id="fu2DemoTip" style="display:none;margin-top:8px;font-size:11px;color:#666">Tip: if the demo link doesn't appear as a hyperlink in your email client, highlight the URL and use Insert Link.</div>
         </div>
-        <div id="emailPreviewPlaceholder" class="muted small">Select a lead, angle, and email type to generate the email. For initial emails, also select a hook type.</div>
+        <div id="emailPreviewPlaceholder" class="muted small">Select a lead, angle and follow-up type to generate the email.</div>
       </div>
     </section>
   </main>
@@ -1173,123 +1145,7 @@
     function parseCSVLine(line,expected){ const cols=[]; let cur=''; let inQ=false; for(let i=0;i<line.length;i++){ const ch=line[i]; if(ch==='"'){ if(inQ&&line[i+1]==='"'){ cur+='"'; i++; } else { inQ=!inQ; } } else if(ch===','&&!inQ){ cols.push(cur); cur=''; } else { cur+=ch; } } cols.push(cur); while(cols.length<expected) cols.push(''); return cols; }
 
     // ── Email Sequence Manager ──────────────────────────────────────────────
-    const EMAIL_TEMPLATES = {
-      'After-Hours': {
-        'Direct Observation': {
-          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nTried booking a new patient appointment on your website earlier - ended up on a contact form with no instant confirmation.\n\nWhat happens to those enquiries when reception isn't available?\n\nWe build simple intake systems for dental clinics that automatically capture and route enquiries after hours - so nothing gets missed.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up on my message from a few days ago - wanted to check if after-hours enquiry handling is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nWanted to check in one more time - happy to share a quick overview of how the system works if that would make it easier to assess.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right I completely understand.\n\nIf after-hours enquiry handling becomes a priority down the line, feel free to reach out.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Patient Perspective': {
-          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLooked at your website as a new patient would - the earliest I could get a confirmed appointment is whenever someone calls me back.\n\nHow are those enquiries handled after hours when reception is unavailable?\n\nWe build simple intake systems that capture and route new patient enquiries automatically - so the response is instant, not next-morning.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if the after-hours gap is something you're actively looking to address.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to send across a quick overview of how the system works if that helps assess whether it's relevant.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem at all.\n\nFeel free to reach out if after-hours handling becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Specific Gap': {
-          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nNoticed your Google listing shows phone as the primary booking option for [Clinic Name].\n\nWhat happens to new patient enquiries that come in after 6pm?\n\nWe build simple intake systems for dental clinics that automatically capture and route those enquiries - so nothing falls through overnight.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if overnight enquiry handling is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Observation + Compliment': {
-          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\n[Clinic Name] clearly has a strong reputation - [X] Google reviews for an independent practice is impressive.\n\nOne thing I noticed - new patient enquiries currently go via contact form rather than instant confirmation. What happens to those after hours when the team isn't available?\n\nWe build simple intake systems that capture and route enquiries automatically - so strong reputation translates to zero missed bookings.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if capturing after-hours enquiries is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if after-hours handling becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Industry Insight': {
-          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nMost independent dental clinics I've looked at across the UK share the same gap - enquiries come in via form or phone but there's no automated response after hours.\n\nCurious whether that's something [Clinic Name] experiences too.\n\nWe build simple intake systems that capture and route new patient enquiries automatically - so nothing gets missed overnight.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if the after-hours gap is something you're looking to address.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to share a quick overview of how other clinics have approached this if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out when this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Trigger Event': {
-          'Initial': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nNoticed [Clinic Name] recently added [TRIGGER] - those tend to be impulse enquiries that drop off quickly without instant confirmation.\n\nWhat happens to those requests when reception isn't available?\n\nWe build simple intake systems that capture and route enquiries automatically - so impulse interest doesn't go cold overnight.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nJust following up - wanted to check if capturing after-hours enquiries for [TRIGGER] is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - after-hours enquiry handling?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        }
-      },
-      'Coordination': {
-        'Direct Observation': {
-          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nTried booking a new patient appointment on your website earlier - the process ends at a contact form, which I imagine requires manual follow-up to confirm.\n\nHow much time does your team spend coordinating those bookings daily?\n\nWe build simple intake systems that organise and route enquiries automatically - cutting the back-and-forth before it reaches your team.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if reducing manual booking coordination is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to send across a quick overview of how the system works if that helps assess whether it's relevant.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem at all.\n\nFeel free to reach out if reducing manual coordination becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Patient Perspective': {
-          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nLooked at your website as a new patient would - submitting an enquiry requires waiting for a callback to confirm anything.\n\nHow much manual coordination does that create for your reception team?\n\nWe build simple intake systems that handle the back-and-forth automatically - so your team spends less time on admin and more time where it matters.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if reducing admin for your reception team is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if reducing team admin becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Specific Gap': {
-          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nNoticed new patient enquiries at [Clinic Name] come in via [phone/contact form] - which typically means manual follow-up to confirm each one.\n\nHow much of your team's time goes into coordinating those bookings daily?\n\nWe build simple intake systems that organise and route enquiries automatically - before they ever reach the team.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if cutting down on manual booking coordination is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Observation + Compliment': {
-          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\n[Clinic Name] clearly runs a busy practice - [X] Google reviews suggests consistent patient demand.\n\nOne thing I noticed - enquiries come in via contact form which likely creates manual coordination work for your team every day.\n\nWe build simple intake systems that handle that back-and-forth automatically - so your team's time goes where it matters most.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if reducing manual coordination for your team is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if reducing team admin becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Industry Insight': {
-          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nMost independent dental clinics I've spoken to across the UK share the same bottleneck - reception teams spending significant time each day manually coordinating bookings from forms and phone enquiries.\n\nCurious whether that resonates at [Clinic Name].\n\nWe build simple intake systems that automate that coordination - so it happens before it ever reaches your team.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if the coordination bottleneck is something you're actively looking to address.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share how other clinics have approached this if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out when reducing coordination becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Trigger Event': {
-          'Initial': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nNoticed [Clinic Name] recently added [TRIGGER] - new service lines typically bring a surge of enquiries that create extra coordination work for the team.\n\nHow are those being managed currently?\n\nWe build simple intake systems that organise and route enquiries automatically - so additional services don't mean additional admin.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nJust following up - wanted to check if managing the extra coordination from [TRIGGER] is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - booking coordination time?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        }
-      },
-      'Conversion': {
-        'Direct Observation': {
-          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nTried booking a new patient appointment on your website earlier - the process ends at a contact form rather than an instant confirmed booking.\n\nDo you track how many of those enquiries actually convert to appointments?\n\nWe build simple intake systems that reduce that drop-off - enquiries get captured and confirmed instantly rather than waiting on manual follow-up.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if enquiry conversion is something you're actively looking at.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a brief overview of how the system works if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if improving enquiry conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Patient Perspective': {
-          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLooked at your website as a new patient would - there's no instant confirmation after submitting an enquiry.\n\nIn that gap between submission and callback, patients often book elsewhere.\n\nWe build simple intake systems that close that gap - enquiries get an instant structured response rather than silence.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if closing the gap between enquiry and confirmation is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if improving conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Specific Gap': {
-          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nNoticed new patient enquiries at [Clinic Name] go via [phone/contact form] rather than instant confirmation.\n\nThat gap between enquiry and confirmed appointment is typically where new patients drop off and book elsewhere.\n\nWe build simple intake systems that close that gap automatically - so interest converts before it goes cold.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if reducing drop-off between enquiry and confirmed booking is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out if this becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Observation + Compliment': {
-          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\n[Clinic Name] clearly attracts strong interest - [X] Google reviews suggests patients are actively looking you up.\n\nOne thing I noticed - the enquiry process ends at a contact form rather than instant confirmation, which is typically where conversion drops off.\n\nWe build simple intake systems that close that gap - so the interest your reputation generates actually converts.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if improving enquiry conversion is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if improving conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Industry Insight': {
-          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nMost independent dental clinics across the UK have the same conversion gap - new patient enquiries come in via form or phone but without instant confirmation, a significant portion book elsewhere before anyone follows up.\n\nCurious whether that's something [Clinic Name] has noticed.\n\nWe build simple intake systems that close that gap automatically - enquiries get an instant structured response rather than silence.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if the conversion gap is something you're actively looking to address.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share how other clinics have approached this if that helps.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast follow up from me - if the timing isn't right, completely understood.\n\nFeel free to reach out when improving conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        },
-        'Trigger Event': {
-          'Initial': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nNoticed [Clinic Name] recently added [TRIGGER] - high-interest services like that tend to generate enquiries that are time-sensitive.\n\nWithout instant confirmation, that interest often converts elsewhere before anyone follows up.\n\nWe build simple intake systems that capture and confirm those enquiries automatically - so new service interest doesn't go to waste.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU1': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nJust following up - wanted to check if converting [TRIGGER] enquiries faster is something on your radar.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-          'FU2': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nHappy to share a quick overview of how the system works if useful.\n\nLet me know either way.\n\nLawrence\nVersa Digital HQ` },
-          'FU3': { subject: '[Contact] - new patient enquiry conversion?', body: `Hi [Contact],\n\nLast message from me - if the timing isn't right, no problem.\n\nFeel free to reach out if improving conversion becomes a priority.\n\nLawrence\nVersa Digital HQ` }
-        }
-      }
-    };
-
+    // Initial emails are Qualifier-generated only — no templates here.
     const FU_TEMPLATES = {
       'After-Hours': {
         'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my note from earlier this week about after-hours enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
@@ -1312,7 +1168,7 @@
     let expandedFollowUpId = null;
     let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest'};
 
-    let emailState = { leadId:null, angle:null, hook:null, type:null, trigger:'', reviewOverride:'' };
+    let emailState = { leadId:null, angle:null, type:null };
 
     function populateEmailLeadDropdown(){
       const sel=document.getElementById('emailLeadSelect'); const current=sel.value;
@@ -1332,15 +1188,12 @@
       document.getElementById('af_city').textContent=lead.city||'—';
       document.getElementById('af_channel').textContent=lead.channel||'—';
       document.getElementById('af_reviews').textContent=lead.reviewCount||'—';
-      if(emailState.hook==='Observation + Compliment'){ const ri=document.getElementById('reviewOverrideInput'); if(ri){ ri.value=lead.reviewCount||''; emailState.reviewOverride=lead.reviewCount||''; } }
       autofill.style.display='grid';
-      // Auto-populate angle and hook from lead data if set
+      // Auto-populate angle from lead data if set
       const autoNote=document.getElementById('emailAutoNote');
       const validAngles=['After-Hours','Coordination','Conversion'];
-      const validHooks=['Direct Observation','Patient Perspective','Specific Gap','Observation + Compliment','Industry Insight','Trigger Event'];
       let autoPopulated=false;
       if(lead.angle&&validAngles.includes(lead.angle)){ setActiveAngle(lead.angle,true); autoPopulated=true; }
-      if(lead.hook&&validHooks.includes(lead.hook)){ setActiveHook(lead.hook,true); autoPopulated=true; }
       if(autoNote) autoNote.style.display=autoPopulated?'block':'none';
       refreshEmailPreview();
     }
@@ -1352,56 +1205,30 @@
       refreshEmailPreview();
     }
 
-    function setActiveHook(hook,suppressNote){
-      emailState.hook=hook;
-      document.querySelectorAll('[data-hook]').forEach(b=>b.classList.toggle('active-hook',b.dataset.hook===hook));
-      if(!suppressNote){ const n=document.getElementById('emailAutoNote'); if(n) n.style.display='none'; }
-      const isOC=hook==='Observation + Compliment'; const isTE=hook==='Trigger Event';
-      document.getElementById('hookWarnOC').style.display=isOC?'block':'none';
-      document.getElementById('hookWarnTE').style.display=isTE?'block':'none';
-      document.getElementById('reviewOverrideWrap').style.display=isOC?'block':'none';
-      document.getElementById('triggerWrap').style.display=isTE?'block':'none';
-      if(!isTE){ emailState.trigger=''; const ti=document.getElementById('triggerInput'); if(ti) ti.value=''; }
-      if(isOC){ const lead=emailState.leadId?leads.find(l=>l.id==emailState.leadId):null; const ri=document.getElementById('reviewOverrideInput'); const val=(lead&&lead.reviewCount)||''; if(ri) ri.value=val; emailState.reviewOverride=val; } else { emailState.reviewOverride=''; }
-      refreshEmailPreview();
-    }
-
     function setActiveType(type){
       emailState.type=type;
       document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active-type',b.dataset.type===type));
-      const isFU=type==='FU1'||type==='FU2'||type==='FU3';
-      const hookCard=document.getElementById('hookCard');
-      if(hookCard) hookCard.style.display=isFU?'none':'block';
       refreshEmailPreview();
     }
 
     function refreshEmailPreview(){
       const wrap=document.getElementById('emailPreviewWrap'); const placeholder=document.getElementById('emailPreviewPlaceholder');
-      const {leadId,angle,hook,type,trigger,reviewOverride}=emailState;
-      const isFU=type==='FU1'||type==='FU2'||type==='FU3';
-      if(!leadId||!angle||!type||(type==='Initial'&&!hook)){ wrap.style.display='none'; placeholder.style.display='block'; return; }
+      const {leadId,angle,type}=emailState;
+      if(!leadId||!angle||!type){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const lead=leads.find(l=>l.id==leadId); if(!lead){ wrap.style.display='none'; placeholder.style.display='block'; return; }
-      const tpl=isFU
-        ? (FU_TEMPLATES[angle]&&FU_TEMPLATES[angle][type])
-        : (EMAIL_TEMPLATES[angle]&&EMAIL_TEMPLATES[angle][hook]&&EMAIL_TEMPLATES[angle][hook][type]);
+      const tpl=FU_TEMPLATES[angle]&&FU_TEMPLATES[angle][type];
       if(!tpl){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
-      const channel=(lead.channel||'phone/contact form').toLowerCase();
-      const reviews=lead.reviewCount||reviewOverride||'[X]'; const trig=trigger||'[TRIGGER]';
       const contactForBody=buildGreetingName(lead.contactName);
       const contactForSubject=lead.contactName||lead.clinicName||'[Clinic Name]';
       const subject=tpl.subject
         .replace(/\[Contact name\]/g,contactForSubject)
-        .replace(/\[Contact\]/g,contact)
-        .replace(/\[Clinic Name\]/g,clinic);
+        .replace(/\[Contact\]/g,lead.contactName||'[Contact]')
+        .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]');
       const body=tpl.body
         .replace(/\[name\]/g,contactForBody)
         .replace(/\[Contact\]/g,contactForBody)
-        .replace(/\[Clinic Name\]/g,clinic)
-        .replace(/\[phone\/contact form\]/g,channel)
-        .replace(/\[Channel\]/g,channel)
-        .replace(/\[X\]/g,reviews)
-        .replace(/\[TRIGGER\]/g,trig);
+        .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]');
       document.getElementById('emailSubjectPreview').textContent='Subject: '+subject;
       const bodyHtml=escapeHtml(body).replace('versadigital.co/demo','<a href="https://versadigital.co/demo" target="_blank" style="color:#5E6AD2">versadigital.co/demo</a>');
       document.getElementById('emailBodyPreview').innerHTML=bodyHtml;
@@ -1414,10 +1241,7 @@
     function bindEmailTab(){
       document.getElementById('emailLeadSelect').addEventListener('change',emailAutofill);
       document.querySelectorAll('[data-angle]').forEach(b=>{ b.addEventListener('click',()=>setActiveAngle(b.dataset.angle)); });
-      document.querySelectorAll('[data-hook]').forEach(b=>{ b.addEventListener('click',()=>setActiveHook(b.dataset.hook)); });
       document.querySelectorAll('[data-type]').forEach(b=>{ b.addEventListener('click',()=>setActiveType(b.dataset.type)); });
-      document.getElementById('triggerInput').addEventListener('input',e=>{ emailState.trigger=e.target.value; refreshEmailPreview(); });
-      document.getElementById('reviewOverrideInput').addEventListener('input',e=>{ emailState.reviewOverride=e.target.value; refreshEmailPreview(); });
       document.getElementById('btnCopySubject').addEventListener('click',()=>{ const text=document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,''); navigator.clipboard.writeText(text).then(()=>showCopyConfirm('Subject copied!')); });
       document.getElementById('btnCopyEmail').addEventListener('click',()=>{
         const bodyEl=document.getElementById('emailBodyPreview');
