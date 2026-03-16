@@ -1479,6 +1479,7 @@
     }
 
     async function sendGraphEmail(to, subject, htmlBody){
+      console.log('sending subject:', subject);
       const token = await getGraphToken();
       const payload = { message: { subject, body: { contentType: 'HTML', content: htmlBody }, toRecipients: [{ emailAddress: { address: to } }] }, saveToSentItems: true };
       const resp = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
