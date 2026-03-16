@@ -346,6 +346,11 @@
     #sendAllModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
     #sendAllModal.open{transform:translateY(0)}
     @media(max-width:640px){#sendAllModal{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;max-height:92vh;transform:translateY(20px)}#sendAllModal.open{transform:translateY(0)}}
+    /* Send Initial modal */
+    #sendInitialBackdrop{justify-content:center;align-items:center}
+    #sendInitialModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
+    #sendInitialModal.open{transform:translateY(0)}
+    @media(max-width:640px){#sendInitialModal{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;max-height:92vh;transform:translateY(20px)}#sendInitialModal.open{transform:translateY(0)}}
     .send-all-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:6px;background:var(--elevated);margin-bottom:6px}
     .send-all-status{width:60px;flex-shrink:0;margin-top:2px}
     .send-all-info{flex:1;min-width:0}
@@ -499,7 +504,10 @@
           <div class="page-title">Follow Ups</div>
           <div class="page-sub">Everything overdue or due today.</div>
         </div>
-        <button class="btn-send-outlook" id="btnSendAllDue" style="display:none">Send All Due Today</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-send-outlook" id="btnSendInitial" style="display:none">Send Initial Emails</button>
+          <button class="btn-send-outlook" id="btnSendAllDue" style="display:none">Send All Due Today</button>
+        </div>
       </div>
       <div id="followUpsList"></div>
     </section>
@@ -651,6 +659,20 @@
       </div>
       <div id="backupList"></div>
       <div style="margin-top:16px;font-size:12px;color:var(--muted)">Up to 5 automatic backups are kept. Restoring will overwrite your current data.</div>
+    </div>
+  </div>
+
+  <!-- Send Initial Emails modal -->
+  <div id="sendInitialBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="sendInitialModal" class="modal" role="dialog" aria-modal="true" aria-label="Send Initial Emails">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="margin-bottom:0">Send Initial Emails</h3>
+        <button id="sendInitialClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Review below then confirm. Emails send sequentially via your connected Outlook account.</p>
+      <div id="sendInitialList" style="margin-bottom:16px"></div>
+      <div id="sendInitialProgress" style="display:none;font-size:12px;color:var(--muted);margin-bottom:12px;padding:8px 10px;background:var(--elevated);border-radius:6px;text-align:center"></div>
+      <button class="btn btn-primary" id="btnConfirmSendInitial" style="width:100%">Send</button>
     </div>
   </div>
 
@@ -1109,6 +1131,9 @@
 
       document.getElementById('btnConnectOutlook').addEventListener('click', connectOutlook);
       document.getElementById('btnSendOutlook').addEventListener('click', sendViaOutlook);
+      document.getElementById('btnSendInitial').addEventListener('click', openSendInitialModal);
+      document.getElementById('sendInitialClose').addEventListener('click', closeSendInitialModal);
+      document.getElementById('sendInitialBackdrop').addEventListener('click', e=>{ if(e.target===document.getElementById('sendInitialBackdrop')) closeSendInitialModal(); });
       document.getElementById('btnSendAllDue').addEventListener('click', openSendAllModal);
       document.getElementById('sendAllClose').addEventListener('click', closeSendAllModal);
       document.getElementById('sendAllBackdrop').addEventListener('click', e=>{ if(e.target===document.getElementById('sendAllBackdrop')) closeSendAllModal(); });
@@ -1316,17 +1341,20 @@
       const emailLabel = document.getElementById('outlookEmail');
       const sendBtn = document.getElementById('btnSendOutlook');
       const sendAllBtn = document.getElementById('btnSendAllDue');
+      const sendInitialBtn = document.getElementById('btnSendInitial');
       if(outlookAccount){
         if(connectBtn) connectBtn.style.display = 'none';
         if(connectedEl){ connectedEl.style.display = 'flex'; }
         if(emailLabel) emailLabel.textContent = outlookAccount.username || outlookAccount.name || 'Connected';
         if(sendBtn) sendBtn.style.display = 'inline-block';
         if(sendAllBtn) sendAllBtn.style.display = 'inline-block';
+        if(sendInitialBtn) sendInitialBtn.style.display = 'inline-block';
       } else {
         if(connectBtn) connectBtn.style.display = 'block';
         if(connectedEl) connectedEl.style.display = 'none';
         if(sendBtn) sendBtn.style.display = 'none';
         if(sendAllBtn) sendAllBtn.style.display = 'none';
+        if(sendInitialBtn) sendInitialBtn.style.display = 'none';
       }
     }
 
@@ -1414,6 +1442,81 @@
     function closeSendAllModal(){
       const bd = document.getElementById('sendAllBackdrop'); const md = document.getElementById('sendAllModal');
       md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true');
+    }
+
+    function closeSendInitialModal(){
+      const bd = document.getElementById('sendInitialBackdrop'); const md = document.getElementById('sendInitialModal');
+      md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true');
+    }
+
+    function openSendInitialModal(){
+      if(!outlookAccount){ alert('Connect Outlook first.'); return; }
+      const notSent = leads.filter(l => computeStatus(l) === 'Not Sent');
+      const withDraft = notSent.filter(l => l.draftSubject && l.draftBody);
+      const withDraftAndEmail = withDraft.filter(l => l.email);
+      const withDraftNoEmail = withDraft.filter(l => !l.email);
+      const noDraft = notSent.filter(l => !l.draftSubject || !l.draftBody);
+      if(!withDraftAndEmail.length){
+        const skipped = withDraftNoEmail.length + noDraft.length;
+        alert('No sendable initial emails found.' + (skipped ? ' ' + skipped + ' lead' + (skipped===1?'':'s') + ' have no draft or no email address.' : '') + ' Generate drafts via the Qualifier first.');
+        return;
+      }
+      const listEl = document.getElementById('sendInitialList');
+      listEl.innerHTML = '';
+      withDraftAndEmail.forEach(l => {
+        const row = document.createElement('div'); row.className = 'send-all-row'; row.dataset.id = l.id;
+        row.innerHTML = `<div class="send-all-status" id="sis-${l.id}"></div><div class="send-all-info"><div class="send-all-name">${escapeHtml(l.clinicName||'(no name)')}</div><div class="send-all-email-addr">${escapeHtml(l.email)}</div><div class="send-all-subject">${escapeHtml(l.draftSubject)}</div></div>`;
+        listEl.appendChild(row);
+      });
+      if(withDraftNoEmail.length || noDraft.length){
+        const note = document.createElement('div');
+        note.style.cssText = 'margin-top:10px;font-size:11px;color:#888;padding:8px 10px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)';
+        const parts = [];
+        if(withDraftNoEmail.length) parts.push('<strong style="color:#F0A429">' + withDraftNoEmail.length + ' skipped — no email on record:</strong> ' + withDraftNoEmail.map(l=>escapeHtml(l.clinicName||'(no name)')).join(', '));
+        if(noDraft.length) parts.push('<strong style="color:#F0A429">' + noDraft.length + ' skipped — no draft (generate via Qualifier):</strong> ' + noDraft.map(l=>escapeHtml(l.clinicName||'(no name)')).join(', '));
+        note.innerHTML = parts.join('<br>');
+        listEl.appendChild(note);
+      }
+      const confirmBtn = document.getElementById('btnConfirmSendInitial');
+      const progressEl = document.getElementById('sendInitialProgress');
+      if(confirmBtn){ confirmBtn.disabled = false; confirmBtn.textContent = 'Send ' + withDraftAndEmail.length + ' Email' + (withDraftAndEmail.length===1?'':'s'); confirmBtn.onclick = runSendInitial; }
+      if(progressEl) progressEl.style.display = 'none';
+      const bd = document.getElementById('sendInitialBackdrop'); const md = document.getElementById('sendInitialModal');
+      bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false');
+    }
+
+    async function runSendInitial(){
+      const listEl = document.getElementById('sendInitialList');
+      const rows = listEl.querySelectorAll('.send-all-row');
+      const confirmBtn = document.getElementById('btnConfirmSendInitial');
+      const progressEl = document.getElementById('sendInitialProgress');
+      if(!rows.length) return;
+      confirmBtn.disabled = true;
+      if(progressEl){ progressEl.textContent = '0 / ' + rows.length; progressEl.style.display = 'block'; }
+      let sent = 0, failed = 0; const total = rows.length;
+      for(const row of rows){
+        const id = row.dataset.id;
+        const statusEl = document.getElementById('sis-' + id);
+        const lead = leads.find(l => l.id == id);
+        if(!lead || !lead.email || !lead.draftSubject || !lead.draftBody) continue;
+        if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:11px">Sending...</span>';
+        const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(lead.draftBody).replace(/\n/g,'<br>') + '</div>';
+        try{
+          await sendGraphEmail(lead.email, lead.draftSubject, htmlBody);
+          lead.dateSent = todayISO();
+          lead.fuDatesLocked = false;
+          ensureFUDates(lead);
+          sent++;
+          if(statusEl) statusEl.innerHTML = '<span style="color:#4CAF7D;font-size:11px">&#10003; Sent</span>';
+        } catch(e){
+          failed++;
+          if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:11px" title="' + escapeHtml(e.message) + '">Failed</span>';
+        }
+        if(progressEl) progressEl.textContent = (sent + failed) + ' / ' + total;
+      }
+      save();
+      if(progressEl) progressEl.textContent = 'Done — ' + sent + ' sent' + (failed ? ', ' + failed + ' failed' : '');
+      if(confirmBtn){ confirmBtn.textContent = 'Close'; confirmBtn.disabled = false; confirmBtn.onclick = closeSendInitialModal; }
     }
 
     async function runSendAll(){
