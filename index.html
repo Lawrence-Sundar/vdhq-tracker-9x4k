@@ -1784,6 +1784,7 @@
         const res = await fetch('https://www.googleapis.com/customsearch/v1?key=' + encodeURIComponent(LI_API_KEY) + '&cx=' + encodeURIComponent(LI_CX) + '&q=' + encodeURIComponent(query));
         if(!res.ok){ cache[query] = null; return null; }
         const data = await res.json();
+        console.log('CSE response:', JSON.stringify(data));
         const allLinks = (data.items || []).map(i => i.link || '');
         const link = allLinks.find(l => l.includes('linkedin.com/in/')) || null;
         const url = link;
