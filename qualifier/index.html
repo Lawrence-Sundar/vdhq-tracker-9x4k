@@ -575,9 +575,12 @@ ${pageText}`;
     function buildGreetingName(s){
       s=(s||'').replace(/\s*\(.*?\)\s*/g,'').trim();
       if(!s||s.toLowerCase()==='not found') return 'there';
-      if(/\bDr\.?\b/i.test(s)){
-        const parts=s.replace(/\bDr\.?\s*/i,'').trim().split(/\s+/);
-        return 'Dr '+parts[parts.length-1];
+      const TITLES={'dr':'Dr','mr':'Mr','mrs':'Mrs','ms':'Ms','miss':'Miss'};
+      const titleMatch=s.match(/^(Dr\.?|Mr\.?|Mrs\.?|Ms\.?|Miss\.?)\s+/i);
+      if(titleMatch){
+        const canonical=TITLES[titleMatch[1].replace(/\.$/,'').toLowerCase()]||titleMatch[1];
+        const rest=s.slice(titleMatch[0].length).trim().split(/\s+/);
+        return canonical+' '+(rest[rest.length-1]||'there');
       }
       return s.split(/\s+/)[0]||'there';
     }
