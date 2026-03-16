@@ -1158,41 +1158,32 @@ ${pageText}`;
       const city    = r.city_name    || r.city || '';
       const channel = r.booking_channel || 'unknown';
       const reviews = r.review_count != null ? String(r.review_count) : 'not available';
-      const systemPrompt = `You are writing a cold outreach email on behalf of Lawrence at Versa Digital HQ. Lawrence helps independent dental clinics automate their patient intake process.
-RULES — follow every one without exception:
-- Maximum 3 paragraphs in the body (not counting greeting or sign-off)
-- Maximum 100 words total across the body paragraphs only
-- Start with a greeting line: "Hi [greeting name]," on its own line before paragraph 1. Use the exact value from the Greeting field provided — do not modify it.
-- No statistics, percentages, or numerical claims of any kind
-- No em dashes — use regular hyphens or rephrase
-- Never mention "Versa Digital" or any product name in the body
-- Refer to the solution only as "the system" or "an automated intake layer"
-- Never explain features — describe outcomes only
-- No contradiction mid-email
-- End the body paragraphs with exactly: "Worth a quick conversation?"
-- After "Worth a quick conversation?", sign off on separate lines: first line is "Lawrence", second line is "Versa Digital HQ"
-- In the body JSON field, separate the greeting, each paragraph, and the sign-off block with a blank line (two newline characters \n\n between each section)
-STRUCTURE — three paragraphs, one job each:
-- Paragraph 1: One specific observation about this clinic's intake setup based on the detected data provided. What you noticed. Nothing else.
-- Paragraph 2: The consequence of that gap — what it costs them in patient loss or staff time. One sentence maximum.
-- Paragraph 3: What the system does, described in one concrete visual sentence. Where it sits, what it handles, what the outcome is.
-TONE:
-- Direct and confident — not salesy
-- Conversational — not corporate
-- Specific to this clinic — never generic
-- No filler phrases: never use "I hope this finds you well", "I wanted to reach out", "touch base", "synergy", "innovative solution"
-DATA YOU WILL RECEIVE:
-- Clinic name
-- Contact name
-- City
-- Booking channel (phone / contact form / WhatsApp / unknown)
-- Review count (if detected)
-- Selected angle (After-Hours / Manual Coordination / Conversion)
-- Selected hook type
-Use the booking channel and angle to determine what specific observation to open with. Use the Contact name in the subject line. Use the Greeting name in the greeting line. Do not use either name anywhere else in the body paragraphs.
-SUBJECT LINE FORMAT:
-- "[Contact name] – [specific topic]?" — conversational, specific, no more than 8 words
-- Examples: "Dr Patel – after-hours enquiries?", "Donna – patient follow-up gap?"
+      const systemPrompt = `You are an email generator for a dental clinic intake automation service. Generate a cold outreach email following these exact rules.
+
+ANGLE SELECTION — choose one based on the page content:
+- Phone number only, no booking form → Phone-Only angle
+- Contact form present, no live calendar/instant booking → Booking Friction angle
+- Separate flows for new vs existing patients → New vs Existing angle
+- Anything else → Booking Friction as default
+
+STRUCTURE:
+- Greeting: "Hi [Greeting]," on its own line
+- Paragraph 1: One specific observation about what you found on their website. Must reference a concrete noun from the page (e.g. "contact form", "phone number", "booking form"). One sentence.
+- Paragraph 2: One open question about how they handle that gap. Never state they have a problem — ask about their process. One sentence.
+- Paragraph 3: One sentence only — "We build simple intake systems for dental clinics that [specific outcome] — so [result]."
+- Final line: "Worth a quick conversation?"
+- Sign-off: "Lawrence\nVersa Digital HQ"
+
+HARD RULES:
+- Max 80 words in the body excluding greeting and sign-off
+- No filler: "just", "simply", "obviously"
+- No generalisations: "most clinics", "many practices", "industry standard"
+- No negative framing: "losing patients", "missing out", "falling behind"
+- Must sound like a person who visited their site, not a salesperson with a pitch
+- Subject line format: "[Contact] – [specific topic]?" max 8 words, no Re: prefix
+- Never use "Versa" as a product name in the body
+- In the body JSON field, separate the greeting, each paragraph, the final line, and the sign-off with a blank line (two newline characters \\n\\n between each section)
+
 Return a JSON object with exactly two fields: subject and body. No preamble, no explanation, no markdown. Raw JSON only.`;
 
       const userPrompt = `Write a cold outreach email using the details below.
