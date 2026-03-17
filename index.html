@@ -1267,17 +1267,17 @@
       'After-Hours': {
         'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my note from earlier this week about after-hours enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
         'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nWanted to add one thing to my previous note.\n\nMost independent clinics I speak to aren't aware of how many enquiries arrive outside reception hours until they actually look at the data. It's rarely a small number.\n\nIf that's worth exploring, I'm happy to take a look at your current setup on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nI'll keep this brief - this is my last note on this.\n\nIf after-hours enquiries aren't a priority right now, completely understood. If that changes, you know where I am.\n\nLawrence\nVersa Digital HQ` }
+        'FU3': { subject: '[Contact name] \u2013 different proposition', body: `Hi [name],\n\nI've reached out a couple of times about automating your patient intake process - I'll keep this brief.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered on our end, 60 days to demonstrate results, short testimonial in return if you're happy with what you see. No monthly fee until the 60 days is up.\n\nI've put together a one-page outline of the arrangement - happy to send it over or jump on a 20 minute call.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ` }
       },
       'Coordination': {
         'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust checking back in on my note about the time your team spends coordinating new patient enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
         'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nOne thing I didn't mention in my last note - the coordination problem compounds as the practice grows. More enquiries means more manual handling, which means more staff time absorbed before a single patient is booked.\n\nHappy to walk through what a leaner process looks like on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nLast note from me on this.\n\nIf streamlining how your team handles new patient enquiries isn't on the radar right now, no problem at all. Happy to pick this up whenever the timing is right.\n\nLawrence\nVersa Digital HQ` }
+        'FU3': { subject: '[Contact name] \u2013 different proposition', body: `Hi [name],\n\nI've reached out a couple of times about automating your patient intake process - I'll keep this brief.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered on our end, 60 days to demonstrate results, short testimonial in return if you're happy with what you see. No monthly fee until the 60 days is up.\n\nI've put together a one-page outline of the arrangement - happy to send it over or jump on a 20 minute call.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ` }
       },
       'Conversion': {
         'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my earlier note about enquiries dropping off before they convert to booked appointments.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
         'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nSomething worth adding to my last note - the drop-off between enquiry and booking almost always happens in the first two hours. After that, the patient has either heard back or moved on.\n\nHappy to show you how other independent clinics have closed that gap.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 closing the loop', body: `Hi [name],\n\nLast note from me.\n\nIf reducing drop-off between enquiry and booking isn't something you're looking at right now, completely understood. I'll leave the door open.\n\nLawrence\nVersa Digital HQ` }
+        'FU3': { subject: '[Contact name] \u2013 different proposition', body: `Hi [name],\n\nI've reached out a couple of times about automating your patient intake process - I'll keep this brief.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered on our end, 60 days to demonstrate results, short testimonial in return if you're happy with what you see. No monthly fee until the 60 days is up.\n\nI've put together a one-page outline of the arrangement - happy to send it over or jump on a 20 minute call.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ` }
       }
     };
 
@@ -1345,7 +1345,8 @@
       const body=tpl.body
         .replace(/\[name\]/g,contactForBody)
         .replace(/\[Contact\]/g,contactForBody)
-        .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]');
+        .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]')
+        .replace(/\[City\]/g,lead.city||'[City]');
       document.getElementById('emailSubjectPreview').textContent='Subject: '+subject;
       const bodyHtml=escapeHtml(body).replace('versadigital.co/demo','<a href="https://versadigital.co/demo" target="_blank" style="color:#5E6AD2">versadigital.co/demo</a>');
       document.getElementById('emailBodyPreview').innerHTML=bodyHtml;
@@ -1633,7 +1634,7 @@
         const contactForBody = buildGreetingName(lead.contactName);
         const clinic = lead.clinicName || '[Clinic Name]';
         const subject = tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
-        const body = tpl.body.replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic);
+        const body = tpl.body.replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic).replace(/\[City\]/g,lead.city||'[City]');
         const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>') + '</div>';
         try{
           await sendGraphEmail(lead.email, subject, htmlBody);
