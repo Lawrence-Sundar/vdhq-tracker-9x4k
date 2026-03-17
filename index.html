@@ -523,7 +523,7 @@
         </div>
         <div class="filter-group">
           <span class="filter-inline-label">FU Stage</span>
-          <select id="pFilterFUStage"><option value="All">All</option><option value="Not Sent">Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option></select>
+          <select id="pFilterFUStage"><option value="All">All</option><option value="Not Sent">Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Re-Engage Sent">Re-Engage Sent</option></select>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 4px 0;gap:12px">
@@ -631,7 +631,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="emailAngleCard">
         <div class="email-section-label">Step 2 — Select Angle</div>
         <div class="btn-group">
           <button class="toggle-btn" data-angle="After-Hours">After-Hours</button>
@@ -647,6 +647,7 @@
           <button class="toggle-btn" data-type="FU1">FU1</button>
           <button class="toggle-btn" data-type="FU2">FU2</button>
           <button class="toggle-btn" data-type="FU3">FU3</button>
+          <button class="toggle-btn" data-type="Re-Engage">Re-Engage</button>
         </div>
       </div>
 
@@ -924,6 +925,7 @@
           else if(fs==='FU2 Sent'){ if(!l.fu2Sent||l.fu3Sent) return false; }
           else if(fs==='FU3 Sent'){ if(!l.fu3Sent) return false; }
           else if(fs==='Full Sequence'){ if(!l.fu3Sent) return false; }
+          else if(fs==='Re-Engage Sent'){ if(!l.reEngageSent) return false; }
         }
         return passesBaseFilters(l);
       });
@@ -1119,7 +1121,7 @@
       container.querySelectorAll('.btn-mark-sent').forEach(btn=>{ btn.addEventListener('click',()=>markAsSentFromInbox(btn.dataset.id)); });
     }
 
-    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),4);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();} save(); }
+    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),4);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();} if(fuKey==='reEngage'){lead.reEngageSent=true;lead.reEngageDate=todayISO();} save(); }
 
     function markRepliedFromFollowUps(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply='Y'; save(); }
 
@@ -1137,16 +1139,19 @@
       const container=document.getElementById('followUpsList'); if(!container) return; container.innerHTML='';
       const td=todayISO();
       const items=[];
+      const reEngageItems=[];
       leads.forEach(l=>{
         if(l.doNotContact) return;
         const status=computeStatus(l);
         if(status==='Replied'||status==='Converted'||status==='Not Interested') return;
         const fus=[{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<=td) items.push({lead:l,fuKey:fu.key,fuLabel:fu.label,fuDate:nd,overdue:nd<td}); break; }
+        if(l.fu3Sent&&!l.reEngageSent&&l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d){ const days=Math.round((new Date(td)-new Date(fu3d))/86400000); if(days>=3) reEngageItems.push({lead:l}); } }
       });
+      const totalBadge=items.length+reEngageItems.length;
       const badge=document.getElementById('followUpsNavBadge');
-      if(badge){ if(items.length>0){badge.textContent=items.length;badge.style.display='inline-flex';}else{badge.textContent='';badge.style.display='none';} }
-      if(items.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
+      if(badge){ if(totalBadge>0){badge.textContent=totalBadge;badge.style.display='inline-flex';}else{badge.textContent='';badge.style.display='none';} }
+      if(items.length===0&&reEngageItems.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
       const overdue=items.filter(i=>i.overdue).sort((a,b)=>a.fuDate.localeCompare(b.fuDate));
       const dueToday=items.filter(i=>!i.overdue).sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||''));
       [[overdue,'OVERDUE'],[dueToday,'DUE TODAY']].forEach(([group,sectionLabel])=>{
@@ -1175,6 +1180,30 @@
         list.querySelectorAll('[data-action="fuExpand"]').forEach(btn=>btn.addEventListener('click',()=>toggleFollowUpExpand(btn.dataset.id)));
         if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
       });
+      // Re-Engage Due section
+      if(reEngageItems.length){
+        const labelEl=document.createElement('div'); labelEl.innerHTML='<span class="fu-section-label">RE-ENGAGE DUE</span>'; container.appendChild(labelEl);
+        const card=document.createElement('div'); card.className='card'; card.style.padding='0 12px';
+        const list=document.createElement('div'); list.className='leads-table';
+        reEngageItems.sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||'')).forEach(item=>{
+          const l=item.lead; const isQual=(l.source||'manual')==='qualifier';
+          const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
+          const row=document.createElement('div'); row.className='lead-row';
+          const main=document.createElement('div'); main.className='fu-row-main';
+          main.innerHTML=`<span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge fu-due-badge-overdue">Re-Engage</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent re-engage-mark-sent" data-id="${l.id}">Mark Re-Engage Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Re-Engage">Send Re-Engage Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
+          const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
+          expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 \u00b7 '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 \u00b7 '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 \u00b7 '+formatDateISOtoShortUK(l.fu3Date)}</button></div>`;
+          expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
+          row.appendChild(main); row.appendChild(expand); list.appendChild(row);
+        });
+        card.appendChild(list); container.appendChild(card);
+        list.querySelectorAll('.re-engage-mark-sent').forEach(btn=>btn.addEventListener('click',()=>markFUFromFollowUps(btn.dataset.id,'reEngage')));
+        list.querySelectorAll('[data-action="fuReply"]').forEach(btn=>btn.addEventListener('click',()=>markRepliedFromFollowUps(btn.dataset.id)));
+        list.querySelectorAll('.btn-fu-email').forEach(btn=>btn.addEventListener('click',()=>goToFUEmail(btn.dataset.id,btn.dataset.futype)));
+        list.querySelectorAll('[data-action="fuExpand"]').forEach(btn=>btn.addEventListener('click',()=>toggleFollowUpExpand(btn.dataset.id)));
+        if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
+      }
     }
 
     function renderStats(){ const td=todayISO(); let pending=0; leads.forEach(l=>{ if(l.reply==='Y') return; if(l.fu1Date===td&&!l.fu1Sent) pending++; if(l.fu2Date===td&&!l.fu2Sent) pending++; if(l.fu3Date===td&&!l.fu3Sent) pending++; }); const inboxCount=leads.filter(l=>l.source==='qualifier'&&!l.dateSent).length; document.getElementById('statTotal').textContent=leads.length; const statInbox=document.getElementById('statInbox'); if(statInbox) statInbox.textContent=inboxCount; document.getElementById('statReplied').textContent=leads.filter(l=>l.reply==='Y').length; document.getElementById('statPending').textContent=pending; document.getElementById('statPendingNoReply').textContent=leads.filter(l=>l.reply!=='Y').length; }
@@ -1294,6 +1323,11 @@
       }
     };
 
+    const RE_ENGAGE_TEMPLATE = {
+      subject: '[Contact name] \u2013 apologies, wanted to make sure this reached you',
+      body: `Hi [greeting],\n\nI've reached out a few times over the past weeks - I wanted to follow up in case my previous emails didn't reach you.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered, 60 days to demonstrate results, short testimonial in return. No monthly fee until the 60 days is up.\n\nI also put together a quick demo of how it works if useful: versadigital.co/demo\n\nHappy to send a one-page outline or jump on a 20 minute call if it's of any interest.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ`
+    };
+
     let expandedLeadId = null;
     let expandedFollowUpId = null;
     let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All'};
@@ -1338,15 +1372,17 @@
     function setActiveType(type){
       emailState.type=type;
       document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active-type',b.dataset.type===type));
+      const angleCard=document.getElementById('emailAngleCard'); if(angleCard) angleCard.style.display=type==='Re-Engage'?'none':'block';
       refreshEmailPreview();
     }
 
     function refreshEmailPreview(){
       const wrap=document.getElementById('emailPreviewWrap'); const placeholder=document.getElementById('emailPreviewPlaceholder');
       const {leadId,angle,type}=emailState;
-      if(!leadId||!angle||!type){ wrap.style.display='none'; placeholder.style.display='block'; return; }
+      const isReEngage=type==='Re-Engage';
+      if(!leadId||!type||(!angle&&!isReEngage)){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const lead=leads.find(l=>l.id==leadId); if(!lead){ wrap.style.display='none'; placeholder.style.display='block'; return; }
-      const tpl=FU_TEMPLATES[angle]&&FU_TEMPLATES[angle][type];
+      const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : (FU_TEMPLATES[angle]&&FU_TEMPLATES[angle][type]);
       if(!tpl){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
       const contactForBody=buildGreetingName(lead.contactName);
@@ -1356,6 +1392,7 @@
         .replace(/\[Contact\]/g,lead.contactName||'[Contact]')
         .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]');
       const body=tpl.body
+        .replace(/\[greeting\]/g,contactForBody)
         .replace(/\[name\]/g,contactForBody)
         .replace(/\[Contact\]/g,contactForBody)
         .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]')
@@ -1473,9 +1510,10 @@
       if(!lead.email){ alert('This lead has no email address. Add one via Edit before sending.'); return; }
       const selectedType = emailState.type;
       const isFU = ["FU1","FU2","FU3"].includes(selectedType);
+      const isReEngageSend = selectedType === 'Re-Engage';
       const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
       const clinic = lead.clinicName || '[Clinic Name]';
-      const fuTpl = isFU ? (FU_TEMPLATES[lead.angle||'After-Hours'] && FU_TEMPLATES[lead.angle||'After-Hours'][selectedType]) : null;
+      const fuTpl = isReEngageSend ? RE_ENGAGE_TEMPLATE : (isFU ? (FU_TEMPLATES[lead.angle||'After-Hours'] && FU_TEMPLATES[lead.angle||'After-Hours'][selectedType]) : null);
       const subject = fuTpl
         ? fuTpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic)
         : document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,'');
@@ -1488,6 +1526,8 @@
         await sendGraphEmail(lead.email, subject, htmlBody);
         if(isFU){
           markFUFromFollowUps(lead.id, selectedType.toLowerCase());
+        } else if(isReEngageSend){
+          lead.reEngageSent = true; lead.reEngageDate = todayISO(); save();
         } else if(selectedType === 'Initial' && !lead.dateSent){
           lead.dateSent = todayISO(); ensureFUDates(lead); save();
         }
@@ -1508,6 +1548,8 @@
         if(status === 'Replied' || status === 'Converted' || status === 'Not Interested') return;
         const fus = [{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd = normDateStr(fu.date); if(nd && nd <= td){ items.push({lead:l,fuKey:fu.key,fuLabel:fu.label}); break; } }
+        // Re-Engage due: fu3 sent, re-engage not sent, 3+ days since fu3Date
+        if(l.fu3Sent && !l.reEngageSent && l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d){ const days=Math.round((new Date(td)-new Date(fu3d))/86400000); if(days>=3) items.push({lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); } }
       });
       return items;
     }
@@ -1523,7 +1565,7 @@
       withEmail.forEach(item=>{
         const l = item.lead;
         const angle = l.angle || 'After-Hours';
-        const tpl = FU_TEMPLATES[angle] && FU_TEMPLATES[angle][item.fuLabel];
+        const tpl = item.fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : (FU_TEMPLATES[angle] && FU_TEMPLATES[angle][item.fuLabel]);
         const contactForSubject = l.contactName || l.clinicName || '[Clinic Name]';
         const subject = tpl ? tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,l.clinicName||'[Clinic Name]') : item.fuLabel+' follow-up';
         const row = document.createElement('div'); row.className = 'send-all-row';
@@ -1641,13 +1683,13 @@
         if(!lead || !lead.email) continue;
         if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:11px">Sending...</span>';
         const angle = lead.angle || 'After-Hours';
-        const tpl = FU_TEMPLATES[angle] && FU_TEMPLATES[angle][fuLabel];
+        const tpl = fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : (FU_TEMPLATES[angle] && FU_TEMPLATES[angle][fuLabel]);
         if(!tpl){ if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:11px">No template</span>'; failed++; continue; }
         const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
         const contactForBody = buildGreetingName(lead.contactName);
         const clinic = lead.clinicName || '[Clinic Name]';
         const subject = tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
-        const body = tpl.body.replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic).replace(/\[City\]/g,lead.city||'[City]');
+        const body = tpl.body.replace(/\[greeting\]/g,contactForBody).replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic).replace(/\[City\]/g,lead.city||'[City]');
         const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>') + '</div>';
         try{
           await sendGraphEmail(lead.email, subject, htmlBody);
