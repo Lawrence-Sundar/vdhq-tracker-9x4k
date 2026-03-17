@@ -827,9 +827,9 @@
     function addLead(data){ const lead=Object.assign({id:Date.now(),dateAdded:new Date().toISOString()},data); if(!lead.source) lead.source='manual'; ensureFUDates(lead); leads.unshift(lead); save(); }
 
     function markFUSent(id,fu){ const lead=leads.find(l=>l.id==id); if(!lead) return;
-      if(fu==='fu1'){ if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; } else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); } }
-      if(fu==='fu2'){ if(lead.fu2Sent){ lead.fu2Sent=false; delete lead.fu2SentOn; } else { lead.fu2Sent=true; lead.fu2SentOn=todayISO(); } }
-      if(fu==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); } }
+      if(fu==='fu1'){ if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; } else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),7); } }
+      if(fu==='fu2'){ if(lead.fu2Sent){ lead.fu2Sent=false; delete lead.fu2SentOn; } else { lead.fu2Sent=true; lead.fu2SentOn=todayISO(); lead.fu3Date=addDays(todayISO(),7); } }
+      if(fu==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); lead.reEngageDate=addDays(todayISO(),3); } }
       save(); }
 
     function toggleReply(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply=(lead.reply==='Y')?'N':'Y'; save(); }
@@ -1121,7 +1121,7 @@
       container.querySelectorAll('.btn-mark-sent').forEach(btn=>{ btn.addEventListener('click',()=>markAsSentFromInbox(btn.dataset.id)); });
     }
 
-    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),4);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();} if(fuKey==='reEngage'){lead.reEngageSent=true;lead.reEngageDate=todayISO();} save(); }
+    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),7);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();lead.reEngageDate=addDays(todayISO(),3);} if(fuKey==='reEngage'){lead.reEngageSent=true;lead.reEngageSentOn=todayISO();} save(); }
 
     function markRepliedFromFollowUps(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply='Y'; save(); }
 
@@ -1146,7 +1146,7 @@
         if(status==='Replied'||status==='Converted'||status==='Not Interested') return;
         const fus=[{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<=td) items.push({lead:l,fuKey:fu.key,fuLabel:fu.label,fuDate:nd,overdue:nd<td}); break; }
-        if(l.fu3Sent&&!l.reEngageSent&&l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d){ const days=Math.round((new Date(td)-new Date(fu3d))/86400000); if(days>=3) reEngageItems.push({lead:l}); } }
+        if(l.fu3Sent&&!l.reEngageSent){ if(l.reEngageDate){ const nd=normDateStr(l.reEngageDate); if(nd&&nd<=td) reEngageItems.push({lead:l}); } else if(l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d&&Math.round((new Date(td)-new Date(fu3d))/86400000)>=3) reEngageItems.push({lead:l}); } }
       });
       const totalBadge=items.length+reEngageItems.length;
       const badge=document.getElementById('followUpsNavBadge');
@@ -1527,7 +1527,7 @@
         if(isFU){
           markFUFromFollowUps(lead.id, selectedType.toLowerCase());
         } else if(isReEngageSend){
-          lead.reEngageSent = true; lead.reEngageDate = todayISO(); save();
+          lead.reEngageSent = true; lead.reEngageSentOn = todayISO(); save();
         } else if(selectedType === 'Initial' && !lead.dateSent){
           lead.dateSent = todayISO(); ensureFUDates(lead); save();
         }
@@ -1548,8 +1548,8 @@
         if(status === 'Replied' || status === 'Converted' || status === 'Not Interested') return;
         const fus = [{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd = normDateStr(fu.date); if(nd && nd <= td){ items.push({lead:l,fuKey:fu.key,fuLabel:fu.label}); break; } }
-        // Re-Engage due: fu3 sent, re-engage not sent, 3+ days since fu3Date
-        if(l.fu3Sent && !l.reEngageSent && l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d){ const days=Math.round((new Date(td)-new Date(fu3d))/86400000); if(days>=3) items.push({lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); } }
+        // Re-Engage due: use scheduled reEngageDate if set, else fall back to 3+ days since fu3Date
+        if(l.fu3Sent && !l.reEngageSent){ if(l.reEngageDate){ const nd=normDateStr(l.reEngageDate); if(nd&&nd<=td) items.push({lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); } else if(l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d&&Math.round((new Date(td)-new Date(fu3d))/86400000)>=3) items.push({lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); } }
       });
       return items;
     }
