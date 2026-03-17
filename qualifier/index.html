@@ -81,6 +81,7 @@
     .cold-reason{font-size:13px;color:rgba(248,113,113,0.85);line-height:1.55}
     .disqualifier-list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
     .disqualifier-list li{font-size:13px;color:var(--danger);display:flex;gap:8px;align-items:flex-start;line-height:1.45}
+    .manually-qualified-badge{display:inline-block;font-size:11px;font-weight:500;color:#888;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:2px 8px;margin-top:8px;letter-spacing:0.03em}
 
     /* Out-of-area panel */
     .ota-card{background:#16120a;border:1px solid rgba(251,191,36,0.3)}
@@ -207,6 +208,7 @@
           <div>
             <div class="section-label">Qualification Score</div>
             <div id="scoreBadge" class="score-badge"></div>
+            <div id="manuallyQualifiedBadge" class="manually-qualified-badge" style="display:none">Manually qualified</div>
             <div id="reasoningText" class="reasoning-text"></div>
           </div>
           <div class="muted small" id="analysedUrl" style="text-align:right;max-width:240px;word-break:break-all;margin-top:4px"></div>
@@ -219,6 +221,10 @@
           <div class="cold-title">✕ Not Suitable</div>
           <div id="coldReason" class="cold-reason"></div>
           <ul id="disqualifierList" class="disqualifier-list"></ul>
+        </div>
+        <div style="margin-bottom:8px">
+          <div class="manually-qualified-badge" style="margin-bottom:10px">Manually qualified - booking channel set to Contact Form</div>
+          <button class="secondary" id="btnColdContinue" style="width:100%">Continue Anyway</button>
         </div>
         <div style="margin-bottom:14px">
           <button class="secondary" id="btnSaveFuture">Save as Future Target</button>
@@ -649,7 +655,8 @@ ${pageText}`;
     function resetResultPanels() {
       ['coldPanel','outOfAreaPanel','flagChannel','flagContact',
        'recommendationCard','signalsCard','metaCard','emailsCard',
-       'namesCard','emailToSendCard','namedContactCard','draftCtaWrap'].forEach(id => hide(id));
+       'namesCard','emailToSendCard','namedContactCard','draftCtaWrap',
+       'manuallyQualifiedBadge'].forEach(id => hide(id));
     }
 
     // ── Main render dispatcher ──
@@ -687,6 +694,22 @@ ${pageText}`;
         list.appendChild(li);
       });
       show('coldPanel');
+    }
+
+    // ── Cold override ──
+    function coldContinueAnyway() {
+      const r = window._lastResult;
+      if (!r) return;
+      window._manuallyQualified = true;
+      r.booking_channel = 'contact_form';
+      r.booking_channel_confidence = 'confirmed';
+      r.score = 'Warm';
+      hide('coldPanel');
+      const badge = document.getElementById('scoreBadge');
+      badge.textContent = 'Warm';
+      badge.className = 'score-badge score-warm';
+      show('manuallyQualifiedBadge');
+      showHotWarmContent(r);
     }
 
     // ── Out-of-area panel ──
@@ -828,6 +851,7 @@ ${pageText}`;
       if (e.key === 'Enter') runAnalysis();
     });
     document.getElementById('btnContinueAnyway').addEventListener('click', continueAnyway);
+    document.getElementById('btnColdContinue').addEventListener('click', coldContinueAnyway);
     document.getElementById('btnViewTracker').addEventListener('click', () => {
       window.open('../tracker-app/index.html', '_blank');
     });
@@ -1001,7 +1025,7 @@ ${pageText}`;
         fu3Sent:     false,
         reply:       'N',
         replyType:   '',
-        notes:       '',
+        notes:       window._manuallyQualified ? 'Manually qualified' : '',
         reviewCount:  r.review_count != null ? String(r.review_count) : '',
         score:        r.score || '',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
@@ -1064,10 +1088,11 @@ ${pageText}`;
     // ── Stage 4: reset for another clinic ──
     function resetAll() {
       // Clear session state
-      window._lastResult     = null;
-      window._lastUrl        = null;
-      window._lastDraft      = null;
-      window._createdLeadId  = null;
+      window._lastResult        = null;
+      window._lastUrl           = null;
+      window._lastDraft         = null;
+      window._createdLeadId     = null;
+      window._manuallyQualified = false;
       selectedEmail = '';
       selectedAngle = '';
       selectedHook  = '';
