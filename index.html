@@ -521,6 +521,10 @@
           <span class="filter-inline-label">Sort</span>
           <select id="pFilterSort"><option value="newest">Date Added (Newest)</option><option value="oldest">Date Added (Oldest)</option><option value="fuSoonest">FU Due (Soonest)</option></select>
         </div>
+        <div class="filter-group">
+          <span class="filter-inline-label">FU Stage</span>
+          <select id="pFilterFUStage"><option value="All">All</option><option value="Not Sent">Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option></select>
+        </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 4px 0;gap:12px">
         <div id="pipelineCount" style="font-size:12px;color:#888;font-family:Inter,sans-serif;white-space:nowrap"></div>
@@ -893,9 +897,9 @@
 
     function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested'}; return m[status]||'sdot-p-notsent'; }
 
-    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
+    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
 
-    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; renderPipeline(); }
+    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest',fuStage:'All'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.value='All'; renderPipeline(); }
 
     function renderPipeline(){
       const container=document.getElementById('pipelineList'); if(!container) return; container.innerHTML='';
@@ -913,6 +917,14 @@
         if(computeStatus(l)==='Not Interested') return false;
         const status=computeStatus(l);
         if(pipelineFilter.status!=='All'){ if(pipelineFilter.status==='Follow Up Due'){ const fuDue=(l.fu1Date&&l.fu1Date<=td&&!l.fu1Sent)||(l.fu2Date&&l.fu2Date<=td&&!l.fu2Sent)||(l.fu3Date&&l.fu3Date<=td&&!l.fu3Sent); if(!fuDue||status==='Replied'||status==='Converted') return false; } else { if(status!==pipelineFilter.status) return false; } }
+        if(pipelineFilter.fuStage!=='All'){
+          const fs=pipelineFilter.fuStage;
+          if(fs==='Not Sent'){ if(l.dateSent) return false; }
+          else if(fs==='FU1 Sent'){ if(!l.fu1Sent||l.fu2Sent) return false; }
+          else if(fs==='FU2 Sent'){ if(!l.fu2Sent||l.fu3Sent) return false; }
+          else if(fs==='FU3 Sent'){ if(!l.fu3Sent) return false; }
+          else if(fs==='Full Sequence'){ if(!l.fu3Sent) return false; }
+        }
         return passesBaseFilters(l);
       });
       if(pipelineFilter.sort==='oldest') filtered.sort((a,b)=>a.id-b.id);
@@ -1086,6 +1098,7 @@
       const src=document.getElementById('pFilterSource'); if(src) src.addEventListener('change',()=>{ pipelineFilter.source=src.value; renderPipeline(); });
       const city=document.getElementById('pFilterCity'); if(city) city.addEventListener('change',()=>{ pipelineFilter.city=city.value; renderPipeline(); });
       const sort=document.getElementById('pFilterSort'); if(sort) sort.addEventListener('change',()=>{ pipelineFilter.sort=sort.value; renderPipeline(); });
+      const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.addEventListener('change',()=>{ pipelineFilter.fuStage=fuStage.value; renderPipeline(); });
       const resetBtn=document.getElementById('btnResetFilters'); if(resetBtn) resetBtn.addEventListener('click',resetPipelineFilters);
       const psearch=document.getElementById('pipelineSearch'); if(psearch) psearch.addEventListener('input',()=>renderPipeline());
     }
@@ -1283,7 +1296,7 @@
 
     let expandedLeadId = null;
     let expandedFollowUpId = null;
-    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest'};
+    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All'};
 
     let emailState = { leadId:null, angle:null, type:null };
 
