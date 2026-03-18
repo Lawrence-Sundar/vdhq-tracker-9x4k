@@ -515,7 +515,7 @@
         </div>
         <div class="filter-group">
           <span class="filter-inline-label">City</span>
-          <select id="pFilterCity"><option value="All">All</option><option value="London">London</option><option value="Manchester">Manchester</option><option value="Birmingham">Birmingham</option><option value="Leeds">Leeds</option><option value="Bristol">Bristol</option><option value="Other">Other</option></select>
+          <select id="pFilterCity"><option value="All">All</option><option value="London">London</option><option value="Manchester">Manchester</option><option value="Birmingham">Birmingham</option><option value="Leeds">Leeds</option><option value="Bristol">Bristol</option><option value="Edinburgh">Edinburgh</option><option value="Glasgow">Glasgow</option><option value="Other">Other</option></select>
         </div>
         <div class="filter-group">
           <span class="filter-inline-label">Sort</span>
@@ -568,6 +568,8 @@
             <option value="Birmingham">Birmingham</option>
             <option value="Leeds">Leeds</option>
             <option value="Bristol">Bristol</option>
+            <option value="Edinburgh">Edinburgh</option>
+            <option value="Glasgow">Glasgow</option>
             <option value="Other">Other</option>
           </select>
         </div>
@@ -909,7 +911,7 @@
       // Separate Not Interested from active leads (source/city/search filters apply to both; status filter only to active)
       const passesBaseFilters=l=>{
         if(pipelineFilter.source!=='All'){ const src=(l.source||'manual').toLowerCase(); if(pipelineFilter.source==='Qualifier'&&src!=='qualifier') return false; if(pipelineFilter.source==='Manual'&&src!=='manual') return false; }
-        if(pipelineFilter.city!=='All'){ const c=(l.city||'').toLowerCase().trim(); const known=['london','manchester','birmingham','leeds','bristol']; if(pipelineFilter.city==='London'&&c!=='london') return false; if(pipelineFilter.city==='Manchester'&&c!=='manchester') return false; if(pipelineFilter.city==='Birmingham'&&c!=='birmingham') return false; if(pipelineFilter.city==='Leeds'&&c!=='leeds') return false; if(pipelineFilter.city==='Bristol'&&c!=='bristol') return false; if(pipelineFilter.city==='Other'&&known.includes(c)) return false; }
+        if(pipelineFilter.city!=='All'){ const c=(l.city||'').toLowerCase().trim(); const known=['london','manchester','birmingham','leeds','bristol','edinburgh','glasgow']; if(pipelineFilter.city==='London'&&c!=='london') return false; if(pipelineFilter.city==='Manchester'&&c!=='manchester') return false; if(pipelineFilter.city==='Birmingham'&&c!=='birmingham') return false; if(pipelineFilter.city==='Leeds'&&c!=='leeds') return false; if(pipelineFilter.city==='Bristol'&&c!=='bristol') return false; if(pipelineFilter.city==='Edinburgh'&&c!=='edinburgh') return false; if(pipelineFilter.city==='Glasgow'&&c!=='glasgow') return false; if(pipelineFilter.city==='Other'&&known.includes(c)) return false; }
         if(sq&&!((l.clinicName||'').toLowerCase().includes(sq)||(l.contactName||'').toLowerCase().includes(sq))) return false;
         return true;
       };
@@ -1730,7 +1732,7 @@
       if(!tbody) return;
 
       const cityNorm = s => (s||'').toLowerCase().trim();
-      const knownCities = ['london','manchester','birmingham','leeds','bristol'];
+      const knownCities = ['london','manchester','birmingham','leeds','bristol','edinburgh','glasgow'];
 
       // Base: exclude DNC always
       const base = leads.filter(l => !l.doNotContact);
