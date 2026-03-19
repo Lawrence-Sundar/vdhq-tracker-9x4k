@@ -112,6 +112,8 @@
     .draft-field-wrap{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
     .draft-field{font-size:13px;font-family:monospace;color:#e6eef2;line-height:1.5;flex:1;word-break:break-word}
     .draft-body-field{font-size:13px;color:#e6eef2;line-height:1.8;white-space:pre-wrap;word-break:break-word;background:#071018;border-radius:6px;padding:10px 12px}
+    button.btn-edit{background:transparent;border:1px solid rgba(201,168,76,0.5);color:#C9A84C;cursor:pointer;padding:4px 11px;border-radius:5px;font-size:12px;font-weight:500;transition:border-color .15s,color .15s}
+    button.btn-edit:hover{border-color:#C9A84C;color:#e8c86a}
     .btn-confirm{background:linear-gradient(180deg,#C9A84C,#a8863b);border:none;color:#0a0800;cursor:pointer;padding:13px 24px;border-radius:6px;font-size:14px;font-weight:700;width:100%;letter-spacing:.01em;transition:opacity .15s;margin-bottom:4px}
     .btn-confirm:hover{opacity:.88}
     @media(max-width:580px){.angle-hook-grid{grid-template-columns:1fr}}
@@ -353,6 +355,7 @@
           <div class="section-label">Subject Line</div>
           <div class="draft-field-wrap">
             <div id="draftSubject" class="draft-field"></div>
+            <input type="text" id="editSubjectInput" style="display:none;flex:1;background:#071018;border:1px solid rgba(201,168,76,0.4);border-radius:5px;color:#e6eef2;padding:5px 9px;font-size:13px;font-family:monospace;outline:none">
             <button class="copy-btn" id="btnCopySubject">Copy</button>
           </div>
         </div>
@@ -360,8 +363,10 @@
         <div class="card">
           <div class="section-label">Email Body</div>
           <div id="draftBody" class="draft-body-field"></div>
+          <textarea id="editBodyInput" style="display:none;width:100%;background:#071018;border:1px solid rgba(201,168,76,0.4);border-radius:6px;color:#e6eef2;padding:10px 12px;font-size:13px;line-height:1.8;resize:vertical;box-sizing:border-box;font-family:inherit;outline:none"></textarea>
           <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
             <button class="copy-btn" id="btnCopyEmail">Copy Email</button>
+            <button class="btn-edit" id="btnEditDraft">Edit</button>
             <button class="secondary" id="btnRegenerate">Regenerate</button>
           </div>
         </div>
@@ -395,6 +400,8 @@
     let selectedEmail = '';
     let selectedAngle = '';
     let selectedHook  = '';
+    let _draftEdited  = false;
+    let _editMode     = false;
 
     // ── UI helpers ──
     function setLoading(on, msg) {
@@ -416,6 +423,41 @@
       document.getElementById('errorState').style.display = 'none';
     }
     function hideDupWarning() { document.getElementById('dupWarning').style.display = 'none'; }
+
+    // ── Edit mode toggle ──
+    function toggleEditMode() {
+      const subjDiv   = document.getElementById('draftSubject');
+      const subjInput = document.getElementById('editSubjectInput');
+      const bodyDiv   = document.getElementById('draftBody');
+      const bodyInput = document.getElementById('editBodyInput');
+      const btn       = document.getElementById('btnEditDraft');
+      _editMode = !_editMode;
+      if (_editMode) {
+        subjInput.value          = subjDiv.textContent;
+        subjDiv.style.display    = 'none';
+        subjInput.style.display  = 'block';
+        bodyInput.value          = bodyDiv.textContent;
+        bodyInput.style.height   = Math.max(bodyDiv.offsetHeight, 120) + 'px';
+        bodyDiv.style.display    = 'none';
+        bodyInput.style.display  = 'block';
+        btn.textContent          = 'Done';
+      } else {
+        const newSubject         = subjInput.value.trim();
+        const newBody            = bodyInput.value;
+        subjDiv.textContent      = newSubject;
+        subjDiv.style.display    = '';
+        subjInput.style.display  = 'none';
+        bodyDiv.textContent      = newBody;
+        bodyDiv.style.display    = '';
+        bodyInput.style.display  = 'none';
+        if (window._lastDraft) {
+          window._lastDraft.subject = newSubject;
+          window._lastDraft.body    = newBody;
+        }
+        _draftEdited    = true;
+        btn.textContent = 'Edit';
+      }
+    }
 
     // ── Duplicate check ──
     function checkDuplicate(url, clinicName) {
@@ -966,6 +1008,7 @@ ${pageText}`;
 
     document.getElementById('btnGenerateEmail').addEventListener('click', generateEmailDraft);
     document.getElementById('btnRegenerate').addEventListener('click', generateEmailDraft);
+    document.getElementById('btnEditDraft').addEventListener('click', toggleEditMode);
 
     document.getElementById('btnCopyDraftEmail').addEventListener('click', () => {
       copyText(document.getElementById('draftEmailAddress').textContent,
@@ -1112,6 +1155,15 @@ ${pageText}`;
       const _ets = document.getElementById('emailToSendInput'); if (_ets) _ets.value = '';
       const _nci = document.getElementById('namedContactInput'); if (_nci) _nci.value = '';
       const _coi = document.getElementById('customObsInput'); if (_coi) _coi.value = '';
+      _draftEdited = false;
+      if (_editMode) {
+        _editMode = false;
+        document.getElementById('draftSubject').style.display    = '';
+        document.getElementById('editSubjectInput').style.display = 'none';
+        document.getElementById('draftBody').style.display       = '';
+        document.getElementById('editBodyInput').style.display   = 'none';
+        document.getElementById('btnEditDraft').textContent      = 'Edit';
+      }
 
       // Reset draft section
       hide('emailDraftSection');
@@ -1175,6 +1227,18 @@ ${pageText}`;
 
     // ── Stage 3: API call 2 — email generation ──
     async function generateEmailDraft() {
+      if (_draftEdited || _editMode) {
+        if (!confirm('Regenerating will replace your edits. Continue?')) return;
+        _draftEdited = false;
+        if (_editMode) {
+          _editMode = false;
+          document.getElementById('draftSubject').style.display   = '';
+          document.getElementById('editSubjectInput').style.display = 'none';
+          document.getElementById('draftBody').style.display      = '';
+          document.getElementById('editBodyInput').style.display  = 'none';
+          document.getElementById('btnEditDraft').textContent     = 'Edit';
+        }
+      }
       const r      = window._lastResult;
       const apiKey = window._apiKey;
       if (!r || !apiKey) { showError('Missing data — please re-run the analysis first.'); return; }
