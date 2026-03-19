@@ -1082,7 +1082,8 @@ ${pageText}`;
         reviewCount:  r.review_count != null ? String(r.review_count) : '',
         score:        r.score || '',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
-        draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : ''
+        draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : '',
+        hookVariant:  window._lastHookVariant || ''
       };
 
       try {
@@ -1258,6 +1259,62 @@ ${pageText}`;
       const city    = r.city_name    || r.city || '';
       const channel = r.booking_channel || 'unknown';
       const reviews = r.review_count != null ? String(r.review_count) : 'not available';
+
+      // Hook rotation
+      const _hookCounter = parseInt(localStorage.getItem('vdhq_hook_counter') || '0', 10);
+      const _hookIndex = _hookCounter % 4;
+      window._lastHookVariant = ['Hook A','Hook B','Hook C','Hook D'][_hookIndex];
+      const _hookTemplates = [
+        `Hi [Contact],
+
+I noticed the [Treatment focus] section on [Clinic Name]'s site — and that the [Intake method] is the primary way for patients in [Area] to reach you after hours.
+
+When a new enquiry comes in at 8pm on a Tuesday, how much manual coordination does your reception team do the next morning to get them on the calendar?
+
+This ensures every digital enquiry is qualified and booked without any staff intervention.
+
+Would you be open to seeing how this fits your current workflow?
+
+Lawrence
+Versa Digital HQ`,
+        `Hi [Contact],
+
+I noticed [Clinic Name]'s patient enquiries come through a [Intake method] — which means someone on your team is manually routing and following up every submission.
+
+How much of your reception team's morning is typically absorbed by that coordination before a single patient is actually booked?
+
+This replaces that process with automatic routing and instant confirmation — no staff involvement.
+
+Worth a quick conversation?
+
+Lawrence
+Versa Digital HQ`,
+        `Hi [Contact],
+
+[Clinic Name] has clearly invested in a premium digital presence for [Treatment focus] — yet the final step for a patient is still a static [Intake method].
+
+How often do those high-intent patients wait for a manual callback before they have a confirmed time in your diary?
+
+This turns your website enquiries into confirmed appointments instantly — while your team is away from the desk.
+
+Does it make sense to explore a more automated approach?
+
+Lawrence
+Versa Digital HQ`,
+        `Hi [Contact],
+
+We are onboarding two founding clinic partners in [City] — independent practices like [Clinic Name] that want to be early adopters in exchange for a reduced commercial arrangement.
+
+Full setup covered on our end, 60 days to demonstrate results, short testimonial in return if you're happy with what you see.
+
+The system handles patient routing and booking automatically so your team can focus entirely on clinical work.
+
+Would you be interested in one of the two spots for [Clinic Name]?
+
+Lawrence
+Versa Digital HQ`
+      ];
+      const _activeHookTemplate = _hookTemplates[_hookIndex];
       const systemPrompt = `You are an email generator for a dental clinic intake automation service. Generate a cold outreach email following these exact rules.
 
 SUBJECT LINE — NON-NEGOTIABLE RULES:
@@ -1278,28 +1335,25 @@ INCORRECT examples — never produce these:
 - 'Dr Ghafoor – Glasgow dental intake?'
 - 'Dental practices – enquiry automation?'
 
-ANGLE SELECTION — choose one based on the page content:
-- Phone number only, no booking form → Phone-Only angle
-- Contact form present, no live calendar/instant booking → Booking Friction angle
-- Separate flows for new vs existing patients → New vs Existing angle
-- Anything else → Booking Friction as default
+HOOK TEMPLATE — USE THIS EXACT STRUCTURE FOR THE BODY:
+${_activeHookTemplate}
 
-STRUCTURE:
-- Greeting: "Hi [Greeting]," on its own line
-- Paragraph 1: One specific observation about what you found on their website. Must reference a concrete noun from the page (e.g. "contact form", "phone number", "booking form"). One sentence.
-- Paragraph 2: One open question about how they handle that gap. Where relevant, include a local competitive threat — reference the clinic's specific city or area and the risk of patients choosing a nearby alternative (e.g. "keep browsing other [area] clinics"). Always use the actual location — never a generic placeholder. Never state they have a problem — ask about their process. One sentence.
-- Paragraph 3: One sentence only — "We build simple intake systems for dental clinics that [specific outcome] — so [result]." If the clinic has a premium or cosmetic focus — detected from their website or referenced in a custom observation (high-value treatments, premium branding, cosmetic services) — mirror their brand positioning: reference the quality they have built and frame the system as protecting or extending that quality rather than fixing a generic problem.
-- Final line: A specific closing question that reflects what was discussed. Do not always use "Worth a quick conversation?" — vary it to match the email's angle. Examples: "Worth a quick conversation to see how we'd plug that gap?" / "Worth 20 minutes to walk through how it works for a practice like yours?" / "Worth a quick call to see if it's a fit?"
-- Sign-off: "Lawrence\nVersa Digital HQ"
+FIELD SUBSTITUTION — fill each placeholder from the provided data:
+- [Contact] = the Greeting field
+- [Clinic Name] = the Clinic field
+- [City] = the City field
+- [Intake method] = the Booking channel — use plain English: "contact form", "email link", or "phone number"
+- [Area] = extract from Custom Observation if present (look for neighbourhood, area, or district references); fall back to City if not found
+- [Treatment focus] = extract from Custom Observation if present (look for treatment names — Invisalign, smile makeover, implants, cosmetic); fall back to "their treatments" if not found
 
 HARD RULES:
-- Max 80 words in the body excluding greeting and sign-off — these new rules do not override the limit; tighten other sentences if needed
+- Max 80 words in the body excluding greeting and sign-off
 - No filler: "just", "simply", "obviously"
 - No generalisations: "most clinics", "many practices", "industry standard"
 - No negative framing: "losing patients", "missing out", "falling behind"
 - Must sound like a person who visited their site, not a salesperson with a pitch
 - Never use "Versa" as a product name in the body
-- If a custom observation is provided, use it as the specific hook for paragraph 1 of the email instead of the generic booking channel detection. Reference the observation directly and specifically.
+- If Custom Observation is provided, use specific details from it to enhance phrasing within the template structure — do not change the template structure itself
 - In the body JSON field, separate the greeting, each paragraph, the final line, and the sign-off with a blank line (two newline characters \\n\\n between each section)
 
 Return a JSON object with exactly two fields: subject and body. No preamble, no explanation, no markdown. Raw JSON only.`;
@@ -1311,20 +1365,7 @@ Clinic: ${clinic}
 Contact: ${contact}
 Greeting: ${greetingContact}
 City: ${city}
-Booking channel: ${channel}
-Google review count: ${reviews}
-Angle: ${selectedAngle}
-Hook: ${selectedHook}${customObs ? '\nCustom observation about this clinic: ' + customObs : ''}
-
-Angle definitions:
-- After-Hours: focus on enquiries arriving outside reception hours going unanswered
-- Manual Coordination: focus on the manual back-and-forth staff handle for booking coordination
-- Conversion: focus on patients who submit an enquiry but don't convert due to slow follow-up
-
-Hook definitions:
-- Observation + Compliment: open by noting their strong Google reviews (${reviews}), then observe the intake gap
-- Direct Observation: open by describing what you observed on their website (form, phone, no instant confirmation)
-- Industry Insight: open with a general observation about how dental clinics lose patients through intake gaps
+Booking channel: ${channel}${customObs ? '\nCustom observation about this clinic: ' + customObs : ''}
 
 Return ONLY a raw JSON object with exactly two fields: { "subject": "...", "body": "..." }
 No markdown, no code fences, no explanation.`;
@@ -1363,6 +1404,7 @@ No markdown, no code fences, no explanation.`;
         }
 
         window._lastDraft = draft;
+        localStorage.setItem('vdhq_hook_counter', String((_hookCounter + 1) % 4));
         hide('draftLoadingState');
         const _emailInput=document.getElementById('emailToSendInput'); document.getElementById('draftEmailAddress').textContent=_emailInput?_emailInput.value.trim():'';
         document.getElementById('draftSubject').textContent = draft.subject || '';
