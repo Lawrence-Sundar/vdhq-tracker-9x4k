@@ -1260,6 +1260,24 @@ ${pageText}`;
       const reviews = r.review_count != null ? String(r.review_count) : 'not available';
       const systemPrompt = `You are an email generator for a dental clinic intake automation service. Generate a cold outreach email following these exact rules.
 
+SUBJECT LINE — NON-NEGOTIABLE RULES:
+- Format: [Contact name] – [specific topic]?
+- [Contact name] must be the named contact for this specific clinic only — Dr Ghafoor, Sarah, Dr Leahy. Never a generic title.
+- [specific topic] must reference something specific to this clinic — a treatment, a detected intake method, an observation. Never a city, area, region, or collective noun like 'clinics' or 'practices'
+- Maximum 8 words total
+- No city names, area names, or geographic references anywhere in the subject line
+- No collective nouns — never 'clinics', 'practices', 'dental practices'
+- If no named contact is found — use the clinic name only: '[Clinic name] – [specific topic]?'
+CORRECT examples:
+- 'Dr Ghafoor – cosmetic enquiry follow-up?'
+- 'Sarah – patient intake gap?'
+- 'Dr Leahy – after-hours enquiries?'
+- 'Aura Dental – booking gap?'
+INCORRECT examples — never produce these:
+- 'After-hours enquiries – Glasgow clinics'
+- 'Dr Ghafoor – Glasgow dental intake?'
+- 'Dental practices – enquiry automation?'
+
 ANGLE SELECTION — choose one based on the page content:
 - Phone number only, no booking form → Phone-Only angle
 - Contact form present, no live calendar/instant booking → Booking Friction angle
@@ -1280,14 +1298,6 @@ HARD RULES:
 - No generalisations: "most clinics", "many practices", "industry standard"
 - No negative framing: "losing patients", "missing out", "falling behind"
 - Must sound like a person who visited their site, not a salesperson with a pitch
-- Subject line — THIS RULE TAKES PRIORITY OVER ALL OTHER SUBJECT LINE CONSIDERATIONS:
-  Format: "[Contact name] – [specific topic]?" max 8 words, no Re: prefix
-  [Contact name] = the named contact for this specific clinic (e.g. Dr Ghafoor, Sarah, Dr Leahy) — never a generic title
-  [specific topic] = a specific observation about THIS clinic — never the city, area, or word "clinics"
-  NEVER include the city name, area name, neighbourhood, or the word "clinics" anywhere in the subject line
-  NEVER write a generic subject — it must be specific to this clinic and this contact
-  Correct examples: "Dr Ghafoor – cosmetic enquiry follow-up?" / "Sarah – patient intake gap?" / "Dr Leahy – after-hours enquiries?"
-  Incorrect examples: "After-hours enquiries – Glasgow clinics" / "Dental intake – Shawlands practices"
 - Never use "Versa" as a product name in the body
 - If a custom observation is provided, use it as the specific hook for paragraph 1 of the email instead of the generic booking channel detection. Reference the observation directly and specifically.
 - In the body JSON field, separate the greeting, each paragraph, the final line, and the sign-off with a blank line (two newline characters \\n\\n between each section)
