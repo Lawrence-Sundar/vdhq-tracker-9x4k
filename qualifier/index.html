@@ -412,19 +412,22 @@
     function hideDupWarning() { document.getElementById('dupWarning').style.display = 'none'; }
 
     // ── Duplicate check ──
-    function checkDuplicate(url) {
+    function checkDuplicate(url, clinicName) {
       try {
         const raw = localStorage.getItem(TRACKER_KEY);
         if (!raw) return null;
         const leads = JSON.parse(raw);
         if (!Array.isArray(leads)) return null;
-        const norm = s => String(s || '').toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '').trim();
-        const inputNorm = norm(url);
-        if (!inputNorm) return null;
+        const normUrl  = s => String(s || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').trim();
+        const normName = s => String(s || '').toLowerCase().trim();
+        const inputUrl  = normUrl(url);
+        const inputName = normName(clinicName);
+        if (!inputUrl || !inputName) return null;
         return leads.find(l => {
-          const stored = norm(l.website || '');
-          if (!stored) return false;
-          return stored.includes(inputNorm) || inputNorm.includes(stored);
+          const storedUrl  = normUrl(l.website || '');
+          const storedName = normName(l.clinicName || '');
+          if (!storedUrl || !storedName) return false;
+          return storedUrl === inputUrl && storedName === inputName;
         }) || null;
       } catch { return null; }
     }
@@ -454,23 +457,12 @@
       if (!apiKey) { showError('Please enter your Anthropic API key.'); return; }
       if (!url)    { showError('Please enter a clinic website URL.'); return; }
 
-      const match = checkDuplicate(url);
-      if (match) {
-        pendingUrl    = url;
-        pendingApiKey = apiKey;
-        const name = match.clinicName || match.website || 'a clinic with this URL';
-        document.getElementById('dupMsg').textContent =
-          '⚠ This clinic may already be in your tracker (' + name + '). Check before continuing.';
-        document.getElementById('dupWarning').style.display = 'block';
-        return;
-      }
-
       proceedWithAnalysis(url, apiKey);
     }
 
     function continueAnyway() {
       hideDupWarning();
-      proceedWithAnalysis(pendingUrl, pendingApiKey);
+      renderResults(window._lastResult, window._lastUrl);
     }
 
     // ── API call 1 — qualifier ──
@@ -552,7 +544,7 @@
 - booking_channel_confidence: "confirmed" (clearly stated) | "inferred" (implied) | "unknown"
 - review_count: number of Google reviews if mentioned on the page, or null
 - address: full street address if detected, or null
-- city: "London" | "Manchester" | "Birmingham" | "Leeds" | "Bristol" | "Other" | "unknown"
+- city: "London" | "Manchester" | "Birmingham" | "Leeds" | "Bristol" | "Edinburgh" | "Glasgow" | "Other" | "unknown"
 - city_name: actual city or area name detected, or null
 - has_live_booking_portal: true if a live online booking widget or portal is detected, false otherwise
 - disqualifiers: array of strings listing reasons this clinic is Cold (empty array if Hot or Warm)
@@ -610,6 +602,17 @@ ${pageText}`;
         window._apiKey     = apiKey;
 
         setLoading(false);
+
+        // Post-analysis duplicate check — requires both clinic name AND URL to match
+        const dupMatch = checkDuplicate(url, result.clinic_name || '');
+        if (dupMatch) {
+          const name = dupMatch.clinicName || dupMatch.website || 'a clinic with this URL';
+          document.getElementById('dupMsg').textContent =
+            '⚠ This clinic may already be in your tracker (' + name + '). Check before continuing.';
+          document.getElementById('dupWarning').style.display = 'block';
+          return;
+        }
+
         renderResults(result, url);
 
       } catch (err) {
