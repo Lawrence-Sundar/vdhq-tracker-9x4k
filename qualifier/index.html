@@ -466,16 +466,13 @@
         if (!raw) return null;
         const leads = JSON.parse(raw);
         if (!Array.isArray(leads)) return null;
-        const normUrl  = s => String(s || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').trim();
-        const normName = s => String(s || '').toLowerCase().trim();
-        const inputUrl  = normUrl(url);
-        const inputName = normName(clinicName);
-        if (!inputUrl || !inputName) return null;
+        const normUrl = s => String(s || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').trim();
+        const inputUrl = normUrl(url);
+        if (!inputUrl) return null;
         return leads.find(l => {
-          const storedUrl  = normUrl(l.website || '');
-          const storedName = normName(l.clinicName || '');
-          if (!storedUrl || !storedName) return false;
-          return storedUrl === inputUrl && storedName === inputName;
+          const storedUrl = normUrl(l.website || '');
+          if (!storedUrl) return false;
+          return storedUrl === inputUrl;
         }) || null;
       } catch { return null; }
     }
