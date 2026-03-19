@@ -289,6 +289,12 @@
         <input type="text" id="namedContactInput" placeholder="Enter named contact manually" autocomplete="off" spellcheck="false">
       </div>
 
+      <!-- Custom Observation -->
+      <div class="card" id="customObsCard" style="display:none">
+        <div class="section-label">Custom Observation (optional)</div>
+        <textarea id="customObsInput" rows="3" placeholder="Paste any specific detail about this clinic — e.g. legacy email provider, owner-operated, no digital booking infrastructure" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+      </div>
+
       <!-- Review Draft Email CTA -->
       <div id="draftCtaWrap" style="display:none">
         <button class="btn-draft" id="btnReviewDraft">Review Draft Email →</button>
@@ -658,7 +664,7 @@ ${pageText}`;
     function resetResultPanels() {
       ['coldPanel','outOfAreaPanel','flagChannel','flagContact',
        'recommendationCard','signalsCard','metaCard','emailsCard',
-       'namesCard','emailToSendCard','namedContactCard','draftCtaWrap',
+       'namesCard','emailToSendCard','namedContactCard','customObsCard','draftCtaWrap',
        'manuallyQualifiedBadge'].forEach(id => hide(id));
     }
 
@@ -830,7 +836,8 @@ ${pageText}`;
       if (namedContactInput) namedContactInput.value = r.contact_name || '';
       show('namedContactCard');
 
-      // Draft CTA
+      // Custom observation + Draft CTA
+      show('customObsCard');
       show('draftCtaWrap');
     }
 
@@ -1028,7 +1035,7 @@ ${pageText}`;
         fu3Sent:     false,
         reply:       'N',
         replyType:   '',
-        notes:       window._manuallyQualified ? 'Manually qualified' : '',
+        notes:       [window._manuallyQualified ? 'Manually qualified' : '', (document.getElementById('customObsInput') ? document.getElementById('customObsInput').value.trim() : '')].filter(Boolean).join(' | '),
         reviewCount:  r.review_count != null ? String(r.review_count) : '',
         score:        r.score || '',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
@@ -1104,6 +1111,7 @@ ${pageText}`;
       document.getElementById('clinicUrl').value = '';
       const _ets = document.getElementById('emailToSendInput'); if (_ets) _ets.value = '';
       const _nci = document.getElementById('namedContactInput'); if (_nci) _nci.value = '';
+      const _coi = document.getElementById('customObsInput'); if (_coi) _coi.value = '';
 
       // Reset draft section
       hide('emailDraftSection');
@@ -1210,10 +1218,12 @@ HARD RULES:
 - Must sound like a person who visited their site, not a salesperson with a pitch
 - Subject line format: "[Contact] – [specific topic]?" max 8 words, no Re: prefix
 - Never use "Versa" as a product name in the body
+- If a custom observation is provided, use it as the specific hook for paragraph 1 of the email instead of the generic booking channel detection. Reference the observation directly and specifically.
 - In the body JSON field, separate the greeting, each paragraph, the final line, and the sign-off with a blank line (two newline characters \\n\\n between each section)
 
 Return a JSON object with exactly two fields: subject and body. No preamble, no explanation, no markdown. Raw JSON only.`;
 
+      const customObs = (document.getElementById('customObsInput') ? document.getElementById('customObsInput').value.trim() : '');
       const userPrompt = `Write a cold outreach email using the details below.
 
 Clinic: ${clinic}
@@ -1223,7 +1233,7 @@ City: ${city}
 Booking channel: ${channel}
 Google review count: ${reviews}
 Angle: ${selectedAngle}
-Hook: ${selectedHook}
+Hook: ${selectedHook}${customObs ? '\nCustom observation about this clinic: ' + customObs : ''}
 
 Angle definitions:
 - After-Hours: focus on enquiries arriving outside reception hours going unanswered
