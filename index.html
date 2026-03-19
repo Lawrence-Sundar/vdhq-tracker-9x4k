@@ -222,6 +222,15 @@
     .ni-section-body{margin-top:4px}
     .ni-badge{display:inline-block;font-size:10px;font-style:italic;padding:2px 9px;border-radius:12px;background:#222;color:#666;letter-spacing:.03em;margin-bottom:8px}
 
+    /* Daily Actions Bar */
+    .daily-actions-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;background:#111113;border:1px solid #222;border-radius:8px;padding:9px 16px;margin-bottom:14px;font-family:Inter,sans-serif}
+    .da-label{font-size:10px;font-weight:700;letter-spacing:.12em;color:#C9A84C;text-transform:uppercase;margin-right:2px}
+    .da-sep{color:#333;font-size:13px}
+    .da-stat{font-size:12px;color:#666}
+    .da-val{color:#C9A84C;font-weight:600;font-size:13px}
+    .da-total{font-size:12px;color:#666;margin-left:auto}
+    .da-total span{color:#C9A84C;font-weight:600;font-size:13px}
+
     /* Do Not Contact badge */
     .dnc-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:12px;background:#8B0000;color:#fff;letter-spacing:.05em;margin-bottom:8px}
 
@@ -499,6 +508,16 @@
           <button class="filter-reset-badge" id="btnResetFilters">Filters (<span id="filterCount">0</span>)</button>
         </div>
       </div>
+      <div class="daily-actions-bar">
+        <span class="da-label">Today's Actions</span>
+        <span class="da-stat"><span class="da-val" id="daFreshSends-p">0</span> Fresh Sends</span>
+        <span class="da-sep">|</span>
+        <span class="da-stat"><span class="da-val" id="daFollowups-p">0</span> Follow-ups</span>
+        <span class="da-sep">|</span>
+        <span class="da-stat"><span class="da-val" id="daLinkedin-p">0</span> LinkedIn DMs</span>
+        <span class="da-sep">|</span>
+        <span class="da-total">Total: <span id="daTotal-p">0</span> / 100</span>
+      </div>
       <div class="status-filter-bar">
         <button class="status-filter-btn active" data-status="All">All</button>
         <button class="status-filter-btn" data-status="Not Sent">Not Sent</button>
@@ -550,6 +569,16 @@
           <button class="btn-send-outlook" id="btnSendInitial" style="display:none">Send Initial Emails</button>
           <button class="btn-send-outlook" id="btnSendAllDue" style="display:none">Send All Due Today</button>
         </div>
+      </div>
+      <div class="daily-actions-bar">
+        <span class="da-label">Today's Actions</span>
+        <span class="da-stat"><span class="da-val" id="daFreshSends-f">0</span> Fresh Sends</span>
+        <span class="da-sep">|</span>
+        <span class="da-stat"><span class="da-val" id="daFollowups-f">0</span> Follow-ups</span>
+        <span class="da-sep">|</span>
+        <span class="da-stat"><span class="da-val" id="daLinkedin-f">0</span> LinkedIn DMs</span>
+        <span class="da-sep">|</span>
+        <span class="da-total">Total: <span id="daTotal-f">0</span> / 100</span>
       </div>
       <div id="followUpsList"></div>
     </section>
@@ -894,7 +923,7 @@
       if(!isOpen){ expand.style.display='block'; expandedLeadId=id; } else { expandedLeadId=null; }
     }
 
-    function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); ensureFUDates(lead); save(); }
+    function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); save(); }
 
     function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(lead.reply==='Y') return 'Replied'; if(_rt==='Disqualified') return 'Disqualified'; if(!lead.dateSent) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; return 'Sent'; }
 
@@ -1216,7 +1245,24 @@
 
     function renderStats(){ const td=todayISO(); let pending=0; leads.forEach(l=>{ if(l.reply==='Y') return; if(l.fu1Date===td&&!l.fu1Sent) pending++; if(l.fu2Date===td&&!l.fu2Sent) pending++; if(l.fu3Date===td&&!l.fu3Sent) pending++; }); const inboxCount=leads.filter(l=>l.source==='qualifier'&&!l.dateSent).length; document.getElementById('statTotal').textContent=leads.length; const statInbox=document.getElementById('statInbox'); if(statInbox) statInbox.textContent=inboxCount; document.getElementById('statReplied').textContent=leads.filter(l=>l.reply==='Y').length; document.getElementById('statPending').textContent=pending; document.getElementById('statPendingNoReply').textContent=leads.filter(l=>l.reply!=='Y').length; }
 
-    function renderAll(){ renderDashboard(); renderPipeline(); renderInbox(); renderFollowUps(); renderLinkedIn(); renderStats(); attachButtons(); }
+    function renderDailyActionsBar(){
+      const td=todayISO();
+      let freshSends=0, followups=0, linkedin=0;
+      leads.forEach(l=>{
+        if(l.initialSentDate===td) freshSends++;
+        if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td) followups++;
+        if(l.linkedinDMDate===td) linkedin++;
+      });
+      const total=freshSends+followups+linkedin;
+      ['p','f'].forEach(s=>{
+        const fs=document.getElementById('daFreshSends-'+s); if(fs) fs.textContent=freshSends;
+        const fu=document.getElementById('daFollowups-'+s); if(fu) fu.textContent=followups;
+        const li=document.getElementById('daLinkedin-'+s); if(li) li.textContent=linkedin;
+        const tot=document.getElementById('daTotal-'+s); if(tot) tot.textContent=total;
+      });
+    }
+
+    function renderAll(){ renderDashboard(); renderPipeline(); renderInbox(); renderFollowUps(); renderLinkedIn(); renderStats(); renderDailyActionsBar(); attachButtons(); }
 
     function attachButtons(){
       document.getElementById('btnClear').onclick=()=>{ if(confirm('Clear all saved leads?')){ leads=[]; save(); } };
@@ -1537,7 +1583,7 @@
         } else if(isReEngageSend){
           lead.reEngageSent = true; lead.reEngageSentOn = todayISO(); save();
         } else if(selectedType === 'Initial' && !lead.dateSent){
-          lead.dateSent = todayISO(); ensureFUDates(lead); save();
+          lead.dateSent = todayISO(); lead.initialSentDate = todayISO(); ensureFUDates(lead); save();
         }
         showCopyConfirm('Sent via Outlook!');
         btn.textContent = 'Sent!';
@@ -1660,6 +1706,7 @@
         try{
           await sendGraphEmail(lead.email, lead.draftSubject, htmlBody);
           lead.dateSent = todayISO();
+          lead.initialSentDate = todayISO();
           lead.fuDatesLocked = false;
           ensureFUDates(lead);
           sent++;
