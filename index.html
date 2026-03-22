@@ -388,6 +388,9 @@
     .li-status-booked{background:rgba(76,175,125,.25);color:#2d9e62}
     .li-status-ni{background:rgba(229,72,77,.12);color:#E5484D}
     .li-empty{color:var(--muted);font-size:13px;padding:24px 0;text-align:center}
+    .btn-li-nofound{padding:4px 9px;font-size:11px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}
+    .btn-li-nofound:hover{border-color:#888;color:var(--text)}
+    .li-not-found-badge{display:inline-block;padding:4px 9px;font-size:11px;border-radius:5px;background:var(--elevated);color:#555;border:1px solid var(--border);white-space:nowrap}
 /* Send Initial modal */
     #sendInitialBackdrop{justify-content:center;align-items:center}
     #sendInitialModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
@@ -548,6 +551,10 @@
           <span class="filter-inline-label">Hook</span>
           <select id="pFilterHookVariant"><option value="All">All</option><option value="Hook A">Hook A</option><option value="Hook B">Hook B</option><option value="Hook C">Hook C</option><option value="Hook D">Hook D</option><option value="Hook E">Hook E</option></select>
         </div>
+        <div class="filter-group">
+          <span class="filter-inline-label">LinkedIn</span>
+          <select id="pFilterNoLinkedin"><option value="All">All</option><option value="No LinkedIn">No LinkedIn</option></select>
+        </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 4px 0;gap:12px">
         <div id="pipelineCount" style="font-size:12px;color:#888;font-family:Inter,sans-serif;white-space:nowrap"></div>
@@ -622,6 +629,7 @@
           </select>
         </div>
         <label><input type="checkbox" id="liExcludeNoContact" checked> Exclude leads with no named contact</label>
+        <label><input type="checkbox" id="liShowNotFound"> Show Not Found</label>
       </div>
       <div class="li-summary" id="liSummary"></div>
       <div class="li-notice">Verify each profile before sending a DM.</div>
@@ -934,9 +942,9 @@
 
     function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested'}; return m[status]||'sdot-p-notsent'; }
 
-    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.hookVariant!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
+    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.hookVariant!=='All') count++; if(pipelineFilter.noLinkedin!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
 
-    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest',fuStage:'All'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.value='All'; const hv=document.getElementById('pFilterHookVariant'); if(hv) hv.value='All'; pipelineFilter.hookVariant='All'; renderPipeline(); }
+    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',hookVariant:'All',noLinkedin:'All'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.value='All'; const hv=document.getElementById('pFilterHookVariant'); if(hv) hv.value='All'; const nli=document.getElementById('pFilterNoLinkedin'); if(nli) nli.value='All'; renderPipeline(); }
 
     function renderPipeline(){
       const container=document.getElementById('pipelineList'); if(!container) return; container.innerHTML='';
@@ -965,6 +973,7 @@
           else if(fs==='Demo First Sent'){ if(!l.demoFirstSent) return false; }
         }
         if(pipelineFilter.hookVariant!=='All'&&(l.hookVariant||'')!==pipelineFilter.hookVariant) return false;
+        if(pipelineFilter.noLinkedin==='No LinkedIn'&&!l.linkedinNotFound) return false;
         return passesBaseFilters(l);
       });
       if(pipelineFilter.sort==='oldest') filtered.sort((a,b)=>a.id-b.id);
@@ -1140,6 +1149,7 @@
       const sort=document.getElementById('pFilterSort'); if(sort) sort.addEventListener('change',()=>{ pipelineFilter.sort=sort.value; renderPipeline(); });
       const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.addEventListener('change',()=>{ pipelineFilter.fuStage=fuStage.value; renderPipeline(); });
       const hookVariant=document.getElementById('pFilterHookVariant'); if(hookVariant) hookVariant.addEventListener('change',()=>{ pipelineFilter.hookVariant=hookVariant.value; renderPipeline(); });
+      const noLinkedin=document.getElementById('pFilterNoLinkedin'); if(noLinkedin) noLinkedin.addEventListener('change',()=>{ pipelineFilter.noLinkedin=noLinkedin.value; renderPipeline(); });
       const resetBtn=document.getElementById('btnResetFilters'); if(resetBtn) resetBtn.addEventListener('click',resetPipelineFilters);
       const psearch=document.getElementById('pipelineSearch'); if(psearch) psearch.addEventListener('input',()=>renderPipeline());
     }
@@ -1407,7 +1417,7 @@
 
     let expandedLeadId = null;
     let expandedFollowUpId = null;
-    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',hookVariant:'All'};
+    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',hookVariant:'All',noLinkedin:'All'};
 
     let emailState = { leadId:null, angle:null, type:null };
 
@@ -1792,7 +1802,7 @@
     }
 
     // ── LinkedIn tab ─────────────────────────────────────────────────────────
-    let liFilter = { city: 'All', status: 'All', excludeNoContact: true };
+    let liFilter = { city: 'All', status: 'All', excludeNoContact: true, showNotFound: false };
 
     function getLinkedInStatus(lead){
       const cs = computeStatus(lead);
@@ -1826,6 +1836,7 @@
 
       // Apply filters
       let filtered = base.filter(l => {
+        if(!liFilter.showNotFound && l.linkedinNotFound) return false;
         if(liFilter.excludeNoContact && !l.contactName) return false;
         if(liFilter.city !== 'All'){
           const c = cityNorm(l.city);
@@ -1857,15 +1868,19 @@
 
         // LinkedIn profile cell
         let profileCell;
-        if(l.linkedinUrl){
+        if(l.linkedinNotFound){
+          profileCell = '<span class="li-not-found-badge">Not Found</span>';
+        } else if(l.linkedinUrl){
           profileCell = '<div class="li-url-wrap"><a class="btn-li-view" href="' + escapeHtml(l.linkedinUrl) + '" target="_blank" rel="noopener">View Profile</a><button class="li-edit-link" onclick="editLinkedInUrl(' + l.id + ')">Edit</button></div>';
         } else {
-          profileCell = '<div class="li-url-wrap"><input class="li-url-input" id="li-url-' + l.id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLinkedInUrl(' + l.id + ')">Save</button></div>';
+          profileCell = '<div class="li-url-wrap"><input class="li-url-input" id="li-url-' + l.id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLinkedInUrl(' + l.id + ')">Save</button><button class="btn-li-nofound" onclick="markLinkedInNotFound(' + l.id + ')">No LinkedIn</button></div>';
         }
 
         // DM cell
         let dmCell;
-        if(l.linkedinDMSent){
+        if(l.linkedinNotFound){
+          dmCell = '<span style="color:#444;font-size:12px">—</span>';
+        } else if(l.linkedinDMSent){
           dmCell = '<span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span>';
         } else {
           dmCell = '<button class="btn-li-dm" onclick="markDMSent(' + l.id + ')">Mark DM Sent</button>';
@@ -1910,14 +1925,24 @@
       save();
     }
 
+    function markLinkedInNotFound(id){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      lead.linkedinNotFound = true;
+      lead.linkedinNotFoundDate = todayISO();
+      save();
+    }
+
 
     function bindLinkedIn(){
       const cityEl = document.getElementById('liFilterCity');
       const statusEl = document.getElementById('liFilterStatus');
       const excludeEl = document.getElementById('liExcludeNoContact');
+      const showNotFoundEl = document.getElementById('liShowNotFound');
       if(cityEl) cityEl.addEventListener('change', () => { liFilter.city = cityEl.value; renderLinkedIn(); });
       if(statusEl) statusEl.addEventListener('change', () => { liFilter.status = statusEl.value; renderLinkedIn(); });
       if(excludeEl) excludeEl.addEventListener('change', () => { liFilter.excludeNoContact = excludeEl.checked; renderLinkedIn(); });
+      if(showNotFoundEl) showNotFoundEl.addEventListener('change', () => { liFilter.showNotFound = showNotFoundEl.checked; renderLinkedIn(); });
     }
 
     // Init
