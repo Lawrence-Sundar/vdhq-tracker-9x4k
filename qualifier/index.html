@@ -1274,9 +1274,10 @@ ${pageText}`;
       const reviews = r.review_count != null ? String(r.review_count) : 'not available';
 
       // Hook rotation
+      const _chanToNL = ch => ch==='contact_form' ? 'a contact form' : (ch==='phone_only'||ch==='phone') ? 'a phone number' : ch==='email_link' ? 'an email link' : 'their current intake method';
       const _hookCounter = parseInt(localStorage.getItem('vdhq_hook_counter') || '0', 10);
-      const _hookIndex = _hookCounter % 4;
-      window._lastHookVariant = ['Hook A','Hook B','Hook C','Hook D'][_hookIndex];
+      const _hookIndex = _hookCounter % 5;
+      window._lastHookVariant = ['Hook A','Hook B','Hook C','Hook D','Hook E'][_hookIndex];
       const _hookTemplates = [
         `Hi [Contact],
 
@@ -1323,6 +1324,18 @@ Full setup covered on our end, 60 days to demonstrate results, short testimonial
 The system handles patient routing and booking automatically so your team can focus entirely on clinical work.
 
 Would you be interested in one of the two spots for [Clinic Name]?
+
+Lawrence
+Versa Digital HQ`,
+        `Hi [Contact],
+
+I noticed [Clinic Name] receives patient enquiries through ${_chanToNL(channel)}.
+
+What does your reception team actually do with those enquiries first thing in the morning — are they already sorted, or does someone spend the first hour working through them?
+
+Patients get an instant response the moment they enquire. Your team arrives to a clean log — not a coordination backlog.
+
+Worth a quick conversation?
 
 Lawrence
 Versa Digital HQ`
@@ -1417,7 +1430,7 @@ No markdown, no code fences, no explanation.`;
         }
 
         window._lastDraft = draft;
-        localStorage.setItem('vdhq_hook_counter', String((_hookCounter + 1) % 4));
+        localStorage.setItem('vdhq_hook_counter', String((_hookCounter + 1) % 5));
         hide('draftLoadingState');
         const _emailInput=document.getElementById('emailToSendInput'); document.getElementById('draftEmailAddress').textContent=_emailInput?_emailInput.value.trim():'';
         document.getElementById('draftSubject').textContent = draft.subject || '';
