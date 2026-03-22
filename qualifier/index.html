@@ -561,6 +561,11 @@
 
         pageText = htmlToText(fetchedHtml);
         if (pageText.length < 80) throw new Error('Very little text extracted.');
+
+        // Out-of-hours cover detection
+        const OOH_SIGNALS = ['24/7','24 hour','out of hours','after hours cover','answering service','emergency cover','always available','round the clock'];
+        const pageTextLower = pageText.toLowerCase();
+        window._oohDetected = OOH_SIGNALS.some(sig => pageTextLower.includes(sig));
       } catch (err) {
         setLoading(false);
         showPasteFallback();
@@ -725,6 +730,16 @@ ${pageText}`;
       document.getElementById('results').style.display = 'block';
       document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+      if (window._oohDetected) {
+        const oohMsg = 'Out-of-hours cover detected - this clinic may already have after-hours handling in place';
+        badge.textContent = 'Cold';
+        badge.className = 'score-badge score-cold';
+        document.getElementById('reasoningText').textContent = oohMsg;
+        document.getElementById('coldReason').textContent = oohMsg;
+        document.getElementById('disqualifierList').innerHTML = '';
+        show('coldPanel');
+        return;
+      }
       if (score === 'Cold') { showColdPanel(r); return; }
       if (r.city === 'Other') { showOutOfAreaPanel(r); return; }
       showHotWarmContent(r);
@@ -1075,7 +1090,7 @@ ${pageText}`;
         fu3Sent:     false,
         reply:       'N',
         replyType:   '',
-        notes:       [window._manuallyQualified ? 'Manually qualified' : '', (document.getElementById('customObsInput') ? document.getElementById('customObsInput').value.trim() : '')].filter(Boolean).join(' | '),
+        notes:       [window._manuallyQualified ? 'Manually qualified' : '', window._oohDetected ? 'Out-of-hours cover detected' : '', (document.getElementById('customObsInput') ? document.getElementById('customObsInput').value.trim() : '')].filter(Boolean).join(' | '),
         reviewCount:  r.review_count != null ? String(r.review_count) : '',
         score:        r.score || '',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
@@ -1144,6 +1159,7 @@ ${pageText}`;
       window._lastDraft         = null;
       window._createdLeadId     = null;
       window._manuallyQualified = false;
+      window._oohDetected       = false;
       selectedEmail = '';
       selectedAngle = '';
       selectedHook  = '';
