@@ -862,7 +862,7 @@
     function addLead(data){ const lead=Object.assign({id:Date.now(),dateAdded:new Date().toISOString()},data); if(!lead.source) lead.source='manual'; ensureFUDates(lead); leads.unshift(lead); save(); }
 
     function markFUSent(id,fu){ const lead=leads.find(l=>l.id==id); if(!lead) return;
-      if(fu==='fu1'){ if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; } else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),7); } }
+      if(fu==='fu1'){ if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; } else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),4); } }
       if(fu==='fu2'){ if(lead.fu2Sent){ lead.fu2Sent=false; delete lead.fu2SentOn; } else { lead.fu2Sent=true; lead.fu2SentOn=todayISO(); lead.fu3Date=addDays(todayISO(),7); } }
       if(fu==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); lead.reEngageDate=addDays(todayISO(),3); } }
       save(); }
@@ -1158,7 +1158,7 @@
       container.querySelectorAll('.btn-mark-sent').forEach(btn=>{ btn.addEventListener('click',()=>markAsSentFromInbox(btn.dataset.id)); });
     }
 
-    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),7);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();lead.reEngageDate=addDays(todayISO(),3);} if(fuKey==='reEngage'){lead.reEngageSent=true;lead.reEngageSentOn=todayISO();} save(); }
+    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),4);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();lead.reEngageDate=addDays(todayISO(),3);} if(fuKey==='reEngage'){lead.reEngageSent=true;lead.reEngageSentOn=todayISO();} save(); }
 
     function markRepliedFromFollowUps(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply='Y'; save(); }
 
@@ -1359,22 +1359,13 @@
 
     // ── Email Sequence Manager ──────────────────────────────────────────────
     // Initial emails are Qualifier-generated only — no templates here.
+    const _FU1_TPL = { subject: '[Contact name] \u2013 different proposition', body: `Hi [greeting],\n\nFollowing up on my last note \u2014 I'll keep this brief.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered on our end, 60 days to demonstrate results, short testimonial in return. No monthly fee until the 60 days is up.\n\nHappy to send a one-page outline or jump on a 20 minute call.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ` };
+    const _FU2_TPL = { subject: '[Contact name] \u2013 one more thought', body: `Hi [greeting],\n\nPut together a quick demo of how the system works if it helps make it more concrete: versadigital.co/demo\n\nHappy to walk through it on a call if useful.\n\nLawrence\nVersa Digital HQ` };
+    const _FU3_TPL = { subject: '[Contact name] \u2013 one last thought', body: `Hi [greeting],\n\nLast note from me on this \u2014 wanted to leave you with one thought.\n\n[Hook E content to follow]\n\nLawrence\nVersa Digital HQ` };
     const FU_TEMPLATES = {
-      'After-Hours': {
-        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my note from earlier this week about after-hours enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nWanted to add one thing to my previous note.\n\nMost independent clinics I speak to aren't aware of how many enquiries arrive outside reception hours until they actually look at the data. It's rarely a small number.\n\nIf that's worth exploring, I'm happy to take a look at your current setup on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 different proposition', body: `Hi [name],\n\nI've reached out a couple of times about automating your patient intake process - I'll keep this brief.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered on our end, 60 days to demonstrate results, short testimonial in return if you're happy with what you see. No monthly fee until the 60 days is up.\n\nI've put together a one-page outline of the arrangement - happy to send it over or jump on a 20 minute call.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ` }
-      },
-      'Coordination': {
-        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust checking back in on my note about the time your team spends coordinating new patient enquiries.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nOne thing I didn't mention in my last note - the coordination problem compounds as the practice grows. More enquiries means more manual handling, which means more staff time absorbed before a single patient is booked.\n\nHappy to walk through what a leaner process looks like on a quick call.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 different proposition', body: `Hi [name],\n\nI've reached out a couple of times about automating your patient intake process - I'll keep this brief.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered on our end, 60 days to demonstrate results, short testimonial in return if you're happy with what you see. No monthly fee until the 60 days is up.\n\nI've put together a one-page outline of the arrangement - happy to send it over or jump on a 20 minute call.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ` }
-      },
-      'Conversion': {
-        'FU1': { subject: '[Contact name] \u2013 following up', body: `Hi [name],\n\nJust following up on my earlier note about enquiries dropping off before they convert to booked appointments.\n\nWorth a quick conversation?\n\nLawrence\nVersa Digital HQ` },
-        'FU2': { subject: '[Contact name] \u2013 one more thought', body: `Hi [name],\n\nSomething worth adding to my last note - the drop-off between enquiry and booking almost always happens in the first two hours. After that, the patient has either heard back or moved on.\n\nHappy to show you how other independent clinics have closed that gap.\n\nIf useful, I put together a quick demo of how it works: versadigital.co/demo\n\nLawrence\nVersa Digital HQ` },
-        'FU3': { subject: '[Contact name] \u2013 different proposition', body: `Hi [name],\n\nI've reached out a couple of times about automating your patient intake process - I'll keep this brief.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered on our end, 60 days to demonstrate results, short testimonial in return if you're happy with what you see. No monthly fee until the 60 days is up.\n\nI've put together a one-page outline of the arrangement - happy to send it over or jump on a 20 minute call.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ` }
-      }
+      'After-Hours': { 'FU1': _FU1_TPL, 'FU2': _FU2_TPL, 'FU3': _FU3_TPL },
+      'Coordination': { 'FU1': _FU1_TPL, 'FU2': _FU2_TPL, 'FU3': _FU3_TPL },
+      'Conversion':   { 'FU1': _FU1_TPL, 'FU2': _FU2_TPL, 'FU3': _FU3_TPL }
     };
 
     const RE_ENGAGE_TEMPLATE = {
@@ -1426,7 +1417,7 @@
     function setActiveType(type){
       emailState.type=type;
       document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active-type',b.dataset.type===type));
-      const angleCard=document.getElementById('emailAngleCard'); if(angleCard) angleCard.style.display=type==='Re-Engage'?'none':'block';
+      const angleCard=document.getElementById('emailAngleCard'); if(angleCard) angleCard.style.display=(type==='Re-Engage'||type==='FU1'||type==='FU2'||type==='FU3')?'none':'block';
       refreshEmailPreview();
     }
 
@@ -1434,9 +1425,10 @@
       const wrap=document.getElementById('emailPreviewWrap'); const placeholder=document.getElementById('emailPreviewPlaceholder');
       const {leadId,angle,type}=emailState;
       const isReEngage=type==='Re-Engage';
-      if(!leadId||!type||(!angle&&!isReEngage)){ wrap.style.display='none'; placeholder.style.display='block'; return; }
+      const isFU=type==='FU1'||type==='FU2'||type==='FU3';
+      if(!leadId||!type||(!angle&&!isReEngage&&!isFU)){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const lead=leads.find(l=>l.id==leadId); if(!lead){ wrap.style.display='none'; placeholder.style.display='block'; return; }
-      const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : (FU_TEMPLATES[angle]&&FU_TEMPLATES[angle][type]);
+      const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : (FU_TEMPLATES[angle||'After-Hours']&&FU_TEMPLATES[angle||'After-Hours'][type]);
       if(!tpl){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
       const contactForBody=buildGreetingName(lead.contactName);
