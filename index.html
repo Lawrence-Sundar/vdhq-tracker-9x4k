@@ -419,6 +419,19 @@
       .form-row{flex-wrap:wrap}
       .form-row .w100,.form-row .w120,.form-row .w160,.form-row .w200{width:100%;flex:1 1 120px}
     }
+
+    /* Multi-select bulk send */
+    .sel-check{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:1px}
+    .lead-row-main.row-selected,.fu-row-main.row-selected{background:var(--accent-dim)}
+    .bulk-action-bar{display:none;align-items:center;gap:10px;padding:7px 4px 9px;margin-bottom:2px}
+    .btn-bulk-send{background:#C9A84C;color:#0A0A0B;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+    .btn-bulk-send:disabled{opacity:.4;cursor:not-allowed}
+    .btn-bulk-send:not(:disabled):hover{opacity:.85}
+    .bulk-seq-complete{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+    #bulkSendBackdrop{justify-content:center;align-items:center}
+    #bulkSendModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
+    #bulkSendModal.open{transform:translateY(0)}
+    @media(max-width:640px){#bulkSendModal{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;max-height:92vh;transform:translateY(20px)}#bulkSendModal.open{transform:translateY(0)}}
   </style>
 </head>
 <body>
@@ -560,6 +573,11 @@
         <div id="pipelineCount" style="font-size:12px;color:#888;font-family:Inter,sans-serif;white-space:nowrap"></div>
         <input id="pipelineSearch" type="text" placeholder="Search clinics..." style="font-size:12px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:Inter,sans-serif;width:200px;outline:none">
       </div>
+      <div id="pipelineBulkBar" class="bulk-action-bar">
+        <input type="checkbox" class="sel-check" id="pSelectAll" title="Select all filtered">
+        <span id="pSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
+        <button class="btn-bulk-send" id="btnBulkSendPipeline">Send via Outlook</button>
+      </div>
       <div class="card" style="padding:0 12px">
         <div id="pipelineList" class="leads-table"></div>
       </div>
@@ -586,6 +604,11 @@
         <span class="da-stat"><span class="da-val" id="daLinkedin-f">0</span> LinkedIn DMs</span>
         <span class="da-sep">|</span>
         <span class="da-total">Total: <span id="daTotal-f">0</span> / 100</span>
+      </div>
+      <div id="followUpsBulkBar" class="bulk-action-bar">
+        <input type="checkbox" class="sel-check" id="fuSelectAll" title="Select all">
+        <span id="fuSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
+        <button class="btn-bulk-send" id="btnBulkSendFU">Send via Outlook</button>
       </div>
       <div id="followUpsList"></div>
     </section>
@@ -831,6 +854,20 @@
     </div>
   </div>
 
+  <!-- Bulk Send Selected modal -->
+  <div id="bulkSendBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="bulkSendModal" class="modal" role="dialog" aria-modal="true" aria-label="Send Selected">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="margin-bottom:0">Send Selected</h3>
+        <button id="bulkSendClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Review below then confirm. Emails send sequentially via your connected Outlook account.</p>
+      <div id="bulkSendList" style="margin-bottom:16px"></div>
+      <div id="bulkSendProgress" style="display:none;font-size:12px;color:var(--muted);margin-bottom:12px;padding:8px 10px;background:var(--elevated);border-radius:6px;text-align:center"></div>
+      <button class="btn btn-primary" id="btnConfirmBulkSend" style="width:100%">Send</button>
+    </div>
+  </div>
+
   <script>
     const STORAGE_KEY = 'vdhq_tracker_v1';
     const BACKUP_KEY  = 'vdhq_backup_v1';
@@ -981,6 +1018,7 @@
       else filtered.sort((a,b)=>b.id-a.id);
       // DNC always at the bottom regardless of sort
       filtered.sort((a,b)=>{ if(a.doNotContact&&!b.doNotContact) return 1; if(!a.doNotContact&&b.doNotContact) return -1; return 0; });
+      _lastPipelineFiltered = filtered.slice();
       updatePipelineFilterBadge();
       // Count excludes Not Interested
       const countEl=document.getElementById('pipelineCount'); if(countEl) countEl.textContent='Showing '+filtered.length+' lead'+(filtered.length===1?'':'s');
@@ -996,7 +1034,9 @@
         const urgHtml=urgency?`<span class="fu-urgency ${urgency.dotClass}"><span class="fu-urg-dot"></span>${escapeHtml(urgency.label)}</span>`:'';
         const row=document.createElement('div'); row.className='lead-row';
         const main=document.createElement('div'); main.className='lead-row-main';
-        main.innerHTML=`<span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="row-right">${urgHtml}<span class="date-added-label">${dateAdded}</span></div>`;
+        const _pCbChecked=selectedPipelineIds.has(String(l.id));
+        if(_pCbChecked) main.classList.add('row-selected');
+        main.innerHTML=`<input type="checkbox" class="sel-check" id="pcb-${l.id}" ${_pCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="row-right">${urgHtml}<span class="date-added-label">${dateAdded}</span></div>`;
         const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
         const hasDraft=!!(l.draftSubject||l.draftBody);
         // Reply on record section (only if replyText saved)
@@ -1009,6 +1049,8 @@
         expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div><div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.angle?`<div class="expand-field"><span class="ef-label">Angle</span><span class="ef-val">${escapeHtml(l.angle)}</span></div>`:''} ${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><span class="expand-draft-label">Initial Email Draft</span><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
         expand.innerHTML += onRecordHtml + logReplyHtml;
         main.addEventListener('click',()=>toggleExpand(l.id));
+        const _pCb=main.querySelector(`#pcb-${l.id}`);
+        if(_pCb){ _pCb.addEventListener('click',e=>e.stopPropagation()); _pCb.addEventListener('change',e=>{ if(e.target.checked) selectedPipelineIds.add(String(l.id)); else selectedPipelineIds.delete(String(l.id)); main.classList.toggle('row-selected',e.target.checked); updatePipelineSelectionBar(); }); }
         // Bind expand row buttons directly so they work after filter changes (when renderPipeline is called without attachButtons)
         expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
         const replyBtn=expand.querySelector('[data-action="toggleReply"]'); if(replyBtn) replyBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleReply(replyBtn.dataset.id); });
@@ -1054,6 +1096,7 @@
         niSection.appendChild(niHeader); niSection.appendChild(niBody); container.appendChild(niSection);
         if(expandedLeadId){ const el=document.getElementById('expand-'+expandedLeadId); if(el){ el.style.display='block'; const nb=document.getElementById('niSectionBody'); const na=document.getElementById('niToggleArrow'); if(nb&&el.closest('.ni-section-body')){ nb.style.display='block'; if(na) na.innerHTML='&#9660;'; } } }
       }
+      updatePipelineSelectionBar();
     }
 
     // ── Inline Reply Analyser ────────────────────────────────────────────────
@@ -1142,6 +1185,153 @@
       save();
     }
 
+    // ── Multi-select bulk send ───────────────────────────────────────────────
+
+    function detectNextEmailType(lead){
+      if(!lead.dateSent){ return (lead.draftSubject&&lead.draftBody)?{fuKey:'initial',fuLabel:'Initial',subject:lead.draftSubject,body:lead.draftBody}:null; }
+      if(!lead.fu1Sent) return {fuKey:'fu1',fuLabel:'FU1'};
+      if(!lead.fu2Sent) return {fuKey:'fu2',fuLabel:'FU2'};
+      if(!lead.fu3Sent) return {fuKey:'fu3',fuLabel:'FU3'};
+      if(!lead.reEngageSent) return {fuKey:'reEngage',fuLabel:'Re-Engage'};
+      if(!lead.demoFirstSent) return {fuKey:'demoFirst',fuLabel:'Demo First'};
+      return null;
+    }
+
+    function updatePipelineSelectionBar(){
+      const bar=document.getElementById('pipelineBulkBar');
+      const countEl=document.getElementById('pSelCount');
+      const sa=document.getElementById('pSelectAll');
+      if(countEl) countEl.textContent=selectedPipelineIds.size+' selected';
+      if(bar) bar.style.display=selectedPipelineIds.size>0?'flex':'none';
+      if(sa){
+        const eligible=_lastPipelineFiltered.filter(l=>computeStatus(l)!=='Not Interested');
+        sa.checked=eligible.length>0&&eligible.every(l=>selectedPipelineIds.has(String(l.id)));
+        sa.indeterminate=!sa.checked&&selectedPipelineIds.size>0;
+      }
+    }
+
+    function updateFollowUpsSelectionBar(){
+      const bar=document.getElementById('followUpsBulkBar');
+      const countEl=document.getElementById('fuSelCount');
+      const sa=document.getElementById('fuSelectAll');
+      if(countEl) countEl.textContent=selectedFollowUpItems.size+' selected';
+      if(bar) bar.style.display=selectedFollowUpItems.size>0?'flex':'none';
+      if(sa){
+        const all=_lastFollowUpAllItems;
+        sa.checked=all.length>0&&all.every(i=>selectedFollowUpItems.has(`${i.lead.id}-${i.fuKey}`));
+        sa.indeterminate=!sa.checked&&selectedFollowUpItems.size>0;
+      }
+    }
+
+    function openBulkSendModal(){
+      if(!outlookAccount){ alert('Connect Outlook first.'); return; }
+      const listEl=document.getElementById('bulkSendList'); listEl.innerHTML='';
+      let sendableCount=0;
+      const buildRow=(lead,fuKey,fuLabel,subject,statusId,skip,skipMsg)=>{
+        const row=document.createElement('div'); row.className='send-all-row';
+        if(!skip){ row.dataset.id=String(lead.id); row.dataset.fukey=fuKey; row.dataset.fulabel=fuLabel; }
+        row.innerHTML=`<div class="send-all-status" id="${statusId}"></div><div class="send-all-info"><div class="send-all-name">${escapeHtml(lead.clinicName||'(no name)')}</div><div class="send-all-email-addr" ${skip?'style="color:#888"':''}>${escapeHtml(skip?skipMsg:(lead.email||''))}</div>${!skip&&subject?`<div class="send-all-subject">${escapeHtml(subject)}</div>`:''}</div>${skip?`<span class="bulk-seq-complete">${skipMsg||'Skipped'}</span>`:`<span class="fu-due-badge fu-due-badge-today">${fuLabel}</span>`}`;
+        listEl.appendChild(row);
+        if(!skip) sendableCount++;
+      };
+      const getSubject=(lead,fuKey,fuLabel,emailType)=>{
+        if(fuKey==='initial') return emailType.subject;
+        const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cl=lead.clinicName||'[Clinic Name]';
+        const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:(FU_TEMPLATES[lead.angle||'After-Hours']&&FU_TEMPLATES[lead.angle||'After-Hours'][fuLabel]);
+        return tpl?tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):fuLabel+' follow-up';
+      };
+      if(_bulkSendSource==='pipeline'){
+        for(const leadId of selectedPipelineIds){
+          const lead=leads.find(l=>String(l.id)===String(leadId)); if(!lead) continue;
+          const emailType=detectNextEmailType(lead);
+          if(!emailType){ buildRow(lead,'','','',`bs-${leadId}-seq`,true,'Sequence complete'); continue; }
+          if(!lead.email){ buildRow(lead,'','','',`bs-${leadId}-noemail`,true,'No email on record'); continue; }
+          buildRow(lead,emailType.fuKey,emailType.fuLabel,getSubject(lead,emailType.fuKey,emailType.fuLabel,emailType),`bs-${lead.id}-${emailType.fuKey}`,false,'');
+        }
+      } else {
+        for(const [,item] of selectedFollowUpItems){
+          const l=item.lead;
+          if(!l.email){ buildRow(l,'','','',`bs-${l.id}-noemail`,true,'No email on record'); continue; }
+          const tpl=item.fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:item.fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:(FU_TEMPLATES[l.angle||'After-Hours']&&FU_TEMPLATES[l.angle||'After-Hours'][item.fuLabel]);
+          const cs=l.contactName||l.clinicName||'[Clinic Name]'; const cl=l.clinicName||'[Clinic Name]';
+          const subj=tpl?tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):item.fuLabel+' follow-up';
+          buildRow(l,item.fuKey,item.fuLabel,subj,`bs-${l.id}-${item.fuKey}`,false,'');
+        }
+      }
+      if(!sendableCount&&!listEl.children.length){ alert('No sendable emails in selection.'); return; }
+      const confirmBtn=document.getElementById('btnConfirmBulkSend');
+      const progressEl=document.getElementById('bulkSendProgress');
+      if(confirmBtn){ confirmBtn.disabled=sendableCount===0; confirmBtn.textContent=`Send ${sendableCount} Email${sendableCount===1?'':'s'}`; confirmBtn.onclick=runBulkSend; }
+      if(progressEl) progressEl.style.display='none';
+      const bd=document.getElementById('bulkSendBackdrop'); const md=document.getElementById('bulkSendModal');
+      bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false');
+    }
+
+    function closeBulkSendModal(){
+      const bd=document.getElementById('bulkSendBackdrop'); const md=document.getElementById('bulkSendModal');
+      md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true');
+    }
+
+    async function runBulkSend(){
+      const listEl=document.getElementById('bulkSendList');
+      const rows=Array.from(listEl.querySelectorAll('.send-all-row[data-fukey]'));
+      const confirmBtn=document.getElementById('btnConfirmBulkSend');
+      const progressEl=document.getElementById('bulkSendProgress');
+      if(!rows.length) return;
+      confirmBtn.disabled=true;
+      if(progressEl){ progressEl.textContent='0 / '+rows.length; progressEl.style.display='block'; }
+      let sent=0, failed=0; const total=rows.length;
+      for(let i=0;i<rows.length;i++){
+        const row=rows[i]; const id=row.dataset.id; const fuKey=row.dataset.fukey; const fuLabel=row.dataset.fulabel;
+        const statusEl=document.getElementById(`bs-${id}-${fuKey}`);
+        const lead=leads.find(l=>String(l.id)===String(id));
+        if(!lead||!lead.email){ failed++; if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:11px">Skipped</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
+        if(statusEl) statusEl.innerHTML='<span style="color:#888;font-size:11px">Sending...</span>';
+        let subject, body;
+        if(fuKey==='initial'){ subject=lead.draftSubject||''; body=lead.draftBody||''; }
+        else{
+          const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cb=buildGreetingName(lead.contactName); const cl=lead.clinicName||'[Clinic Name]';
+          const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:(FU_TEMPLATES[lead.angle||'After-Hours']&&FU_TEMPLATES[lead.angle||'After-Hours'][fuLabel]);
+          if(!tpl){ failed++; if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:11px">No template</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
+          subject=tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl);
+          body=tpl.body.replace(/\[greeting\]/g,cb).replace(/\[name\]/g,cb).replace(/\[Contact\]/g,cb).replace(/\[Clinic Name\]/g,cl).replace(/\[City\]/g,lead.city||'[City]');
+        }
+        const htmlBody='<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">'+escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>')+'</div>';
+        try{
+          await sendGraphEmail(lead.email,subject,htmlBody);
+          if(fuKey==='initial'){ lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); }
+          else if(fuKey==='fu1'){ lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),4); }
+          else if(fuKey==='fu2'){ lead.fu2Sent=true; lead.fu2SentOn=todayISO(); lead.fu3Date=addDays(todayISO(),7); }
+          else if(fuKey==='fu3'){ lead.fu3Sent=true; lead.fu3SentOn=todayISO(); lead.reEngageDate=addDays(todayISO(),3); }
+          else if(fuKey==='reEngage'){ lead.reEngageSent=true; lead.reEngageSentOn=todayISO(); }
+          else if(fuKey==='demoFirst'){ lead.demoFirstSent=true; lead.demoFirstDate=todayISO(); }
+          sent++; if(statusEl) statusEl.innerHTML='<span style="color:#4CAF7D;font-size:11px">&#10003; Sent</span>';
+        } catch(e){
+          failed++; if(statusEl) statusEl.innerHTML=`<span style="color:#E5484D;font-size:11px" title="${escapeHtml(e.message)}">Failed</span>`;
+        }
+        if(progressEl) progressEl.textContent=(sent+failed)+' / '+total;
+        if(i<rows.length-1) await new Promise(r=>setTimeout(r,500));
+      }
+      selectedPipelineIds.clear(); selectedFollowUpItems.clear(); save();
+      if(progressEl) progressEl.textContent='Done - '+sent+' sent'+(failed?', '+failed+' failed':'');
+      if(confirmBtn){ confirmBtn.textContent='Close'; confirmBtn.disabled=false; confirmBtn.onclick=closeBulkSendModal; }
+    }
+
+    function bindBulkSend(){
+      const pSA=document.getElementById('pSelectAll');
+      if(pSA) pSA.addEventListener('change',e=>{ if(e.target.checked) _lastPipelineFiltered.filter(l=>computeStatus(l)!=='Not Interested').forEach(l=>selectedPipelineIds.add(String(l.id))); else selectedPipelineIds.clear(); renderPipeline(); });
+      const fuSA=document.getElementById('fuSelectAll');
+      if(fuSA) fuSA.addEventListener('change',e=>{ if(e.target.checked) _lastFollowUpAllItems.forEach(i=>selectedFollowUpItems.set(`${i.lead.id}-${i.fuKey}`,i)); else selectedFollowUpItems.clear(); renderFollowUps(); });
+      const btnP=document.getElementById('btnBulkSendPipeline');
+      if(btnP) btnP.addEventListener('click',()=>{ _bulkSendSource='pipeline'; openBulkSendModal(); });
+      const btnFU=document.getElementById('btnBulkSendFU');
+      if(btnFU) btnFU.addEventListener('click',()=>{ _bulkSendSource='followups'; openBulkSendModal(); });
+      const closeBtn=document.getElementById('bulkSendClose');
+      if(closeBtn) closeBtn.addEventListener('click',closeBulkSendModal);
+      const bd=document.getElementById('bulkSendBackdrop');
+      if(bd) bd.addEventListener('click',e=>{ if(e.target===bd) closeBulkSendModal(); });
+    }
+
     function bindPipeline(){
       document.querySelectorAll('.status-filter-btn').forEach(b=>{ b.addEventListener('click',()=>{ pipelineFilter.status=b.dataset.status; document.querySelectorAll('.status-filter-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.status===pipelineFilter.status)); renderPipeline(); }); });
       const src=document.getElementById('pFilterSource'); if(src) src.addEventListener('change',()=>{ pipelineFilter.source=src.value; renderPipeline(); });
@@ -1205,6 +1395,11 @@
       if(items.length===0&&reEngageItems.length===0&&demoFirstItems.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
       const overdue=items.filter(i=>i.overdue).sort((a,b)=>a.fuDate.localeCompare(b.fuDate));
       const dueToday=items.filter(i=>!i.overdue).sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||''));
+      _lastFollowUpAllItems=[
+        ...items.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel})),
+        ...reEngageItems.map(i=>({lead:i.lead,fuKey:'reEngage',fuLabel:'Re-Engage'})),
+        ...demoFirstItems.map(i=>({lead:i.lead,fuKey:'demoFirst',fuLabel:'Demo First'}))
+      ];
       [[overdue,'OVERDUE'],[dueToday,'DUE TODAY']].forEach(([group,sectionLabel])=>{
         if(!group.length) return;
         const labelEl=document.createElement('div'); labelEl.innerHTML=`<span class="fu-section-label">${sectionLabel}</span>`; container.appendChild(labelEl);
@@ -1217,7 +1412,11 @@
           const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
           const row=document.createElement('div'); row.className='lead-row';
           const main=document.createElement('div'); main.className='fu-row-main';
-          main.innerHTML=`<span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge ${badgeCls}">${item.fuLabel} ${item.overdue?'Overdue':'Due'}</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent" data-id="${l.id}" data-fukey="${item.fuKey}">Mark FU Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="${item.fuKey.toUpperCase()}">Send FU Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const _fuCbKey=`${l.id}-${item.fuKey}`; const _fuCbChecked=selectedFollowUpItems.has(_fuCbKey);
+          if(_fuCbChecked) main.classList.add('row-selected');
+          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-${item.fuKey}" ${_fuCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge ${badgeCls}">${item.fuLabel} ${item.overdue?'Overdue':'Due'}</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent" data-id="${l.id}" data-fukey="${item.fuKey}">Mark FU Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="${item.fuKey.toUpperCase()}">Send FU Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const _fuCb=main.querySelector(`#fucb-${l.id}-${item.fuKey}`);
+          if(_fuCb){ _fuCb.addEventListener('click',e=>e.stopPropagation()); _fuCb.addEventListener('change',e=>{ const _k=`${l.id}-${item.fuKey}`; if(e.target.checked) selectedFollowUpItems.set(_k,{lead:l,fuKey:item.fuKey,fuLabel:item.fuLabel}); else selectedFollowUpItems.delete(_k); main.classList.toggle('row-selected',e.target.checked); updateFollowUpsSelectionBar(); }); }
           const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
           expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div>`;
           // Bind expand FU toggle buttons directly
@@ -1241,7 +1440,11 @@
           const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
           const row=document.createElement('div'); row.className='lead-row';
           const main=document.createElement('div'); main.className='fu-row-main';
-          main.innerHTML=`<span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge fu-due-badge-overdue">Re-Engage</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent re-engage-mark-sent" data-id="${l.id}">Mark Re-Engage Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Re-Engage">Send Re-Engage Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const _reCbKey=`${l.id}-reEngage`; const _reCbChecked=selectedFollowUpItems.has(_reCbKey);
+          if(_reCbChecked) main.classList.add('row-selected');
+          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-reEngage" ${_reCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge fu-due-badge-overdue">Re-Engage</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent re-engage-mark-sent" data-id="${l.id}">Mark Re-Engage Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Re-Engage">Send Re-Engage Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const _reCb=main.querySelector(`#fucb-${l.id}-reEngage`);
+          if(_reCb){ _reCb.addEventListener('click',e=>e.stopPropagation()); _reCb.addEventListener('change',e=>{ if(e.target.checked) selectedFollowUpItems.set(_reCbKey,{lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); else selectedFollowUpItems.delete(_reCbKey); main.classList.toggle('row-selected',e.target.checked); updateFollowUpsSelectionBar(); }); }
           const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
           const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
           expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 \u00b7 '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 \u00b7 '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 \u00b7 '+formatDateISOtoShortUK(l.fu3Date)}</button></div>`;
@@ -1265,11 +1468,14 @@
           const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
           const row=document.createElement('div'); row.className='lead-row';
           const main=document.createElement('div'); main.className='fu-row-main';
-          main.innerHTML=`<span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge fu-due-badge-overdue">Demo First</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent demo-first-mark-sent" data-id="${l.id}">Mark Demo First Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Demo First">Send Demo First Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const _dfCbKey=`${l.id}-demoFirst`; const _dfCbChecked=selectedFollowUpItems.has(_dfCbKey);
+          if(_dfCbChecked) main.classList.add('row-selected');
+          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-demoFirst" ${_dfCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge fu-due-badge-overdue">Demo First</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent demo-first-mark-sent" data-id="${l.id}">Mark Demo First Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Demo First">Send Demo First Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
           const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
           const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
           expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div>`;
           expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
+          const _dfCb=main.querySelector(`#fucb-${l.id}-demoFirst`); if(_dfCb){ _dfCb.addEventListener('click',e=>e.stopPropagation()); _dfCb.addEventListener('change',e=>{ if(e.target.checked) selectedFollowUpItems.set(_dfCbKey,{lead:l,fuKey:'demoFirst',fuLabel:'Demo First'}); else selectedFollowUpItems.delete(_dfCbKey); main.classList.toggle('row-selected',e.target.checked); updateFollowUpsSelectionBar(); }); }
           row.appendChild(main); row.appendChild(expand); list.appendChild(row);
         });
         card.appendChild(list); container.appendChild(card);
@@ -1279,6 +1485,7 @@
         list.querySelectorAll('[data-action="fuExpand"]').forEach(btn=>btn.addEventListener('click',()=>toggleFollowUpExpand(btn.dataset.id)));
         if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
       }
+      updateFollowUpsSelectionBar();
     }
 
     function renderStats(){ const td=todayISO(); let pending=0; leads.forEach(l=>{ if(l.reply==='Y') return; if(l.fu1Date===td&&!l.fu1Sent) pending++; if(l.fu2Date===td&&!l.fu2Sent) pending++; if(l.fu3Date===td&&!l.fu3Sent) pending++; }); const inboxCount=leads.filter(l=>l.source==='qualifier'&&!l.dateSent).length; document.getElementById('statTotal').textContent=leads.length; const statInbox=document.getElementById('statInbox'); if(statInbox) statInbox.textContent=inboxCount; document.getElementById('statReplied').textContent=leads.filter(l=>l.reply==='Y').length; document.getElementById('statPending').textContent=pending; document.getElementById('statPendingNoReply').textContent=leads.filter(l=>l.reply!=='Y').length; }
@@ -1418,6 +1625,12 @@
     let expandedLeadId = null;
     let expandedFollowUpId = null;
     let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',hookVariant:'All',noLinkedin:'All'};
+
+    let selectedPipelineIds = new Set();
+    let selectedFollowUpItems = new Map(); // keyed '${id}-${fuKey}'
+    let _bulkSendSource = null;
+    let _lastPipelineFiltered = [];
+    let _lastFollowUpAllItems = [];
 
     let emailState = { leadId:null, angle:null, type:null };
 
@@ -1946,7 +2159,7 @@
     }
 
     // Init
-    bindUI(); bindEmailTab(); bindPipeline(); bindLinkedIn(); load();
+    bindUI(); bindEmailTab(); bindPipeline(); bindLinkedIn(); bindBulkSend(); load();
     setTimeout(()=>showTab('dashboard'),80);
     // MSAL loads async via defer — init after all resources ready
     window.addEventListener('load', msalInit);
