@@ -536,7 +536,9 @@
         <span class="da-sep">|</span>
         <span class="da-stat"><span class="da-val" id="daFollowups-p">0</span> Follow-ups</span>
         <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daLinkedin-p">0</span> LinkedIn Actions</span>
+        <span class="da-stat"><span class="da-val" id="daLinkedinDM-p">0</span> LinkedIn DMs</span>
+        <span class="da-sep">|</span>
+        <span class="da-stat"><span class="da-val" id="daLinkedinConn-p">0</span> LinkedIn Connections</span>
         <span class="da-sep">|</span>
         <span class="da-total">Total: <span id="daTotal-p">0</span> / 100</span>
       </div>
@@ -607,7 +609,9 @@
         <span class="da-sep">|</span>
         <span class="da-stat"><span class="da-val" id="daFollowups-f">0</span> Follow-ups</span>
         <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daLinkedin-f">0</span> LinkedIn Actions</span>
+        <span class="da-stat"><span class="da-val" id="daLinkedinDM-f">0</span> LinkedIn DMs</span>
+        <span class="da-sep">|</span>
+        <span class="da-stat"><span class="da-val" id="daLinkedinConn-f">0</span> LinkedIn Connections</span>
         <span class="da-sep">|</span>
         <span class="da-total">Total: <span id="daTotal-f">0</span> / 100</span>
       </div>
@@ -1500,17 +1504,19 @@
 
     function renderDailyActionsBar(){
       const td=todayISO();
-      let freshSends=0, followups=0, linkedin=0;
+      let freshSends=0, followups=0, linkedinDMs=0, linkedinConns=0;
       leads.forEach(l=>{
         if(l.initialSentDate===td) freshSends++;
         if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td) followups++;
-        if(l.linkedinDMDate===td||l.linkedinConnectionDate===td) linkedin++;
+        if(l.linkedinDMDate===td) linkedinDMs++;
+        if(l.linkedinConnectionDate===td) linkedinConns++;
       });
-      const total=freshSends+followups+linkedin;
+      const total=freshSends+followups+linkedinDMs+linkedinConns;
       ['p','f'].forEach(s=>{
         const fs=document.getElementById('daFreshSends-'+s); if(fs) fs.textContent=freshSends;
         const fu=document.getElementById('daFollowups-'+s); if(fu) fu.textContent=followups;
-        const li=document.getElementById('daLinkedin-'+s); if(li) li.textContent=linkedin;
+        const dm=document.getElementById('daLinkedinDM-'+s); if(dm) dm.textContent=linkedinDMs;
+        const cn=document.getElementById('daLinkedinConn-'+s); if(cn) cn.textContent=linkedinConns;
         const tot=document.getElementById('daTotal-'+s); if(tot) tot.textContent=total;
       });
     }
