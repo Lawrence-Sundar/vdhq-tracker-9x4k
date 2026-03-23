@@ -662,7 +662,16 @@
           </select>
         </div>
         <label><input type="checkbox" id="liExcludeNoContact" checked> Exclude leads with no named contact</label>
-        <label><input type="checkbox" id="liShowNotFound"> Show Not Found</label>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Activity</span>
+          <select id="liFilterActivity">
+            <option value="All">All</option>
+            <option value="Connection Sent">Connection Sent</option>
+            <option value="DM Sent">DM Sent</option>
+            <option value="Not Found">Not Found</option>
+            <option value="No Activity">No Activity</option>
+          </select>
+        </div>
       </div>
       <div class="li-summary" id="liSummary"></div>
       <div class="li-notice">Verify each profile before sending a DM.</div>
@@ -2029,7 +2038,7 @@
     }
 
     // ── LinkedIn tab ─────────────────────────────────────────────────────────
-    let liFilter = { city: 'All', status: 'All', excludeNoContact: true, showNotFound: false };
+    let liFilter = { city: 'All', status: 'All', excludeNoContact: true, activity: 'All' };
 
     function getLinkedInStatus(lead){
       const cs = computeStatus(lead);
@@ -2063,7 +2072,11 @@
 
       // Apply filters
       let filtered = base.filter(l => {
-        if(!liFilter.showNotFound && l.linkedinNotFound) return false;
+        if(liFilter.activity === 'Connection Sent' && !l.linkedinConnectionSent) return false;
+        if(liFilter.activity === 'DM Sent' && !l.linkedinDMSent) return false;
+        if(liFilter.activity === 'Not Found' && !l.linkedinNotFound) return false;
+        if(liFilter.activity === 'No Activity' && (l.linkedinUrl||l.linkedinDMSent||l.linkedinConnectionSent||l.linkedinNotFound)) return false;
+        if(liFilter.activity === 'All' && l.linkedinNotFound) return false;
         if(liFilter.excludeNoContact && !l.contactName) return false;
         if(liFilter.city !== 'All'){
           const c = cityNorm(l.city);
@@ -2193,11 +2206,11 @@
       const cityEl = document.getElementById('liFilterCity');
       const statusEl = document.getElementById('liFilterStatus');
       const excludeEl = document.getElementById('liExcludeNoContact');
-      const showNotFoundEl = document.getElementById('liShowNotFound');
+      const activityEl = document.getElementById('liFilterActivity');
       if(cityEl) cityEl.addEventListener('change', () => { liFilter.city = cityEl.value; renderLinkedIn(); });
       if(statusEl) statusEl.addEventListener('change', () => { liFilter.status = statusEl.value; renderLinkedIn(); });
       if(excludeEl) excludeEl.addEventListener('change', () => { liFilter.excludeNoContact = excludeEl.checked; renderLinkedIn(); });
-      if(showNotFoundEl) showNotFoundEl.addEventListener('change', () => { liFilter.showNotFound = showNotFoundEl.checked; renderLinkedIn(); });
+      if(activityEl) activityEl.addEventListener('change', () => { liFilter.activity = activityEl.value; renderLinkedIn(); });
     }
 
     // Init
