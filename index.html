@@ -542,6 +542,8 @@
         <span class="da-sep">|</span>
         <span class="da-stat"><span class="da-val" id="daLinkedinConn-p">0</span> LinkedIn Connections</span>
         <span class="da-sep">|</span>
+        <span class="da-stat"><span class="da-val" id="daQualified-p">0</span> Leads Qualified</span>
+        <span class="da-sep">|</span>
         <span class="da-total">Total: <span id="daTotal-p">0</span> / 100</span>
       </div>
       <div class="status-filter-bar">
@@ -614,6 +616,8 @@
         <span class="da-stat"><span class="da-val" id="daLinkedinDM-f">0</span> LinkedIn DMs</span>
         <span class="da-sep">|</span>
         <span class="da-stat"><span class="da-val" id="daLinkedinConn-f">0</span> LinkedIn Connections</span>
+        <span class="da-sep">|</span>
+        <span class="da-stat"><span class="da-val" id="daQualified-f">0</span> Leads Qualified</span>
         <span class="da-sep">|</span>
         <span class="da-total">Total: <span id="daTotal-f">0</span> / 100</span>
       </div>
@@ -1516,19 +1520,21 @@
 
     function renderDailyActionsBar(){
       const td=todayISO();
-      let freshSends=0, followups=0, linkedinDMs=0, linkedinConns=0;
+      let freshSends=0, followups=0, linkedinDMs=0, linkedinConns=0, qualified=0;
       leads.forEach(l=>{
         if(l.initialSentDate===td) freshSends++;
         if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td) followups++;
         if(l.linkedinDMDate===td) linkedinDMs++;
         if(l.linkedinConnectionDate===td) linkedinConns++;
+        if((l.dateAdded||'').includes(td)) qualified++;
       });
-      const total=freshSends+followups+linkedinDMs+linkedinConns;
+      const total=freshSends+followups+linkedinDMs+linkedinConns+qualified;
       ['p','f'].forEach(s=>{
         const fs=document.getElementById('daFreshSends-'+s); if(fs) fs.textContent=freshSends;
         const fu=document.getElementById('daFollowups-'+s); if(fu) fu.textContent=followups;
         const dm=document.getElementById('daLinkedinDM-'+s); if(dm) dm.textContent=linkedinDMs;
         const cn=document.getElementById('daLinkedinConn-'+s); if(cn) cn.textContent=linkedinConns;
+        const ql=document.getElementById('daQualified-'+s); if(ql) ql.textContent=qualified;
         const tot=document.getElementById('daTotal-'+s); if(tot) tot.textContent=total;
       });
     }
