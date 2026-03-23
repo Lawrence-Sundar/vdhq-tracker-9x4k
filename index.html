@@ -384,6 +384,8 @@
     .btn-li-conn{padding:5px 11px;font-size:12px;border-radius:5px;background:rgba(94,106,210,0.15);color:#8b96e8;border:1px solid rgba(94,106,210,0.3);cursor:pointer;white-space:nowrap}
     .btn-li-conn:hover{background:rgba(94,106,210,0.25)}
     .li-dm-badge{display:inline-block;padding:4px 9px;font-size:11px;border-radius:5px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+    .li-undo{font-size:11px;color:#555;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;line-height:1}
+    .li-undo:hover{color:#888}
     .li-status-badge{display:inline-block;padding:2px 8px;font-size:11px;border-radius:4px;font-weight:500}
     .li-status-notsent{background:rgba(94,106,210,.12);color:#8a95e8}
     .li-status-sent{background:rgba(76,175,125,.12);color:#4CAF7D}
@@ -2101,10 +2103,10 @@
           dmCell = '<span style="color:#444;font-size:12px">—</span>';
         } else {
           let dmPart = l.linkedinDMSent
-            ? '<span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span>'
+            ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span><button class="li-undo" onclick="undoDMSent(' + l.id + ')">Undo</button></div>'
             : '<button class="btn-li-dm" onclick="markDMSent(' + l.id + ')">Mark DM Sent</button>';
           let connPart = l.linkedinConnectionSent
-            ? '<span class="li-dm-badge" style="background:rgba(94,106,210,0.15);color:#8b96e8">Conn Sent ' + (l.linkedinConnectionDate ? formatDateISOtoShortUK(l.linkedinConnectionDate) : '') + '</span>'
+            ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge" style="background:rgba(94,106,210,0.15);color:#8b96e8">Conn Sent ' + (l.linkedinConnectionDate ? formatDateISOtoShortUK(l.linkedinConnectionDate) : '') + '</span><button class="li-undo" onclick="undoConnectionSent(' + l.id + ')">Undo</button></div>'
             : '<button class="btn-li-conn" onclick="markConnectionSent(' + l.id + ')">Connection Sent</button>';
           dmCell = '<div style="display:flex;flex-direction:column;gap:4px">' + dmPart + connPart + '</div>';
         }
@@ -2153,6 +2155,22 @@
       if(!lead) return;
       lead.linkedinConnectionSent = true;
       lead.linkedinConnectionDate = todayISO();
+      save();
+    }
+
+    function undoDMSent(id){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      delete lead.linkedinDMSent;
+      delete lead.linkedinDMDate;
+      save();
+    }
+
+    function undoConnectionSent(id){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      delete lead.linkedinConnectionSent;
+      delete lead.linkedinConnectionDate;
       save();
     }
 
