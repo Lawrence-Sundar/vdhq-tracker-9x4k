@@ -388,6 +388,10 @@
     .li-undo:hover{color:#888}
     .li-contact-input{width:100%;font-size:11px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--muted);padding:2px 0;font-family:Inter,sans-serif;outline:none}
     .li-contact-input:focus{border-bottom-color:var(--accent);color:var(--text)}
+    .li-notes-link{font-size:11px;color:#555;cursor:pointer;background:none;border:none;padding:0;text-decoration:underline;font-family:Inter,sans-serif}
+    .li-notes-link:hover{color:#888}
+    .li-notes-preview{font-size:11px;color:var(--muted);line-height:1.4;word-break:break-word;white-space:pre-wrap}
+    .li-notes-ta{width:100%;font-size:11px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 7px;border-radius:5px;font-family:Inter,sans-serif;resize:vertical;box-sizing:border-box}
     .li-status-badge{display:inline-block;padding:2px 8px;font-size:11px;border-radius:4px;font-weight:500}
     .li-status-notsent{background:rgba(94,106,210,.12);color:#8a95e8}
     .li-status-sent{background:rgba(76,175,125,.12);color:#4CAF7D}
@@ -2142,8 +2146,13 @@
         const contactCell = l.linkedinContact
           ? escapeHtml(l.linkedinContact) + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Enquiry contact: ' + escapeHtml(l.contactName || '—') + '</div>'
           : escapeHtml(l.contactName || '—');
+        const notesInner = l.linkedinNotes
+          ? '<div class="li-notes-preview" id="li-notes-preview-' + l.id + '">' + escapeHtml(l.linkedinNotes) + ' <button class="li-notes-link" onclick="expandLinkedInNote(' + l.id + ')">Edit</button></div>'
+          : '<button class="li-notes-link" id="li-notes-add-' + l.id + '" onclick="expandLinkedInNote(' + l.id + ')">Add note</button>';
         const clinicCell = escapeHtml(l.clinicName || '—') +
-          '<div style="margin-top:4px"><input class="li-contact-input" type="text" placeholder="LinkedIn contact name" value="' + escapeHtml(l.linkedinContact || '') + '" onblur="saveLinkedInContact(' + l.id + ', this.value)"></div>';
+          '<div style="margin-top:4px"><input class="li-contact-input" type="text" placeholder="LinkedIn contact name" value="' + escapeHtml(l.linkedinContact || '') + '" onblur="saveLinkedInContact(' + l.id + ', this.value)"></div>' +
+          '<div class="li-notes-wrap" id="li-notes-wrap-' + l.id + '" style="margin-top:5px">' + notesInner +
+          '<textarea class="li-notes-ta" id="li-notes-ta-' + l.id + '" rows="2" placeholder="e.g. LinkedIn member — need more connections to reach" style="display:none;margin-top:3px" onblur="saveLinkedInNotes(' + l.id + ', this.value)">' + escapeHtml(l.linkedinNotes || '') + '</textarea></div>';
         const tr = document.createElement('tr');
         tr.innerHTML = '<td>' + contactCell + '</td>' +
           '<td>' + clinicCell + '</td>' +
@@ -2220,6 +2229,22 @@
       const lead = leads.find(l => l.id == id);
       if(!lead) return;
       lead.linkedinContact = value.trim();
+      save();
+    }
+
+    function expandLinkedInNote(id){
+      const ta = document.getElementById('li-notes-ta-' + id);
+      const preview = document.getElementById('li-notes-preview-' + id);
+      const addLink = document.getElementById('li-notes-add-' + id);
+      if(preview) preview.style.display = 'none';
+      if(addLink) addLink.style.display = 'none';
+      if(ta){ ta.style.display = 'block'; ta.focus(); }
+    }
+
+    function saveLinkedInNotes(id, value){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      lead.linkedinNotes = value.trim();
       save();
     }
 
