@@ -386,6 +386,8 @@
     .li-dm-badge{display:inline-block;padding:4px 9px;font-size:11px;border-radius:5px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
     .li-undo{font-size:11px;color:#555;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;line-height:1}
     .li-undo:hover{color:#888}
+    .li-contact-input{width:100%;font-size:11px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--muted);padding:2px 0;font-family:Inter,sans-serif;outline:none}
+    .li-contact-input:focus{border-bottom-color:var(--accent);color:var(--text)}
     .li-status-badge{display:inline-block;padding:2px 8px;font-size:11px;border-radius:4px;font-weight:500}
     .li-status-notsent{background:rgba(94,106,210,.12);color:#8a95e8}
     .li-status-sent{background:rgba(76,175,125,.12);color:#4CAF7D}
@@ -632,6 +634,7 @@
         </div>
       </div>
       <div class="li-filters">
+        <input id="liSearch" type="text" placeholder="Search clinics..." style="font-size:12px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:Inter,sans-serif;width:200px;outline:none">
         <div style="display:flex;align-items:center;gap:6px">
           <span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">City</span>
           <select id="liFilterCity">
@@ -2038,7 +2041,7 @@
     }
 
     // ── LinkedIn tab ─────────────────────────────────────────────────────────
-    let liFilter = { city: 'All', status: 'All', excludeNoContact: true, activity: 'All' };
+    let liFilter = { city: 'All', status: 'All', excludeNoContact: true, activity: 'All', search: '' };
 
     function getLinkedInStatus(lead){
       const cs = computeStatus(lead);
@@ -2071,6 +2074,7 @@
       const profilesAdded = base.filter(l => l.linkedinUrl).length;
 
       // Apply filters
+      const liSQ = liFilter.search.toLowerCase().trim();
       let filtered = base.filter(l => {
         if(liFilter.activity === 'Connection Sent' && !l.linkedinConnectionSent) return false;
         if(liFilter.activity === 'DM Sent' && !l.linkedinDMSent) return false;
@@ -2078,6 +2082,7 @@
         if(liFilter.activity === 'No Activity' && (l.linkedinUrl||l.linkedinDMSent||l.linkedinConnectionSent||l.linkedinNotFound)) return false;
         if(liFilter.activity === 'All' && l.linkedinNotFound) return false;
         if(liFilter.excludeNoContact && !l.contactName) return false;
+        if(liSQ && !(l.clinicName||'').toLowerCase().includes(liSQ) && !(l.contactName||'').toLowerCase().includes(liSQ) && !(l.linkedinContact||'').toLowerCase().includes(liSQ)) return false;
         if(liFilter.city !== 'All'){
           const c = cityNorm(l.city);
           if(liFilter.city === 'Other' && knownCities.includes(c)) return false;
@@ -2130,9 +2135,14 @@
           dmCell = '<div style="display:flex;flex-direction:column;gap:4px">' + dmPart + connPart + '</div>';
         }
 
+        const contactCell = l.linkedinContact
+          ? escapeHtml(l.linkedinContact) + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Enquiry contact: ' + escapeHtml(l.contactName || '—') + '</div>'
+          : escapeHtml(l.contactName || '—');
+        const clinicCell = escapeHtml(l.clinicName || '—') +
+          '<div style="margin-top:4px"><input class="li-contact-input" type="text" placeholder="LinkedIn contact name" value="' + escapeHtml(l.linkedinContact || '') + '" onblur="saveLinkedInContact(' + l.id + ', this.value)"></div>';
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + escapeHtml(l.contactName || '—') + '</td>' +
-          '<td>' + escapeHtml(l.clinicName || '—') + '</td>' +
+        tr.innerHTML = '<td>' + contactCell + '</td>' +
+          '<td>' + clinicCell + '</td>' +
           '<td>' + escapeHtml(l.city || '—') + '</td>' +
           '<td>' + profileCell + '</td>' +
           '<td><span class="li-status-badge ' + statusClass + '">' + escapeHtml(liStatus) + '</span></td>' +
@@ -2202,15 +2212,24 @@
     }
 
 
+    function saveLinkedInContact(id, value){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      lead.linkedinContact = value.trim();
+      save();
+    }
+
     function bindLinkedIn(){
       const cityEl = document.getElementById('liFilterCity');
       const statusEl = document.getElementById('liFilterStatus');
       const excludeEl = document.getElementById('liExcludeNoContact');
       const activityEl = document.getElementById('liFilterActivity');
+      const searchEl = document.getElementById('liSearch');
       if(cityEl) cityEl.addEventListener('change', () => { liFilter.city = cityEl.value; renderLinkedIn(); });
       if(statusEl) statusEl.addEventListener('change', () => { liFilter.status = statusEl.value; renderLinkedIn(); });
       if(excludeEl) excludeEl.addEventListener('change', () => { liFilter.excludeNoContact = excludeEl.checked; renderLinkedIn(); });
       if(activityEl) activityEl.addEventListener('change', () => { liFilter.activity = activityEl.value; renderLinkedIn(); });
+      if(searchEl) searchEl.addEventListener('input', () => { liFilter.search = searchEl.value; renderLinkedIn(); });
     }
 
     // Init
