@@ -1276,7 +1276,7 @@
         for(const [,item] of selectedFollowUpItems){
           const l=item.lead;
           if(!l.email){ buildRow(l,'','','',`bs-${l.id}-noemail`,true,'No email on record'); continue; }
-          const tpl=item.fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:item.fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:(FU_TEMPLATES[l.angle||'After-Hours']&&FU_TEMPLATES[l.angle||'After-Hours'][item.fuLabel]);
+          const tpl=item.fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:item.fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:item.fuLabel==='FU1'?_FU1_TPL:item.fuLabel==='FU2'?_FU2_TPL:item.fuLabel==='FU3'?_FU3_TPL:null;
           const cs=l.contactName||l.clinicName||'[Clinic Name]'; const cl=l.clinicName||'[Clinic Name]';
           const subj=tpl?tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):item.fuLabel+' follow-up';
           buildRow(l,item.fuKey,item.fuLabel,subj,`bs-${l.id}-${item.fuKey}`,false,'');
@@ -1710,7 +1710,7 @@
       const isFU=type==='FU1'||type==='FU2'||type==='FU3';
       if(!leadId||!type||(!angle&&!isReEngage&&!isFU&&!isDemoFirst)){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const lead=leads.find(l=>l.id==leadId); if(!lead){ wrap.style.display='none'; placeholder.style.display='block'; return; }
-      const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : isDemoFirst ? DEMO_FIRST_TEMPLATE : (FU_TEMPLATES[angle||'After-Hours']&&FU_TEMPLATES[angle||'After-Hours'][type]);
+      const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : isDemoFirst ? DEMO_FIRST_TEMPLATE : isFU ? (type==='FU1'?_FU1_TPL:type==='FU2'?_FU2_TPL:_FU3_TPL) : (FU_TEMPLATES[angle||'After-Hours']&&FU_TEMPLATES[angle||'After-Hours'][type]);
       if(!tpl){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
       const contactForBody=buildGreetingName(lead.contactName);
@@ -1799,7 +1799,7 @@
     }
 
     async function sendGraphEmail(to, subject, htmlBody){
-      console.log('sending subject:', subject);
+      to = (to||'').trim().replace(/[.,;:\s]+$/, '');
       const token = await getGraphToken();
       const payload = { message: { subject, body: { contentType: 'HTML', content: htmlBody }, toRecipients: [{ emailAddress: { address: to } }] }, saveToSentItems: true };
       const resp = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -1842,7 +1842,7 @@
       const isDemoFirstSend = selectedType === 'Demo First';
       const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
       const clinic = lead.clinicName || '[Clinic Name]';
-      const fuTpl = isReEngageSend ? RE_ENGAGE_TEMPLATE : isDemoFirstSend ? DEMO_FIRST_TEMPLATE : (isFU ? (FU_TEMPLATES[lead.angle||'After-Hours'] && FU_TEMPLATES[lead.angle||'After-Hours'][selectedType]) : null);
+      const fuTpl = isReEngageSend ? RE_ENGAGE_TEMPLATE : isDemoFirstSend ? DEMO_FIRST_TEMPLATE : isFU ? (selectedType==='FU1'?_FU1_TPL:selectedType==='FU2'?_FU2_TPL:_FU3_TPL) : null;
       const subject = fuTpl
         ? fuTpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic)
         : document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,'');
@@ -1897,8 +1897,7 @@
       listEl.innerHTML = '';
       withEmail.forEach(item=>{
         const l = item.lead;
-        const angle = l.angle || 'After-Hours';
-        const tpl = item.fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : item.fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : (FU_TEMPLATES[angle] && FU_TEMPLATES[angle][item.fuLabel]);
+        const tpl = item.fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : item.fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : item.fuLabel==='FU1' ? _FU1_TPL : item.fuLabel==='FU2' ? _FU2_TPL : item.fuLabel==='FU3' ? _FU3_TPL : null;
         const contactForSubject = l.contactName || l.clinicName || '[Clinic Name]';
         const subject = tpl ? tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,l.clinicName||'[Clinic Name]') : item.fuLabel+' follow-up';
         const row = document.createElement('div'); row.className = 'send-all-row';
@@ -2016,8 +2015,7 @@
         const lead = leads.find(l => l.id == id);
         if(!lead || !lead.email) continue;
         if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:11px">Sending...</span>';
-        const angle = lead.angle || 'After-Hours';
-        const tpl = fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : (FU_TEMPLATES[angle] && FU_TEMPLATES[angle][fuLabel]);
+        const tpl = fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : fuLabel==='FU1' ? _FU1_TPL : fuLabel==='FU2' ? _FU2_TPL : fuLabel==='FU3' ? _FU3_TPL : null;
         if(!tpl){ if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:11px">No template</span>'; failed++; continue; }
         const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
         const contactForBody = buildGreetingName(lead.contactName);
