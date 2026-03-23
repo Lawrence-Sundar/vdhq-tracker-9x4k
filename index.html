@@ -381,6 +381,8 @@
     .li-edit-link:hover{color:var(--text)}
     .btn-li-dm{padding:5px 11px;font-size:12px;border-radius:5px;background:var(--accent);color:#fff;border:none;cursor:pointer;white-space:nowrap}
     .btn-li-dm:hover{opacity:.85}
+    .btn-li-conn{padding:5px 11px;font-size:12px;border-radius:5px;background:rgba(94,106,210,0.15);color:#8b96e8;border:1px solid rgba(94,106,210,0.3);cursor:pointer;white-space:nowrap}
+    .btn-li-conn:hover{background:rgba(94,106,210,0.25)}
     .li-dm-badge{display:inline-block;padding:4px 9px;font-size:11px;border-radius:5px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
     .li-status-badge{display:inline-block;padding:2px 8px;font-size:11px;border-radius:4px;font-weight:500}
     .li-status-notsent{background:rgba(94,106,210,.12);color:#8a95e8}
@@ -532,7 +534,7 @@
         <span class="da-sep">|</span>
         <span class="da-stat"><span class="da-val" id="daFollowups-p">0</span> Follow-ups</span>
         <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daLinkedin-p">0</span> LinkedIn DMs</span>
+        <span class="da-stat"><span class="da-val" id="daLinkedin-p">0</span> LinkedIn Actions</span>
         <span class="da-sep">|</span>
         <span class="da-total">Total: <span id="daTotal-p">0</span> / 100</span>
       </div>
@@ -603,7 +605,7 @@
         <span class="da-sep">|</span>
         <span class="da-stat"><span class="da-val" id="daFollowups-f">0</span> Follow-ups</span>
         <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daLinkedin-f">0</span> LinkedIn DMs</span>
+        <span class="da-stat"><span class="da-val" id="daLinkedin-f">0</span> LinkedIn Actions</span>
         <span class="da-sep">|</span>
         <span class="da-total">Total: <span id="daTotal-f">0</span> / 100</span>
       </div>
@@ -1500,7 +1502,7 @@
       leads.forEach(l=>{
         if(l.initialSentDate===td) freshSends++;
         if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td) followups++;
-        if(l.linkedinDMDate===td) linkedin++;
+        if(l.linkedinDMDate===td||l.linkedinConnectionDate===td) linkedin++;
       });
       const total=freshSends+followups+linkedin;
       ['p','f'].forEach(s=>{
@@ -2097,10 +2099,14 @@
         let dmCell;
         if(l.linkedinNotFound){
           dmCell = '<span style="color:#444;font-size:12px">—</span>';
-        } else if(l.linkedinDMSent){
-          dmCell = '<span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span>';
         } else {
-          dmCell = '<button class="btn-li-dm" onclick="markDMSent(' + l.id + ')">Mark DM Sent</button>';
+          let dmPart = l.linkedinDMSent
+            ? '<span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span>'
+            : '<button class="btn-li-dm" onclick="markDMSent(' + l.id + ')">Mark DM Sent</button>';
+          let connPart = l.linkedinConnectionSent
+            ? '<span class="li-dm-badge" style="background:rgba(94,106,210,0.15);color:#8b96e8">Conn Sent ' + (l.linkedinConnectionDate ? formatDateISOtoShortUK(l.linkedinConnectionDate) : '') + '</span>'
+            : '<button class="btn-li-conn" onclick="markConnectionSent(' + l.id + ')">Connection Sent</button>';
+          dmCell = '<div style="display:flex;flex-direction:column;gap:4px">' + dmPart + connPart + '</div>';
         }
 
         const tr = document.createElement('tr');
@@ -2139,6 +2145,14 @@
       if(!lead) return;
       lead.linkedinDMSent = true;
       lead.linkedinDMDate = todayISO();
+      save();
+    }
+
+    function markConnectionSent(id){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      lead.linkedinConnectionSent = true;
+      lead.linkedinConnectionDate = todayISO();
       save();
     }
 
