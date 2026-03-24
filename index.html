@@ -1280,7 +1280,7 @@
       const getSubject=(lead,fuKey,fuLabel,emailType)=>{
         if(fuKey==='initial') return emailType.subject;
         const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cl=lead.clinicName||'[Clinic Name]';
-        const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:(FU_TEMPLATES[lead.angle||'After-Hours']&&FU_TEMPLATES[lead.angle||'After-Hours'][fuLabel]);
+        const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:fuLabel==='FU1'?_FU1_TPL:fuLabel==='FU2'?_FU2_TPL:fuLabel==='FU3'?_FU3_TPL:null;
         return tpl?tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):fuLabel+' follow-up';
       };
       if(_bulkSendSource==='pipeline'){
@@ -1323,7 +1323,7 @@
       if(!rows.length) return;
       confirmBtn.disabled=true;
       if(progressEl){ progressEl.textContent='0 / '+rows.length; progressEl.style.display='block'; }
-      let sent=0, failed=0; const total=rows.length;
+      let sent=0, failed=0; const total=rows.length; const failedDetails=[];
       for(let i=0;i<rows.length;i++){
         const row=rows[i]; const id=row.dataset.id; const fuKey=row.dataset.fukey; const fuLabel=row.dataset.fulabel;
         const statusEl=document.getElementById(`bs-${id}-${fuKey}`);
@@ -1334,8 +1334,8 @@
         if(fuKey==='initial'){ subject=lead.draftSubject||''; body=lead.draftBody||''; }
         else{
           const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cb=buildGreetingName(lead.contactName); const cl=lead.clinicName||'[Clinic Name]';
-          const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:(FU_TEMPLATES[lead.angle||'After-Hours']&&FU_TEMPLATES[lead.angle||'After-Hours'][fuLabel]);
-          if(!tpl){ failed++; if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:11px">No template</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
+          const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:fuLabel==='FU1'?_FU1_TPL:fuLabel==='FU2'?_FU2_TPL:fuLabel==='FU3'?_FU3_TPL:null;
+          if(!tpl){ failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': no template'); if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:11px">No template</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
           subject=tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl);
           body=tpl.body.replace(/\[greeting\]/g,cb).replace(/\[name\]/g,cb).replace(/\[Contact\]/g,cb).replace(/\[Clinic Name\]/g,cl).replace(/\[City\]/g,lead.city||'[City]');
         }
@@ -1350,13 +1350,13 @@
           else if(fuKey==='demoFirst'){ lead.demoFirstSent=true; lead.demoFirstDate=todayISO(); }
           sent++; if(statusEl) statusEl.innerHTML='<span style="color:#4CAF7D;font-size:11px">&#10003; Sent</span>';
         } catch(e){
-          failed++; if(statusEl) statusEl.innerHTML=`<span style="color:#E5484D;font-size:11px" title="${escapeHtml(e.message)}">Failed</span>`;
+          failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': '+escapeHtml(e.message)); if(statusEl) statusEl.innerHTML=`<span style="color:#E5484D;font-size:11px" title="${escapeHtml(e.message)}">Failed</span>`;
         }
         if(progressEl) progressEl.textContent=(sent+failed)+' / '+total;
         if(i<rows.length-1) await new Promise(r=>setTimeout(r,500));
       }
       selectedPipelineIds.clear(); selectedFollowUpItems.clear(); save();
-      if(progressEl) progressEl.textContent='Done - '+sent+' sent'+(failed?', '+failed+' failed':'');
+      if(progressEl){ let summary='Done \u2014 '+sent+' sent'+(failed?', '+failed+' failed':''); if(failedDetails.length) summary+='<br><span style="color:#E5484D;font-size:11px;line-height:1.8">'+failedDetails.map(d=>'&middot; '+d).join('<br>')+'</span>'; progressEl.innerHTML=summary; }
       if(confirmBtn){ confirmBtn.textContent='Close'; confirmBtn.disabled=false; confirmBtn.onclick=closeBulkSendModal; }
     }
 
