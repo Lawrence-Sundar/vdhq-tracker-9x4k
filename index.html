@@ -403,6 +403,12 @@
     .btn-li-nofound{padding:4px 9px;font-size:11px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}
     .btn-li-nofound:hover{border-color:#888;color:var(--text)}
     .li-not-found-badge{display:inline-block;padding:4px 9px;font-size:11px;border-radius:5px;background:var(--elevated);color:#555;border:1px solid var(--border);white-space:nowrap}
+    .li-website-link{font-size:11px;color:#5E6AD2;text-decoration:none;word-break:break-all}
+    .li-website-link:hover{text-decoration:underline}
+    .btn-li-copy{padding:4px 9px;font-size:11px;border-radius:5px;border:1px solid rgba(201,168,76,0.45);background:transparent;color:#C9A84C;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif}
+    .btn-li-copy:hover{background:rgba(201,168,76,0.1);border-color:#C9A84C}
+    #liCopyToast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(8px);background:#1A1A1F;color:#C9A84C;border:1px solid rgba(201,168,76,0.3);padding:8px 20px;border-radius:6px;font-size:13px;font-family:Inter,sans-serif;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;z-index:9999}
+    #liCopyToast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
 /* Send Initial modal */
     #sendInitialBackdrop{justify-content:center;align-items:center}
     #sendInitialModal{width:560px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:10px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow-y:auto}
@@ -2144,9 +2150,10 @@
         }
 
         // DM cell
+        const copyBtn = '<button class="btn-li-copy" onclick="copyForGemini(' + l.id + ')">Copy</button>';
         let dmCell;
         if(l.linkedinNotFound){
-          dmCell = '<span style="color:#444;font-size:12px">—</span>';
+          dmCell = '<div style="display:flex;flex-direction:column;gap:6px"><span style="color:#444;font-size:12px">—</span>' + copyBtn + '</div>';
         } else {
           let dmPart = l.linkedinDMSent
             ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span><button class="li-undo" onclick="undoDMSent(' + l.id + ')">Undo</button></div>'
@@ -2154,7 +2161,7 @@
           let connPart = l.linkedinConnectionSent
             ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge" style="background:rgba(94,106,210,0.15);color:#8b96e8">Conn Sent ' + (l.linkedinConnectionDate ? formatDateISOtoShortUK(l.linkedinConnectionDate) : '') + '</span><button class="li-undo" onclick="undoConnectionSent(' + l.id + ')">Undo</button></div>'
             : '<button class="btn-li-conn" onclick="markConnectionSent(' + l.id + ')">Connection Sent</button>';
-          dmCell = '<div style="display:flex;flex-direction:column;gap:4px">' + dmPart + connPart + '</div>';
+          dmCell = '<div style="display:flex;flex-direction:column;gap:4px">' + dmPart + connPart + copyBtn + '</div>';
         }
 
         const contactCell = l.linkedinContact
@@ -2163,7 +2170,10 @@
         const notesInner = l.linkedinNotes
           ? '<div class="li-notes-preview" id="li-notes-preview-' + l.id + '">' + escapeHtml(l.linkedinNotes) + ' <button class="li-notes-link" onclick="expandLinkedInNote(' + l.id + ')">Edit</button></div>'
           : '<button class="li-notes-link" id="li-notes-add-' + l.id + '" onclick="expandLinkedInNote(' + l.id + ')">Add note</button>';
-        const clinicCell = escapeHtml(l.clinicName || '—') +
+        const websiteHtml = l.website
+          ? '<div style="margin-top:4px"><a href="' + escapeHtml(l.website) + '" target="_blank" rel="noopener" class="li-website-link">' + escapeHtml(l.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></div>'
+          : '<div style="margin-top:4px;font-size:11px;color:#444">No website</div>';
+        const clinicCell = escapeHtml(l.clinicName || '—') + websiteHtml +
           '<div style="margin-top:4px"><input class="li-contact-input" type="text" placeholder="LinkedIn contact name" value="' + escapeHtml(l.linkedinContact || '') + '" onblur="saveLinkedInContact(' + l.id + ', this.value)"></div>' +
           '<div class="li-notes-wrap" id="li-notes-wrap-' + l.id + '" style="margin-top:5px">' + notesInner +
           '<textarea class="li-notes-ta" id="li-notes-ta-' + l.id + '" rows="2" placeholder="e.g. LinkedIn member — need more connections to reach" style="display:none;margin-top:3px" onblur="saveLinkedInNotes(' + l.id + ', this.value)">' + escapeHtml(l.linkedinNotes || '') + '</textarea></div>';
@@ -2284,7 +2294,24 @@
     bindUI(); bindEmailTab(); bindPipeline(); bindFollowUps(); bindLinkedIn(); bindBulkSend(); load();
     setTimeout(()=>showTab('dashboard'),80);
     // MSAL loads async via defer — init after all resources ready
+    function copyForGemini(id){
+      const lead = leads.find(l => l.id == id);
+      if(!lead) return;
+      const text = 'Clinic: ' + (lead.clinicName || '') + '\nContact: ' + (lead.contactName || '') + '\nCity: ' + (lead.city || '') + '\nWebsite: ' + (lead.website || '');
+      navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard')).catch(() => showToast('Copy failed'));
+    }
+
+    function showToast(msg){
+      const t = document.getElementById('liCopyToast');
+      if(!t) return;
+      t.textContent = msg;
+      t.classList.add('visible');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => t.classList.remove('visible'), 2000);
+    }
+
     window.addEventListener('load', msalInit);
   </script>
+  <div id="liCopyToast"></div>
 </body>
 </html>
