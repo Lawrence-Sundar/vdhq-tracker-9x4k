@@ -625,6 +625,17 @@
         <span class="da-sep">|</span>
         <span class="da-total">Total: <span id="daTotal-f">0</span> / 100</span>
       </div>
+      <div class="secondary-filter-bar" style="margin-top:12px">
+        <div class="filter-group">
+          <span class="filter-inline-label">FU Type</span>
+          <select id="fuFilterType"><option value="All">All</option><option value="FU1 Due">FU1 Due</option><option value="FU2 Due">FU2 Due</option><option value="FU3 Due">FU3 Due</option><option value="Re-Engage Due">Re-Engage Due</option><option value="Demo First Due">Demo First Due</option></select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-inline-label">City</span>
+          <select id="fuFilterCity"><option value="All">All</option><option value="London">London</option><option value="Manchester">Manchester</option><option value="Birmingham">Birmingham</option><option value="Leeds">Leeds</option><option value="Bristol">Bristol</option><option value="Edinburgh">Edinburgh</option><option value="Glasgow">Glasgow</option><option value="Other">Other</option></select>
+        </div>
+        <span id="fuShowingCount" style="margin-left:auto;font-size:12px;color:var(--muted)"></span>
+      </div>
       <div id="followUpsBulkBar" class="bulk-action-bar">
         <input type="checkbox" class="sel-check" id="fuSelectAll" title="Select all">
         <span id="fuSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
@@ -1414,16 +1425,18 @@
       const demoFirstItems=[];
       leads.forEach(l=>{
         if(l.doNotContact) return;
+        if(fuFilter.city!=='All'&&l.city!==fuFilter.city) return;
         const status=computeStatus(l);
         if(status==='Replied'||status==='Converted'||status==='Not Interested') return;
         const fus=[{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
-        for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<=td) items.push({lead:l,fuKey:fu.key,fuLabel:fu.label,fuDate:nd,overdue:nd<td}); break; }
-        if(l.fu3Sent&&!l.reEngageSent){ if(l.reEngageDate){ const nd=normDateStr(l.reEngageDate); if(nd&&nd<=td) reEngageItems.push({lead:l}); } else if(l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d&&Math.round((new Date(td)-new Date(fu3d))/86400000)>=3) reEngageItems.push({lead:l}); } }
-        if(l.reEngageSent&&!l.demoFirstSent){ if(l.reEngageSentOn){ const reSentD=normDateStr(l.reEngageSentOn); if(reSentD&&Math.round((new Date(td)-new Date(reSentD))/86400000)>=7) demoFirstItems.push({lead:l}); } }
+        for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<=td&&(fuFilter.fuType==='All'||fuFilter.fuType===fu.label+' Due')) items.push({lead:l,fuKey:fu.key,fuLabel:fu.label,fuDate:nd,overdue:nd<td}); break; }
+        if(l.fu3Sent&&!l.reEngageSent&&(fuFilter.fuType==='All'||fuFilter.fuType==='Re-Engage Due')){ if(l.reEngageDate){ const nd=normDateStr(l.reEngageDate); if(nd&&nd<=td) reEngageItems.push({lead:l}); } else if(l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d&&Math.round((new Date(td)-new Date(fu3d))/86400000)>=3) reEngageItems.push({lead:l}); } }
+        if(l.reEngageSent&&!l.demoFirstSent&&(fuFilter.fuType==='All'||fuFilter.fuType==='Demo First Due')){ if(l.reEngageSentOn){ const reSentD=normDateStr(l.reEngageSentOn); if(reSentD&&Math.round((new Date(td)-new Date(reSentD))/86400000)>=7) demoFirstItems.push({lead:l}); } }
       });
       const totalBadge=items.length+reEngageItems.length+demoFirstItems.length;
       const badge=document.getElementById('followUpsNavBadge');
       if(badge){ if(totalBadge>0){badge.textContent=totalBadge;badge.style.display='inline-flex';}else{badge.textContent='';badge.style.display='none';} }
+      const fuShowingEl=document.getElementById('fuShowingCount'); if(fuShowingEl) fuShowingEl.textContent=totalBadge>0?'Showing '+totalBadge+' lead'+(totalBadge===1?'':'s'):'';
       if(items.length===0&&reEngageItems.length===0&&demoFirstItems.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
       const overdue=items.filter(i=>i.overdue).sort((a,b)=>a.fuDate.localeCompare(b.fuDate));
       const dueToday=items.filter(i=>!i.overdue).sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||''));
@@ -1661,6 +1674,7 @@
     let expandedLeadId = null;
     let expandedFollowUpId = null;
     let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',hookVariant:'All',noLinkedin:'All'};
+    let fuFilter = {fuType:'All', city:'All'};
 
     let selectedPipelineIds = new Set();
     let selectedFollowUpItems = new Map(); // keyed '${id}-${fuKey}'
@@ -2248,6 +2262,11 @@
       save();
     }
 
+    function bindFollowUps(){
+      const ft=document.getElementById('fuFilterType'); if(ft) ft.addEventListener('change',()=>{ fuFilter.fuType=ft.value; renderFollowUps(); });
+      const fc=document.getElementById('fuFilterCity'); if(fc) fc.addEventListener('change',()=>{ fuFilter.city=fc.value; renderFollowUps(); });
+    }
+
     function bindLinkedIn(){
       const cityEl = document.getElementById('liFilterCity');
       const statusEl = document.getElementById('liFilterStatus');
@@ -2262,7 +2281,7 @@
     }
 
     // Init
-    bindUI(); bindEmailTab(); bindPipeline(); bindLinkedIn(); bindBulkSend(); load();
+    bindUI(); bindEmailTab(); bindPipeline(); bindFollowUps(); bindLinkedIn(); bindBulkSend(); load();
     setTimeout(()=>showTab('dashboard'),80);
     // MSAL loads async via defer — init after all resources ready
     window.addEventListener('load', msalInit);
