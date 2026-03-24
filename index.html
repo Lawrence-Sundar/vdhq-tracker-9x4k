@@ -1543,6 +1543,7 @@
 
     function renderDailyActionsBar(){
       const td=todayISO();
+      console.log('dateAdded values:', leads.map(l => l.dateAdded), 'today:', td);
       let freshSends=0, followups=0, linkedinDMs=0, linkedinConns=0, qualified=0;
       leads.forEach(l=>{
         if(l.initialSentDate===td) freshSends++;
