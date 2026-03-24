@@ -1073,6 +1073,8 @@ ${pageText}`;
 
       const lead = {
         id:          Date.now(),
+        dateAdded:   new Date().toISOString(),
+        source:      'qualifier',
         clinicName:  r.clinic_name   || '',
         city:        r.city_name     || r.city || '',
         address:     r.address        || '',
