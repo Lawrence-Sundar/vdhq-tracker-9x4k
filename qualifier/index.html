@@ -285,10 +285,14 @@
         <input type="email" id="emailToSendInput" placeholder="Enter email address manually" autocomplete="off" spellcheck="false">
       </div>
 
-      <!-- Editable named contact field -->
-      <div id="namedContactCard" style="display:none">
-        <div class="section-label">Named Contact</div>
-        <input type="text" id="namedContactInput" placeholder="Enter named contact manually" autocomplete="off" spellcheck="false">
+      <!-- Editable contact fields -->
+      <div id="principalCard" style="display:none">
+        <div class="section-label">Principal / Owner</div>
+        <input type="text" id="principalInput" placeholder="e.g. Dr Sarah Leahy" autocomplete="off" spellcheck="false">
+      </div>
+      <div id="pmCard" style="display:none">
+        <div class="section-label">Practice Manager</div>
+        <input type="text" id="pmInput" placeholder="e.g. Jo Williams" autocomplete="off" spellcheck="false">
       </div>
 
       <!-- Custom Observation -->
@@ -708,7 +712,7 @@ ${pageText}`;
     function resetResultPanels() {
       ['coldPanel','outOfAreaPanel','flagChannel','flagContact',
        'recommendationCard','signalsCard','metaCard','emailsCard',
-       'namesCard','emailToSendCard','namedContactCard','customObsCard','draftCtaWrap',
+       'namesCard','emailToSendCard','principalCard','pmCard','customObsCard','draftCtaWrap',
        'manuallyQualifiedBadge'].forEach(id => hide(id));
     }
 
@@ -885,10 +889,11 @@ ${pageText}`;
       if (emailToSendInput) emailToSendInput.value = selectedEmail || '';
       show('emailToSendCard');
 
-      // Editable named contact field — pre-populate with scraped contact name, leave empty if none found
-      const namedContactInput = document.getElementById('namedContactInput');
-      if (namedContactInput) namedContactInput.value = r.contact_name || '';
-      show('namedContactCard');
+      // Editable contact fields — pre-populate Principal from scraped contact name; PM left blank
+      const principalInput = document.getElementById('principalInput');
+      if (principalInput) principalInput.value = r.contact_name || '';
+      show('principalCard');
+      show('pmCard');
 
       // Custom observation + Draft CTA
       show('customObsCard');
@@ -1079,7 +1084,9 @@ ${pageText}`;
         city:        r.city_name     || r.city || '',
         address:     r.address        || '',
         website:     window._lastUrl  || '',
-        contactName: (document.getElementById('namedContactInput') ? document.getElementById('namedContactInput').value.trim() : r.contact_name) || '',
+        principalName: (document.getElementById('principalInput') ? document.getElementById('principalInput').value.trim() : '') || '',
+        practiceManagerName: (document.getElementById('pmInput') ? document.getElementById('pmInput').value.trim() : '') || '',
+        contactName: (() => { const pm = document.getElementById('pmInput') ? document.getElementById('pmInput').value.trim() : ''; const pr = document.getElementById('principalInput') ? document.getElementById('principalInput').value.trim() : ''; return pm || pr || r.contact_name || ''; })(),
         email:       (document.getElementById('emailToSendInput') ? document.getElementById('emailToSendInput').value.trim() : selectedEmail) || '',
         channel:     r.booking_channel || '',
         angle:       selectedAngle   || '',
@@ -1169,7 +1176,8 @@ ${pageText}`;
       // Reset inputs
       document.getElementById('clinicUrl').value = '';
       const _ets = document.getElementById('emailToSendInput'); if (_ets) _ets.value = '';
-      const _nci = document.getElementById('namedContactInput'); if (_nci) _nci.value = '';
+      const _pi = document.getElementById('principalInput'); if (_pi) _pi.value = '';
+      const _pmi = document.getElementById('pmInput'); if (_pmi) _pmi.value = '';
       const _coi = document.getElementById('customObsInput'); if (_coi) _coi.value = '';
       _draftEdited = false;
       if (_editMode) {
@@ -1268,7 +1276,9 @@ ${pageText}`;
       document.getElementById('btnGenerateEmail').disabled = true;
       document.getElementById('btnRegenerate').disabled    = true;
 
-      const contact = (document.getElementById('namedContactInput') ? document.getElementById('namedContactInput').value.trim() : '') || r.contact_name || 'the practice owner';
+      const _pmVal = document.getElementById('pmInput') ? document.getElementById('pmInput').value.trim() : '';
+      const _prVal = document.getElementById('principalInput') ? document.getElementById('principalInput').value.trim() : '';
+      const contact = _pmVal || _prVal || r.contact_name || 'the practice owner';
       const greetingContact = buildGreetingName(contact);
       const clinic  = r.clinic_name  || 'the clinic';
       const city    = r.city_name    || r.city || '';

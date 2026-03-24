@@ -413,6 +413,7 @@
     .btn-li-nofound{padding:4px 9px;font-size:11px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}
     .btn-li-nofound:hover{border-color:#888;color:var(--text)}
     .li-not-found-badge{display:inline-block;padding:4px 9px;font-size:11px;border-radius:5px;background:var(--elevated);color:#555;border:1px solid var(--border);white-space:nowrap}
+    .li-person-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#555;margin-bottom:3px}
     .li-website-link{font-size:11px;color:#5E6AD2;text-decoration:none;word-break:break-all}
     .li-website-link:hover{text-decoration:underline}
     .btn-li-copy{padding:4px 9px;font-size:11px;border-radius:5px;border:1px solid rgba(201,168,76,0.45);background:transparent;color:#C9A84C;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif}
@@ -1566,8 +1567,8 @@
       leads.forEach(l=>{
         if(l.initialSentDate===td) freshSends++;
         if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td) followups++;
-        if(l.linkedinDMDate===td) linkedinDMs++;
-        if(l.linkedinConnectionDate===td) linkedinConns++;
+        if(l.linkedinDMDate===td||l.principalDMDate===td||l.pmDMDate===td) linkedinDMs++;
+        if(l.linkedinConnectionDate===td||l.principalConnectionDate===td||l.pmConnectionDate===td) linkedinConns++;
         if((l.dateAdded||'').includes(td)) qualified++;
       });
       const total=freshSends+followups+linkedinDMs+linkedinConns+qualified;
@@ -2158,44 +2159,85 @@
           'Not Interested':'li-status-ni'
         }[liStatus] || 'li-status-notsent';
 
-        // LinkedIn profile cell
-        let profileCell;
-        if(l.linkedinNotFound){
-          profileCell = '<span class="li-not-found-badge">Not Found</span>';
-        } else if(l.linkedinUrl){
-          profileCell = '<div class="li-url-wrap"><a class="btn-li-view" href="' + escapeHtml(l.linkedinUrl) + '" target="_blank" rel="noopener">View Profile</a><button class="li-edit-link" onclick="editLinkedInUrl(' + l.id + ')">Edit</button></div>';
-        } else {
-          profileCell = '<div class="li-url-wrap"><input class="li-url-input" id="li-url-' + l.id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLinkedInUrl(' + l.id + ')">Save</button><button class="btn-li-nofound" onclick="markLinkedInNotFound(' + l.id + ')">No LinkedIn</button></div>';
-        }
-
-        // DM cell
-        const copyBtn = '<button class="btn-li-copy" onclick="copyForGemini(' + l.id + ')">Copy</button>';
-        let dmCell;
-        if(l.linkedinNotFound){
-          dmCell = '<div style="display:flex;flex-direction:column;gap:6px"><span style="color:#444;font-size:12px">—</span>' + copyBtn + '</div>';
-        } else {
-          let dmPart = l.linkedinDMSent
-            ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span><button class="li-undo" onclick="undoDMSent(' + l.id + ')">Undo</button></div>'
-            : '<button class="btn-li-dm" onclick="markDMSent(' + l.id + ')">Mark DM Sent</button>';
-          let connPart = l.linkedinConnectionSent
-            ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge" style="background:rgba(94,106,210,0.15);color:#8b96e8">Conn Sent ' + (l.linkedinConnectionDate ? formatDateISOtoShortUK(l.linkedinConnectionDate) : '') + '</span><button class="li-undo" onclick="undoConnectionSent(' + l.id + ')">Undo</button></div>'
-            : '<button class="btn-li-conn" onclick="markConnectionSent(' + l.id + ')">Connection Sent</button>';
-          dmCell = '<div style="display:flex;flex-direction:column;gap:4px">' + dmPart + connPart + copyBtn + '</div>';
-        }
-
-        const contactCell = l.linkedinContact
-          ? escapeHtml(l.linkedinContact) + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Enquiry contact: ' + escapeHtml(l.contactName || '—') + '</div>'
-          : escapeHtml(l.contactName || '—');
-        const notesInner = l.linkedinNotes
-          ? '<div class="li-notes-preview" id="li-notes-preview-' + l.id + '">' + escapeHtml(l.linkedinNotes) + ' <button class="li-notes-link" onclick="expandLinkedInNote(' + l.id + ')">Edit</button></div>'
-          : '<button class="li-notes-link" id="li-notes-add-' + l.id + '" onclick="expandLinkedInNote(' + l.id + ')">Add note</button>';
         const websiteHtml = l.website
           ? '<div style="margin-top:4px"><a href="' + escapeHtml(l.website) + '" target="_blank" rel="noopener" class="li-website-link">' + escapeHtml(l.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></div>'
           : '<div style="margin-top:4px;font-size:11px;color:#444">No website</div>';
-        const clinicCell = escapeHtml(l.clinicName || '—') + websiteHtml +
-          '<div style="margin-top:4px"><input class="li-contact-input" type="text" placeholder="LinkedIn contact name" value="' + escapeHtml(l.linkedinContact || '') + '" onblur="saveLinkedInContact(' + l.id + ', this.value)"></div>' +
-          '<div class="li-notes-wrap" id="li-notes-wrap-' + l.id + '" style="margin-top:5px">' + notesInner +
-          '<textarea class="li-notes-ta" id="li-notes-ta-' + l.id + '" rows="2" placeholder="e.g. LinkedIn member — need more connections to reach" style="display:none;margin-top:3px" onblur="saveLinkedInNotes(' + l.id + ', this.value)">' + escapeHtml(l.linkedinNotes || '') + '</textarea></div>';
+
+        const isDual = !!(l.principalName && l.practiceManagerName);
+        let profileCell, dmCell, contactCell, clinicCell;
+
+        if (isDual) {
+          const bProfile = (person, url, notFound, id) => {
+            if (notFound) return '<span class="li-not-found-badge">Not Found</span>';
+            if (url) return '<div class="li-url-wrap"><a class="btn-li-view" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">View Profile</a><button class="li-edit-link" onclick="editLIUrl(' + id + ',\'' + person + '\')">Edit</button></div>';
+            return '<div class="li-url-wrap"><input class="li-url-input" id="li-url-' + person + '-' + id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLIUrl(' + id + ',\'' + person + '\')">Save</button><button class="btn-li-nofound" onclick="markLINotFound(' + id + ',\'' + person + '\')">No LinkedIn</button></div>';
+          };
+          const bDm = (person, dmSent, dmDate, connSent, connDate, id) => {
+            const dm = dmSent
+              ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge">DM Sent ' + (dmDate ? formatDateISOtoShortUK(dmDate) : '') + '</span><button class="li-undo" onclick="undoLIDMSent(' + id + ',\'' + person + '\')">Undo</button></div>'
+              : '<button class="btn-li-dm" onclick="markLIDMSent(' + id + ',\'' + person + '\')">Mark DM Sent</button>';
+            const conn = connSent
+              ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge" style="background:rgba(94,106,210,0.15);color:#8b96e8">Conn Sent ' + (connDate ? formatDateISOtoShortUK(connDate) : '') + '</span><button class="li-undo" onclick="undoLIConnectionSent(' + id + ',\'' + person + '\')">Undo</button></div>'
+              : '<button class="btn-li-conn" onclick="markLIConnectionSent(' + id + ',\'' + person + '\')">Connection Sent</button>';
+            const copy = '<button class="btn-li-copy" onclick="copyForGemini(' + id + ')">Copy</button>';
+            return '<div style="display:flex;flex-direction:column;gap:4px">' + dm + conn + copy + '</div>';
+          };
+          const bNotes = (person, notes, id) => {
+            const key = person + '-' + id;
+            const ni = notes
+              ? '<div class="li-notes-preview" id="li-notes-preview-' + key + '">' + escapeHtml(notes) + ' <button class="li-notes-link" onclick="expandLINote(' + id + ',\'' + person + '\')">Edit</button></div>'
+              : '<button class="li-notes-link" id="li-notes-add-' + key + '" onclick="expandLINote(' + id + ',\'' + person + '\')">Add note</button>';
+            return '<div class="li-notes-wrap" id="li-notes-wrap-' + key + '" style="margin-top:4px">' + ni + '<textarea class="li-notes-ta" id="li-notes-ta-' + key + '" rows="2" style="display:none;margin-top:3px" onblur="saveLINotes(' + id + ',\'' + person + '\',this.value)">' + escapeHtml(notes || '') + '</textarea></div>';
+          };
+          contactCell =
+            '<div style="display:flex;flex-direction:column;gap:10px">' +
+            '<div><div class="li-person-label">Principal</div><div>' + escapeHtml(l.principalName) + '</div>' + bNotes('principal', l.principalLinkedinNotes, l.id) + '</div>' +
+            '<div><div class="li-person-label">Practice Manager</div><div>' + escapeHtml(l.practiceManagerName) + '</div>' + bNotes('pm', l.pmLinkedinNotes, l.id) + '</div>' +
+            '</div>';
+          profileCell =
+            '<div style="display:flex;flex-direction:column;gap:10px">' +
+            '<div><div class="li-person-label">Principal</div>' + bProfile('principal', l.principalLinkedinUrl, l.principalLinkedinNotFound, l.id) + '</div>' +
+            '<div><div class="li-person-label">Practice Manager</div>' + bProfile('pm', l.pmLinkedinUrl, l.pmLinkedinNotFound, l.id) + '</div>' +
+            '</div>';
+          dmCell =
+            '<div style="display:flex;flex-direction:column;gap:10px">' +
+            '<div><div class="li-person-label">Principal</div>' + bDm('principal', l.principalDMSent, l.principalDMDate, l.principalConnectionSent, l.principalConnectionDate, l.id) + '</div>' +
+            '<div><div class="li-person-label">Practice Manager</div>' + bDm('pm', l.pmDMSent, l.pmDMDate, l.pmConnectionSent, l.pmConnectionDate, l.id) + '</div>' +
+            '</div>';
+          clinicCell = escapeHtml(l.clinicName || '—') + websiteHtml;
+        } else {
+          // Single contact mode
+          if(l.linkedinNotFound){
+            profileCell = '<span class="li-not-found-badge">Not Found</span>';
+          } else if(l.linkedinUrl){
+            profileCell = '<div class="li-url-wrap"><a class="btn-li-view" href="' + escapeHtml(l.linkedinUrl) + '" target="_blank" rel="noopener">View Profile</a><button class="li-edit-link" onclick="editLinkedInUrl(' + l.id + ')">Edit</button></div>';
+          } else {
+            profileCell = '<div class="li-url-wrap"><input class="li-url-input" id="li-url-' + l.id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLinkedInUrl(' + l.id + ')">Save</button><button class="btn-li-nofound" onclick="markLinkedInNotFound(' + l.id + ')">No LinkedIn</button></div>';
+          }
+          const copyBtn = '<button class="btn-li-copy" onclick="copyForGemini(' + l.id + ')">Copy</button>';
+          if(l.linkedinNotFound){
+            dmCell = '<div style="display:flex;flex-direction:column;gap:6px"><span style="color:#444;font-size:12px">—</span>' + copyBtn + '</div>';
+          } else {
+            let dmPart = l.linkedinDMSent
+              ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge">DM Sent ' + (l.linkedinDMDate ? formatDateISOtoShortUK(l.linkedinDMDate) : '') + '</span><button class="li-undo" onclick="undoDMSent(' + l.id + ')">Undo</button></div>'
+              : '<button class="btn-li-dm" onclick="markDMSent(' + l.id + ')">Mark DM Sent</button>';
+            let connPart = l.linkedinConnectionSent
+              ? '<div style="display:flex;align-items:center;gap:6px"><span class="li-dm-badge" style="background:rgba(94,106,210,0.15);color:#8b96e8">Conn Sent ' + (l.linkedinConnectionDate ? formatDateISOtoShortUK(l.linkedinConnectionDate) : '') + '</span><button class="li-undo" onclick="undoConnectionSent(' + l.id + ')">Undo</button></div>'
+              : '<button class="btn-li-conn" onclick="markConnectionSent(' + l.id + ')">Connection Sent</button>';
+            dmCell = '<div style="display:flex;flex-direction:column;gap:4px">' + dmPart + connPart + copyBtn + '</div>';
+          }
+          contactCell = l.linkedinContact
+            ? escapeHtml(l.linkedinContact) + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Enquiry contact: ' + escapeHtml(l.contactName || '—') + '</div>'
+            : escapeHtml(l.contactName || '—');
+          const notesInner = l.linkedinNotes
+            ? '<div class="li-notes-preview" id="li-notes-preview-' + l.id + '">' + escapeHtml(l.linkedinNotes) + ' <button class="li-notes-link" onclick="expandLinkedInNote(' + l.id + ')">Edit</button></div>'
+            : '<button class="li-notes-link" id="li-notes-add-' + l.id + '" onclick="expandLinkedInNote(' + l.id + ')">Add note</button>';
+          clinicCell = escapeHtml(l.clinicName || '—') + websiteHtml +
+            '<div style="margin-top:4px"><input class="li-contact-input" type="text" placeholder="LinkedIn contact name" value="' + escapeHtml(l.linkedinContact || '') + '" onblur="saveLinkedInContact(' + l.id + ', this.value)"></div>' +
+            '<div class="li-notes-wrap" id="li-notes-wrap-' + l.id + '" style="margin-top:5px">' + notesInner +
+            '<textarea class="li-notes-ta" id="li-notes-ta-' + l.id + '" rows="2" placeholder="e.g. LinkedIn member — need more connections to reach" style="display:none;margin-top:3px" onblur="saveLinkedInNotes(' + l.id + ', this.value)">' + escapeHtml(l.linkedinNotes || '') + '</textarea></div>';
+        }
+
         const tr = document.createElement('tr');
         tr.innerHTML = '<td>' + contactCell + '</td>' +
           '<td>' + clinicCell + '</td>' +
@@ -2290,6 +2332,17 @@
       lead.linkedinNotes = value.trim();
       save();
     }
+
+    // Dual-contact LinkedIn helpers (for leads with both principalName and practiceManagerName)
+    function markLIDMSent(id, person){ const lead=leads.find(l=>l.id==id); if(!lead) return; const p=person==='pm'?'pm':'principal'; lead[p+'DMSent']=true; lead[p+'DMDate']=todayISO(); save(); }
+    function undoLIDMSent(id, person){ const lead=leads.find(l=>l.id==id); if(!lead) return; const p=person==='pm'?'pm':'principal'; delete lead[p+'DMSent']; delete lead[p+'DMDate']; save(); }
+    function markLIConnectionSent(id, person){ const lead=leads.find(l=>l.id==id); if(!lead) return; const p=person==='pm'?'pm':'principal'; lead[p+'ConnectionSent']=true; lead[p+'ConnectionDate']=todayISO(); save(); }
+    function undoLIConnectionSent(id, person){ const lead=leads.find(l=>l.id==id); if(!lead) return; const p=person==='pm'?'pm':'principal'; delete lead[p+'ConnectionSent']; delete lead[p+'ConnectionDate']; save(); }
+    function saveLIUrl(id, person){ const p=person==='pm'?'pm':'principal'; const input=document.getElementById('li-url-'+p+'-'+id); if(!input) return; const url=input.value.trim(); if(!url){ alert('Please paste a LinkedIn URL first.'); return; } const lead=leads.find(l=>l.id==id); if(!lead) return; lead[p+'LinkedinUrl']=url; save(); }
+    function editLIUrl(id, person){ const p=person==='pm'?'pm':'principal'; const lead=leads.find(l=>l.id==id); if(!lead) return; const newUrl=prompt('Edit LinkedIn URL:', lead[p+'LinkedinUrl']||''); if(newUrl===null) return; lead[p+'LinkedinUrl']=newUrl.trim(); save(); }
+    function markLINotFound(id, person){ const p=person==='pm'?'pm':'principal'; const lead=leads.find(l=>l.id==id); if(!lead) return; lead[p+'LinkedinNotFound']=true; save(); }
+    function expandLINote(id, person){ const p=person==='pm'?'pm':'principal'; const key=p+'-'+id; const ta=document.getElementById('li-notes-ta-'+key); const preview=document.getElementById('li-notes-preview-'+key); const addLink=document.getElementById('li-notes-add-'+key); if(preview) preview.style.display='none'; if(addLink) addLink.style.display='none'; if(ta){ ta.style.display='block'; ta.focus(); } }
+    function saveLINotes(id, person, value){ const p=person==='pm'?'pm':'principal'; const lead=leads.find(l=>l.id==id); if(!lead) return; lead[p+'LinkedinNotes']=value.trim(); save(); }
 
     function bindFollowUps(){
       const ft=document.getElementById('fuFilterType'); if(ft) ft.addEventListener('change',()=>{ fuFilter.fuType=ft.value; renderFollowUps(); });
