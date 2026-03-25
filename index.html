@@ -2090,7 +2090,7 @@
     }
 
     // ── LinkedIn tab ─────────────────────────────────────────────────────────
-    let liFilter = { city: 'All', status: 'All', excludeNoContact: true, activity: 'All', search: '' };
+    let liFilter = { city: 'All', status: 'All', excludeNoContact: false, activity: 'All', search: '' };
 
     function getLinkedInStatus(lead){
       const cs = computeStatus(lead);
@@ -2129,7 +2129,6 @@
         if(liFilter.activity === 'DM Sent' && !l.linkedinDMSent) return false;
         if(liFilter.activity === 'Not Found' && !l.linkedinNotFound) return false;
         if(liFilter.activity === 'No Activity' && (l.linkedinUrl||l.linkedinDMSent||l.linkedinConnectionSent||l.linkedinNotFound)) return false;
-        if(liFilter.activity === 'All' && l.linkedinNotFound) return false;
         if(liFilter.excludeNoContact && !l.contactName) return false;
         if(liSQ && !(l.clinicName||'').toLowerCase().includes(liSQ) && !(l.contactName||'').toLowerCase().includes(liSQ) && !(l.linkedinContact||'').toLowerCase().includes(liSQ)) return false;
         if(liFilter.city !== 'All'){
