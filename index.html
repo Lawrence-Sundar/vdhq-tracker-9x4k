@@ -1659,6 +1659,7 @@
       const titles={dashboard:'Dashboard',inbox:'Inbox',pipeline:'Pipeline',followups:'Follow Ups',linkedin:'LinkedIn',email:'Email'};
       const mobileTitle=document.getElementById('mobileTitle'); if(mobileTitle) mobileTitle.textContent=titles[name]||name;
       if(name==='email') populateEmailLeadDropdown();
+      if(name==='linkedin'){ const _r=localStorage.getItem(STORAGE_KEY); if(_r){ leads=JSON.parse(_r); leads.forEach(l=>{ ensureFUDates(l); if(!l.source)l.source='manual'; if(l.doNotContact===undefined)l.doNotContact=false; if(!l.channel)l.channel='Email'; }); } renderLinkedIn(); }
       closeMobileSidebar();
     }
 
@@ -2382,6 +2383,7 @@
       window._toastTimer = setTimeout(() => t.classList.remove('visible'), 2000);
     }
 
+    window.addEventListener('storage', e=>{ if(e.key===STORAGE_KEY) load(); });
     window.addEventListener('load', msalInit);
   </script>
   <div id="liCopyToast"></div>
