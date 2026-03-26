@@ -591,7 +591,7 @@
         </div>
         <div class="filter-group">
           <span class="filter-inline-label">FU Stage</span>
-          <select id="pFilterFUStage"><option value="All">All</option><option value="Not Sent">Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Re-Engage Sent">Re-Engage Sent</option><option value="Demo First Sent">Demo First Sent</option></select>
+          <select id="pFilterFUStage"><option value="All">All</option><option value="Initial Not Sent">Initial Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Re-Engage Sent">Re-Engage Sent</option><option value="Demo First Sent">Demo First Sent</option></select>
         </div>
         <div class="filter-group">
           <span class="filter-inline-label">Hook</span>
@@ -1059,10 +1059,10 @@
         if(pipelineFilter.status!=='All'){ if(pipelineFilter.status==='Follow Up Due'){ const fuDue=(l.fu1Date&&l.fu1Date<=td&&!l.fu1Sent)||(l.fu2Date&&l.fu2Date<=td&&!l.fu2Sent)||(l.fu3Date&&l.fu3Date<=td&&!l.fu3Sent); if(!fuDue||status==='Replied'||status==='Converted') return false; } else { if(status!==pipelineFilter.status) return false; } }
         if(pipelineFilter.fuStage!=='All'){
           const fs=pipelineFilter.fuStage;
-          if(fs==='Not Sent'){ if(l.dateSent) return false; }
+          if(fs==='Initial Not Sent'){ if(l.dateSent||l.fu1Sent||l.fu2Sent||l.fu3Sent) return false; }
           else if(fs==='FU1 Sent'){ if(!l.fu1Sent||l.fu2Sent) return false; }
           else if(fs==='FU2 Sent'){ if(!l.fu2Sent||l.fu3Sent) return false; }
-          else if(fs==='FU3 Sent'){ if(!l.fu3Sent) return false; }
+          else if(fs==='FU3 Sent'){ if(!l.fu3Sent||l.reEngageSent) return false; }
           else if(fs==='Full Sequence'){ if(!l.fu3Sent) return false; }
           else if(fs==='Re-Engage Sent'){ if(!l.reEngageSent) return false; }
           else if(fs==='Demo First Sent'){ if(!l.demoFirstSent) return false; }
