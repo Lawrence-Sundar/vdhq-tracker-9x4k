@@ -1051,7 +1051,7 @@ ${pageText}`;
 
       const lead = {
         id:          Date.now(),
-        dateAdded:   new Date().toISOString(),
+        dateAdded:   (()=>{ const d=new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); })(),
         source:      'qualifier',
         clinicName:  r.clinic_name   || '',
         city:        r.city_name     || r.city || '',

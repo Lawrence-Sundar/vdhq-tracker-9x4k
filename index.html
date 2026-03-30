@@ -1546,14 +1546,13 @@
 
     function renderDailyActionsBar(){
       const td=todayISO();
-      console.log('dateAdded values:', leads.map(l => l.dateAdded), 'today:', td);
       let freshSends=0, followups=0, linkedinDMs=0, linkedinConns=0, qualified=0;
       leads.forEach(l=>{
         if(l.initialSentDate===td) freshSends++;
         if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td) followups++;
         if(l.linkedinDMDate===td||l.principalDMDate===td||l.pmDMDate===td) linkedinDMs++;
         if(l.linkedinConnectionDate===td||l.principalConnectionDate===td||l.pmConnectionDate===td) linkedinConns++;
-        if((l.dateAdded||'').includes(td)) qualified++;
+        if((l.dateAdded||'').slice(0,10)===td) qualified++;
       });
       const total=freshSends+followups+linkedinDMs+linkedinConns+qualified;
       ['p','f'].forEach(s=>{
