@@ -594,10 +594,6 @@
           <select id="pFilterFUStage"><option value="All">All</option><option value="Initial Not Sent">Initial Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Re-Engage Sent">Re-Engage Sent</option><option value="Demo First Sent">Demo First Sent</option></select>
         </div>
         <div class="filter-group">
-          <span class="filter-inline-label">Hook</span>
-          <select id="pFilterHookVariant"><option value="All">All</option><option value="Hook A">Hook A</option><option value="Hook B">Hook B</option><option value="Hook C">Hook C</option><option value="Hook D">Hook D</option><option value="Hook E">Hook E</option></select>
-        </div>
-        <div class="filter-group">
           <span class="filter-inline-label">LinkedIn</span>
           <select id="pFilterNoLinkedin"><option value="All">All</option><option value="No LinkedIn">No LinkedIn</option></select>
         </div>
@@ -755,18 +751,8 @@
         </div>
       </div>
 
-      <div class="card" id="emailAngleCard">
-        <div class="email-section-label">Step 2 — Select Angle</div>
-        <div class="btn-group">
-          <button class="toggle-btn" data-angle="After-Hours">After-Hours</button>
-          <button class="toggle-btn" data-angle="Coordination">Coordination</button>
-          <button class="toggle-btn" data-angle="Conversion">Conversion</button>
-        </div>
-        <div class="email-auto-note" id="emailAutoNote" style="display:none">Auto-populated from qualifier data</div>
-      </div>
-
       <div class="card">
-        <div class="email-section-label">Step 3 — Select Follow-Up Type</div>
+        <div class="email-section-label">Step 2 — Select Follow-Up Type</div>
         <div class="btn-group">
           <button class="toggle-btn" data-type="FU1">FU1</button>
           <button class="toggle-btn" data-type="FU2">FU2</button>
@@ -861,7 +847,7 @@
         <div class="form-row"><div><label>City</label><input id="e_city" type="text"></div><div><label>Address</label><input id="e_address" type="text"></div></div>
         <div class="form-row"><div><label>Website</label><input id="e_website" type="text"></div><div><label>Named Contact</label><input id="e_contactName" type="text"></div></div>
         <div class="form-row"><div><label>Email</label><input id="e_email" type="email"></div><div class="w200"><label>Channel</label><select id="e_channel"><option>Email</option><option>Contact Form</option><option>DM</option></select></div><div class="w100"><label>Reviews</label><input id="e_reviewCount" type="text" placeholder="e.g. 47"></div></div>
-        <div class="form-row"><div class="w200"><label>Angle</label><select id="e_angle"><option>After-Hours</option><option>Coordination</option><option>Conversion</option></select></div><div class="w120"><label>Reply</label><select id="e_reply"><option value="N">No</option><option value="Y">Yes</option></select></div><div><label>Reply Type</label><select id="e_replyType"><option value="">(none)</option><option>Disqualified</option><option>Interested</option><option>Not Interested</option><option>Converted</option><option>Other</option></select></div></div>
+        <div class="form-row"><div class="w120"><label>Reply</label><select id="e_reply"><option value="N">No</option><option value="Y">Yes</option></select></div><div><label>Reply Type</label><select id="e_replyType"><option value="">(none)</option><option>Disqualified</option><option>Interested</option><option>Not Interested</option><option>Converted</option><option>Other</option></select></div></div>
         <div class="form-row"><div class="w200"><label>Source</label><select id="e_source"><option value="manual">Manual</option><option value="qualifier">Qualifier</option></select></div></div>
         <div style="margin-bottom:12px"><label>Notes</label><textarea id="e_notes"></textarea></div>
         <div class="flex">
@@ -1037,9 +1023,9 @@
 
     function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Re-Engage Overdue':'sdot-p-overdue','Demo First Overdue':'sdot-p-overdue'}; return m[status]||'sdot-p-notsent'; }
 
-    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.hookVariant!=='All') count++; if(pipelineFilter.noLinkedin!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
+    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.noLinkedin!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
 
-    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',hookVariant:'All',noLinkedin:'All'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.value='All'; const hv=document.getElementById('pFilterHookVariant'); if(hv) hv.value='All'; const nli=document.getElementById('pFilterNoLinkedin'); if(nli) nli.value='All'; renderPipeline(); }
+    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',noLinkedin:'All'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.value='All'; const nli=document.getElementById('pFilterNoLinkedin'); if(nli) nli.value='All'; renderPipeline(); }
 
     function renderPipeline(){
       const container=document.getElementById('pipelineList'); if(!container) return; container.innerHTML='';
@@ -1067,7 +1053,6 @@
           else if(fs==='Re-Engage Sent'){ if(!l.reEngageSent) return false; }
           else if(fs==='Demo First Sent'){ if(!l.demoFirstSent) return false; }
         }
-        if(pipelineFilter.hookVariant!=='All'&&(l.hookVariant||'')!==pipelineFilter.hookVariant) return false;
         if(pipelineFilter.noLinkedin==='No LinkedIn'&&!l.linkedinNotFound) return false;
         return passesBaseFilters(l);
       });
@@ -1106,7 +1091,7 @@
         const scoreBadgeHtml=(l.score==='Hot')?'<span class="score-badge-hot">HOT LEAD</span>':(l.score==='Warm')?'<span class="score-badge-warm">WARM LEAD</span>':'';
         const _reBadge=(()=>{ if(l.reEngageSent) return '<button class="fu-btn fu-sent">&#10003; Re-Engage sent</button>'; if(!l.fu3Sent) return ''; const _rs=l.fu3SentOn?normDateStr(l.fu3SentOn):''; if(!_rs) return l.reEngageDate?`<button class="fu-btn">Re-Engage \u00b7 ${formatDateISOtoShortUK(l.reEngageDate)}</button>`:''; const _rd=Math.round((new Date(td)-new Date(_rs))/86400000); if(_rd>=7) return '<button class="fu-btn fu-overdue">Re-Engage Due</button>'; if(_rd>=3) return '<button class="fu-btn fu-due">Re-Engage Due</button>'; return l.reEngageDate?`<button class="fu-btn">Re-Engage \u00b7 ${formatDateISOtoShortUK(l.reEngageDate)}</button>`:''; })();
         const _dfBadge=(()=>{ if(l.demoFirstSent) return '<button class="fu-btn fu-sent">&#10003; Demo First sent</button>'; if(!l.reEngageSent) return ''; const _ds=l.reEngageSentOn?normDateStr(l.reEngageSentOn):''; if(!_ds) return ''; const _dd=Math.round((new Date(td)-new Date(_ds))/86400000); if(_dd>=14) return '<button class="fu-btn fu-overdue">Demo First Due</button>'; if(_dd>=7) return '<button class="fu-btn fu-due">Demo First Due</button>'; return `<button class="fu-btn">Demo First \u00b7 ${formatDateISOtoShortUK(addDays(_ds,7))}</button>`; })();
-        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div><div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.angle?`<div class="expand-field"><span class="ef-label">Angle</span><span class="ef-val">${escapeHtml(l.angle)}</span></div>`:''} ${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button>${_reBadge}${_dfBadge}</div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
+        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div><div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button>${_reBadge}${_dfBadge}</div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
         expand.innerHTML += onRecordHtml + logReplyHtml;
         main.addEventListener('click',()=>toggleExpand(l.id));
         const _pCb=main.querySelector(`#pcb-${l.id}`);
@@ -1406,7 +1391,6 @@
       const city=document.getElementById('pFilterCity'); if(city) city.addEventListener('change',()=>{ pipelineFilter.city=city.value; renderPipeline(); });
       const sort=document.getElementById('pFilterSort'); if(sort) sort.addEventListener('change',()=>{ pipelineFilter.sort=sort.value; renderPipeline(); });
       const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.addEventListener('change',()=>{ pipelineFilter.fuStage=fuStage.value; renderPipeline(); });
-      const hookVariant=document.getElementById('pFilterHookVariant'); if(hookVariant) hookVariant.addEventListener('change',()=>{ pipelineFilter.hookVariant=hookVariant.value; renderPipeline(); });
       const noLinkedin=document.getElementById('pFilterNoLinkedin'); if(noLinkedin) noLinkedin.addEventListener('change',()=>{ pipelineFilter.noLinkedin=noLinkedin.value; renderPipeline(); });
       const resetBtn=document.getElementById('btnResetFilters'); if(resetBtn) resetBtn.addEventListener('click',resetPipelineFilters);
       const psearch=document.getElementById('pipelineSearch'); if(psearch) psearch.addEventListener('input',()=>renderPipeline());
@@ -1600,7 +1584,7 @@
     }
 
     let editingId=null;
-    function openEdit(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; editingId=id; document.getElementById('e_clinicName').value=lead.clinicName||''; document.getElementById('e_dateSent').value=lead.dateSent||''; document.getElementById('e_city').value=lead.city||''; document.getElementById('e_address').value=lead.address||''; document.getElementById('e_website').value=lead.website||''; document.getElementById('e_contactName').value=lead.contactName||''; document.getElementById('e_email').value=lead.email||''; document.getElementById('e_channel').value=lead.channel||'Email'; document.getElementById('e_angle').value=lead.angle||'After-Hours'; document.getElementById('e_source').value=lead.source||'manual'; document.getElementById('e_reply').value=lead.reply||'N'; document.getElementById('e_replyType').value=lead.replyType||''; document.getElementById('e_notes').value=lead.notes||''; document.getElementById('e_reviewCount').value=lead.reviewCount||''; showModal(); }
+    function openEdit(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; editingId=id; document.getElementById('e_clinicName').value=lead.clinicName||''; document.getElementById('e_dateSent').value=lead.dateSent||''; document.getElementById('e_city').value=lead.city||''; document.getElementById('e_address').value=lead.address||''; document.getElementById('e_website').value=lead.website||''; document.getElementById('e_contactName').value=lead.contactName||''; document.getElementById('e_email').value=lead.email||''; document.getElementById('e_channel').value=lead.channel||'Email'; document.getElementById('e_source').value=lead.source||'manual'; document.getElementById('e_reply').value=lead.reply||'N'; document.getElementById('e_replyType').value=lead.replyType||''; document.getElementById('e_notes').value=lead.notes||''; document.getElementById('e_reviewCount').value=lead.reviewCount||''; showModal(); }
 
     function showModal(){ const bd=document.getElementById('editBackdrop'); const md=document.getElementById('editModal'); bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
     function closeModal(){ const bd=document.getElementById('editBackdrop'); const md=document.getElementById('editModal'); md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); editingId=null; }
@@ -1608,7 +1592,7 @@
     function openAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); bd.classList.add('open'); pn.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
     function closeAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); pn.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
 
-    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.angle=document.getElementById('e_angle').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim(); ensureFUDates(lead); save(); closeModal(); }
+    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim(); ensureFUDates(lead); save(); closeModal(); }
 
     function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
@@ -1700,7 +1684,7 @@
 
     let expandedLeadId = null;
     let expandedFollowUpId = null;
-    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',hookVariant:'All',noLinkedin:'All'};
+    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',noLinkedin:'All'};
     let fuFilter = {fuType:'All', city:'All'};
 
     let selectedPipelineIds = new Set();
@@ -1709,7 +1693,7 @@
     let _lastPipelineFiltered = [];
     let _lastFollowUpAllItems = [];
 
-    let emailState = { leadId:null, angle:null, type:null };
+    let emailState = { leadId:null, type:null };
 
     function populateEmailLeadDropdown(){
       const sel=document.getElementById('emailLeadSelect'); const current=sel.value;
@@ -1730,38 +1714,24 @@
       document.getElementById('af_channel').textContent=lead.channel||'—';
       document.getElementById('af_reviews').textContent=lead.reviewCount||'—';
       autofill.style.display='grid';
-      // Auto-populate angle from lead data if set
-      const autoNote=document.getElementById('emailAutoNote');
-      const validAngles=['After-Hours','Coordination','Conversion'];
-      let autoPopulated=false;
-      if(lead.angle&&validAngles.includes(lead.angle)){ setActiveAngle(lead.angle,true); autoPopulated=true; }
-      if(autoNote) autoNote.style.display=autoPopulated?'block':'none';
-      refreshEmailPreview();
-    }
-
-    function setActiveAngle(angle,suppressNote){
-      emailState.angle=angle;
-      document.querySelectorAll('[data-angle]').forEach(b=>b.classList.toggle('active-angle',b.dataset.angle===angle));
-      if(!suppressNote){ const n=document.getElementById('emailAutoNote'); if(n) n.style.display='none'; }
       refreshEmailPreview();
     }
 
     function setActiveType(type){
       emailState.type=type;
       document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active-type',b.dataset.type===type));
-      const angleCard=document.getElementById('emailAngleCard'); if(angleCard) angleCard.style.display=(type==='Re-Engage'||type==='FU1'||type==='FU2'||type==='FU3'||type==='Demo First')?'none':'block';
       refreshEmailPreview();
     }
 
     function refreshEmailPreview(){
       const wrap=document.getElementById('emailPreviewWrap'); const placeholder=document.getElementById('emailPreviewPlaceholder');
-      const {leadId,angle,type}=emailState;
+      const {leadId,type}=emailState;
       const isReEngage=type==='Re-Engage';
       const isDemoFirst=type==='Demo First';
       const isFU=type==='FU1'||type==='FU2'||type==='FU3';
-      if(!leadId||!type||(!angle&&!isReEngage&&!isFU&&!isDemoFirst)){ wrap.style.display='none'; placeholder.style.display='block'; return; }
+      if(!leadId||!type){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const lead=leads.find(l=>l.id==leadId); if(!lead){ wrap.style.display='none'; placeholder.style.display='block'; return; }
-      const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : isDemoFirst ? DEMO_FIRST_TEMPLATE : isFU ? (type==='FU1'?_FU1_TPL:type==='FU2'?_FU2_TPL:_FU3_TPL) : (FU_TEMPLATES[angle||'After-Hours']&&FU_TEMPLATES[angle||'After-Hours'][type]);
+      const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : isDemoFirst ? DEMO_FIRST_TEMPLATE : isFU ? (type==='FU1'?_FU1_TPL:type==='FU2'?_FU2_TPL:_FU3_TPL) : null;
       if(!tpl){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
       const contactForBody=buildGreetingName(lead.contactName);
@@ -1787,13 +1757,12 @@
 
     function bindEmailTab(){
       document.getElementById('emailLeadSelect').addEventListener('change',emailAutofill);
-      document.querySelectorAll('[data-angle]').forEach(b=>{ b.addEventListener('click',()=>setActiveAngle(b.dataset.angle)); });
       document.querySelectorAll('[data-type]').forEach(b=>{ b.addEventListener('click',()=>setActiveType(b.dataset.type)); });
       document.getElementById('btnCopySubject').addEventListener('click',()=>{ const text=document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,''); navigator.clipboard.writeText(text).then(()=>showCopyConfirm('Subject copied!')); });
       document.getElementById('btnCopyEmail').addEventListener('click',()=>{
         const bodyEl=document.getElementById('emailBodyPreview');
         const plainBody=bodyEl.textContent;
-        const afterCopy=()=>{ showCopyConfirm('Email copied!'); if(emailState.leadId&&emailState.angle){ const lead=leads.find(l=>l.id==emailState.leadId); if(lead){ lead.angle=emailState.angle; save(); } } };
+        const afterCopy=()=>{ showCopyConfirm('Email copied!'); };
         if(emailState.type==='FU2'&&window.ClipboardItem){
           const htmlForClipboard=bodyEl.innerHTML.replace(/\n/g,'<br>');
           const htmlBlob=new Blob([`<html><body><div style="font-family:Arial,sans-serif;font-size:14px">${htmlForClipboard}</div></body></html>`],{type:'text/html'});
