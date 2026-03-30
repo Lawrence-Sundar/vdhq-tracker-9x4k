@@ -106,8 +106,6 @@
     .back-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .15s;display:inline-block;margin-bottom:14px}
     .back-link:hover{color:var(--accent)}
     .auto-select-display{font-size:12px;color:var(--muted);margin-bottom:14px;padding:8px 10px;background:#071018;border-radius:6px;line-height:1.6}
-    .angle-hook-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-    .draft-select{width:100%;padding:8px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#071018;color:#e6eef2;font-size:13px;outline:none;cursor:pointer;transition:border-color .15s}
     .draft-select:focus{border-color:var(--accent)}
     .draft-field-wrap{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
     .draft-field{font-size:13px;font-family:monospace;color:#e6eef2;line-height:1.5;flex:1;word-break:break-word}
@@ -116,8 +114,6 @@
     button.btn-edit:hover{border-color:#C9A84C;color:#e8c86a}
     .btn-confirm{background:linear-gradient(180deg,#C9A84C,#a8863b);border:none;color:#0a0800;cursor:pointer;padding:13px 24px;border-radius:6px;font-size:14px;font-weight:700;width:100%;letter-spacing:.01em;transition:opacity .15s;margin-bottom:4px}
     .btn-confirm:hover{opacity:.88}
-    @media(max-width:580px){.angle-hook-grid{grid-template-columns:1fr}}
-
     /* Future Targets panel */
     .btn-ft-header{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--muted);cursor:pointer;padding:5px 12px;border-radius:5px;font-size:12px;transition:border-color .15s,color .15s;white-space:nowrap}
     .btn-ft-header:hover{border-color:var(--accent);color:var(--accent)}
@@ -313,29 +309,8 @@
 
       <a href="#" class="back-link" id="btnBackToResults">← Back to Results</a>
 
-      <!-- Angle + Hook setup -->
+      <!-- Generate email -->
       <div class="card">
-        <div class="section-label">Email Setup</div>
-        <div id="autoSelectDisplay" class="auto-select-display"></div>
-        <div class="angle-hook-grid">
-          <div>
-            <label>Angle</label>
-            <select id="selectAngle" class="draft-select">
-              <option value="After-Hours">After-Hours</option>
-              <option value="Manual Coordination">Manual Coordination</option>
-              <option value="Conversion">Conversion</option>
-            </select>
-          </div>
-          <div>
-            <label>Hook</label>
-            <select id="selectHook" class="draft-select">
-              <option value="Observation + Compliment" id="hookOptOC">Observation + Compliment</option>
-              <option value="Direct Observation">Direct Observation</option>
-              <option value="Industry Insight">Industry Insight</option>
-              <option value="Trigger Event" disabled>Trigger Event (manual research required)</option>
-            </select>
-          </div>
-        </div>
         <button class="primary" id="btnGenerateEmail">Generate Email</button>
       </div>
 
@@ -402,8 +377,6 @@
     let pendingUrl    = '';
     let pendingApiKey = '';
     let selectedEmail = '';
-    let selectedAngle = '';
-    let selectedHook  = '';
     let _draftEdited  = false;
     let _editMode     = false;
 
@@ -1089,7 +1062,6 @@ ${pageText}`;
         contactName: (() => { const pm = document.getElementById('pmInput') ? document.getElementById('pmInput').value.trim() : ''; const pr = document.getElementById('principalInput') ? document.getElementById('principalInput').value.trim() : ''; return pm || pr || r.contact_name || ''; })(),
         email:       (document.getElementById('emailToSendInput') ? document.getElementById('emailToSendInput').value.trim() : selectedEmail) || '',
         channel:     r.booking_channel || '',
-        angle:       selectedAngle   || '',
         dateSent:    '',
         fu1Date:     addDaysISO(3),
         fu2Date:     addDaysISO(7),
@@ -1103,8 +1075,7 @@ ${pageText}`;
         reviewCount:  r.review_count != null ? String(r.review_count) : '',
         score:        r.score || '',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
-        draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : '',
-        hookVariant:  window._lastHookVariant || ''
+        draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : ''
       };
 
       try {
@@ -1170,8 +1141,6 @@ ${pageText}`;
       window._manuallyQualified = false;
       window._oohDetected       = false;
       selectedEmail = '';
-      selectedAngle = '';
-      selectedHook  = '';
 
       // Reset inputs
       document.getElementById('clinicUrl').value = '';
@@ -1214,27 +1183,6 @@ ${pageText}`;
       const r = window._lastResult;
       if (!r) return;
 
-      // Auto-select angle
-      const ch = r.booking_channel || '';
-      if (ch === 'contact_form' || ch === 'google_form') selectedAngle = 'Manual Coordination';
-      else selectedAngle = 'After-Hours';
-
-      // Auto-select hook
-      const hasReviews = r.review_count != null;
-      const hasContact = r.contact_name_confidence !== 'not_found';
-      if (hasReviews && hasContact)  selectedHook = 'Observation + Compliment';
-      else if (hasContact)           selectedHook = 'Direct Observation';
-      else                           selectedHook = 'Industry Insight';
-
-      // Set dropdowns
-      document.getElementById('selectAngle').value = selectedAngle;
-      document.getElementById('hookOptOC').disabled = !hasReviews;
-      document.getElementById('selectHook').value = selectedHook;
-
-      // Show auto-selection summary
-      document.getElementById('autoSelectDisplay').textContent =
-        'Auto-selected — Angle: ' + selectedAngle + ' | Hook: ' + selectedHook;
-
       // Reset output and confirm state
       hide('draftOutput');
       hide('draftLoadingState');
@@ -1267,9 +1215,6 @@ ${pageText}`;
       const apiKey = window._apiKey;
       if (!r || !apiKey) { showError('Missing data — please re-run the analysis first.'); return; }
 
-      selectedAngle = document.getElementById('selectAngle').value;
-      selectedHook  = document.getElementById('selectHook').value;
-
       clearError();
       hide('draftOutput');
       show('draftLoadingState', 'flex');
@@ -1285,105 +1230,44 @@ ${pageText}`;
       const channel = r.booking_channel || 'unknown';
       const reviews = r.review_count != null ? String(r.review_count) : 'not available';
 
-      // Hook rotation
-      const _chanToNL = ch => ch==='contact_form' ? 'a contact form' : (ch==='phone_only'||ch==='phone') ? 'a phone number' : ch==='email_link' ? 'an email link' : 'their current intake method';
-      const _hookCounter = parseInt(localStorage.getItem('vdhq_hook_counter') || '0', 10);
-      const _hookIndex = _hookCounter % 4;
-      window._lastHookVariant = ['Hook A','Hook B','Hook C','Hook D'][_hookIndex];
-      const _hookTemplates = [
-        `Hi [Contact],
+      const systemPrompt = `You are writing a warm, honest cold outreach email on behalf of Lawrence at Versa Digital HQ. Lawrence has just launched an automation business and is looking for his first dental clinic partner.
 
-I noticed the [Treatment focus] section on [Clinic Name]'s site — and that the [Intake method] is the primary way for patients in [Area] to reach you after hours.
+TONE: Genuine, warm, direct. Sounds like a real person who visited their website - not a salesperson. No corporate language. No jargon.
 
-When a new enquiry comes in at 8pm on a Tuesday, how much manual coordination does your reception team do the next morning to get them on the calendar?
-
-Patients get an instant response the moment they enquire. Your team arrives to a clean log. Not a coordination backlog.
-
-Would you be open to seeing how this fits your current workflow?
-
-Lawrence
-Versa Digital HQ`,
-        `Hi [Contact],
-
-I noticed [Clinic Name]'s patient enquiries come through a [Intake method] — which means someone on your team is manually routing and following up every submission.
-
-How much of your reception team's morning is typically absorbed by that coordination before a single patient is actually booked?
-
-Patients get an instant response the moment they enquire. Your team arrives to a clean log. Not a coordination backlog.
-
-Worth a quick conversation?
-
-Lawrence
-Versa Digital HQ`,
-        `Hi [Contact],
-
-[Clinic Name] has clearly invested in a premium digital presence for [Treatment focus] — yet the final step for a patient is still a static [Intake method].
-
-How often do those high-intent patients wait for a manual callback before they have a confirmed time in your diary?
-
-Patients get an instant response the moment they enquire. Your team arrives to a clean log. Not a coordination backlog.
-
-Does it make sense to explore a more automated approach?
-
-Lawrence
-Versa Digital HQ`,
-        `Hi [Contact],
-
-We are onboarding two founding clinic partners in [City] — independent practices like [Clinic Name] that want to be early adopters in exchange for a reduced commercial arrangement.
-
-Full setup covered on our end, 60 days to demonstrate results, short testimonial in return if you're happy with what you see.
-
-The system handles patient routing and booking automatically so your team can focus entirely on clinical work.
-
-Would you be interested in one of the two spots for [Clinic Name]?
-
-Lawrence
-Versa Digital HQ`
-      ];
-      const _activeHookTemplate = _hookTemplates[_hookIndex];
-      const systemPrompt = `You are an email generator for a dental clinic intake automation service. Generate a cold outreach email following these exact rules.
-
-SUBJECT LINE — NON-NEGOTIABLE RULES:
-- Format: [Contact name] – [specific topic]?
-- [Contact name] must be the named contact for this specific clinic only — Dr Ghafoor, Sarah, Dr Leahy. Never a generic title.
-- [specific topic] must reference something specific to this clinic — a treatment, a detected intake method, an observation. Never a city, area, region, or collective noun like 'clinics' or 'practices'
-- Maximum 8 words total
-- No city names, area names, or geographic references anywhere in the subject line
-- No collective nouns — never 'clinics', 'practices', 'dental practices'
-- If no named contact is found — use the clinic name only: '[Clinic name] – [specific topic]?'
-CORRECT examples:
-- 'Dr Ghafoor – cosmetic enquiry follow-up?'
-- 'Sarah – patient intake gap?'
-- 'Dr Leahy – after-hours enquiries?'
-- 'Aura Dental – booking gap?'
-INCORRECT examples — never produce these:
-- 'After-hours enquiries – Glasgow clinics'
-- 'Dr Ghafoor – Glasgow dental intake?'
-- 'Dental practices – enquiry automation?'
-
-HOOK TEMPLATE — USE THIS EXACT STRUCTURE FOR THE BODY:
-${_activeHookTemplate}
-
-FIELD SUBSTITUTION — fill each placeholder from the provided data:
-- [Contact] = the Greeting field
-- [Clinic Name] = the Clinic field
-- [City] = the City field
-- [Intake method] = the Booking channel — use plain English: "contact form", "email link", or "phone number"
-- [Area] = extract from Custom Observation if present (look for neighbourhood, area, or district references); fall back to City if not found
-- [Treatment focus] = extract from Custom Observation if present (look for treatment names — Invisalign, smile makeover, implants, cosmetic); fall back to "their treatments" if not found
+STRUCTURE:
+- Greeting: Hi [greeting],
+- Paragraph 1: One sentence - Lawrence just launched and is looking for his first clinic partner. Reference the clinic name naturally.
+- Paragraph 2: One sentence - what he noticed about their intake setup. Reference the specific intake method detected. Keep it observational, not critical.
+- Paragraph 3: The offer - free build, demo first, zero cost, honest review in return. Two sentences maximum.
+- Close: "Worth a quick look?" or similar soft question
+- Sign off: Lawrence / Versa Digital HQ
 
 HARD RULES:
-- Max 80 words in the body excluding greeting and sign-off
-- No filler: "just", "simply", "obviously"
-- No generalisations: "most clinics", "many practices", "industry standard"
-- No negative framing: "losing patients", "missing out", "falling behind"
-- Must sound like a person who visited their site, not a salesperson with a pitch
-- Never use "Versa" as a product name in the body
-- If Custom Observation is provided, use specific details from it to enhance phrasing within the template structure — do not change the template structure itself
-- In the body JSON field, separate the greeting, each paragraph, the final line, and the sign-off with a blank line (two newline characters \\n\\n between each section)
-- Paragraph 2 must surface the emotional cost of the current process — not the financial cost. Focus on what the receptionist or practice manager actually experiences: arriving to a backlog, spending the first hour coordinating instead of seeing patients, starting every day behind. The reader should feel the weight of their current morning before they consider any solution. Never mention revenue, patient loss figures, or financial leakage in paragraph 2 — that is a closing argument, not an opener
+- Maximum 100 words body excluding greeting and sign off
+- No statistics
+- No em dashes
+- No product name in body
+- No negative framing
+- No filler words
+- No mechanism description - describe the outcome only
+- Must sound warm and human - not automated
+- In the body JSON field, separate the greeting, each paragraph, the close, and the sign-off with a blank line (two newline characters \\n\\n between each section)
 
-Return a JSON object with exactly two fields: subject and body. No preamble, no explanation, no markdown. Raw JSON only.`;
+SUBJECT LINE:
+- Format: [Contact name] - [specific topic]?
+- Max 8 words
+- Contact name specific - never generic
+- No city references
+
+FIELDS PROVIDED:
+- Greeting - use for greeting line
+- Contact - use for subject line
+- Clinic Name - reference naturally in paragraph 1
+- City - available if needed
+- Intake method - reference in paragraph 2
+- Custom Observation - if provided, use to make paragraph 2 more specific
+
+Return JSON with subject and body only. No preamble, no markdown.`;
 
       const customObs = (document.getElementById('customObsInput') ? document.getElementById('customObsInput').value.trim() : '');
       const userPrompt = `Write a cold outreach email using the details below.
@@ -1431,7 +1315,6 @@ No markdown, no code fences, no explanation.`;
         }
 
         window._lastDraft = draft;
-        localStorage.setItem('vdhq_hook_counter', String((_hookCounter + 1) % 4));
         hide('draftLoadingState');
         const _emailInput=document.getElementById('emailToSendInput'); document.getElementById('draftEmailAddress').textContent=_emailInput?_emailInput.value.trim():'';
         document.getElementById('draftSubject').textContent = draft.subject || '';
