@@ -1664,14 +1664,9 @@
 
     // ── Email Sequence Manager ──────────────────────────────────────────────
     // Initial emails are Qualifier-generated only — no templates here.
-    const _FU1_TPL = { subject: '[Contact name] \u2013 different proposition', body: `Hi [greeting],\n\nFollowing up on my last note \u2014 I'll keep this brief.\n\nWe're onboarding two founding clinic partners in [City]. Full setup covered on our end, 60 days to demonstrate results, short testimonial in return. No monthly fee until the 60 days is up.\n\nHappy to send a one-page outline or jump on a 20 minute call.\n\nWorth a conversation?\n\nLawrence\nVersa Digital HQ` };
-    const _FU2_TPL = { subject: '[Contact name] \u2013 one more thought', body: `Hi [greeting],\n\nPut together a quick demo of how the system works if it helps make it more concrete: versadigital.co/demo\n\nHappy to walk through it on a call if useful.\n\nLawrence\nVersa Digital HQ` };
-    const _FU3_TPL = { subject: '[Contact name] \u2013 last note', body: `Hi [greeting],\n\nLast one from me \u2014 if the timing isn\u2019t right, no problem at all. Happy to pick this up whenever it suits.\n\nLawrence\nVersa Digital HQ` };
-    const FU_TEMPLATES = {
-      'After-Hours': { 'FU1': _FU1_TPL, 'FU2': _FU2_TPL, 'FU3': _FU3_TPL },
-      'Coordination': { 'FU1': _FU1_TPL, 'FU2': _FU2_TPL, 'FU3': _FU3_TPL },
-      'Conversion':   { 'FU1': _FU1_TPL, 'FU2': _FU2_TPL, 'FU3': _FU3_TPL }
-    };
+    const _FU1_TPL = { subject: '[Contact name] - just checking in', body: `Hi [greeting],\n\nJust checking this reached you - happy to answer any questions if you have them.\n\nLawrence\nVersa Digital HQ` };
+    const _FU2_TPL = { subject: '[Contact name] - free demo', body: `Hi [greeting],\n\nStill happy to put together a free demo for [Clinic Name] if you'd like to see it before committing to anything.\n\nversadigital.co/demo - or just reply and we'll set up a quick call.\n\nLawrence\nVersa Digital HQ` };
+    const _FU3_TPL = { subject: '[Contact name] - last note', body: `Hi [greeting],\n\nLast note from me. If the timing isn't right, no problem at all - happy to pick this up whenever suits.\n\nLawrence\nVersa Digital HQ` };
 
     const DEMO_FIRST_TEMPLATE = {
       subject: '[Contact name] \u2013 90 seconds',
