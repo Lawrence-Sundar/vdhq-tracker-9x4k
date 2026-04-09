@@ -34,6 +34,9 @@
     .nav-item:hover{background:rgba(139,124,184,0.04);color:var(--text-dim)}
     .nav-item.active{background:rgba(139,124,184,0.08);color:var(--accent);font-weight:500}
     .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--accent);border-radius:0 3px 3px 0}
+    .nav-icon{width:16px;height:16px;opacity:0.5;flex-shrink:0}
+    .nav-item.active .nav-icon{opacity:1}
+    .sidebar-section-label{font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);padding:18px 12px 6px}
     .sidebar-actions{padding:10px 12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
     .sidebar-action-btn{display:flex;align-items:center;width:100%;padding:7px 10px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;text-align:left;transition:background .12s,color .12s}
     .sidebar-action-btn:hover{background:var(--elevated);color:var(--text)}
@@ -97,9 +100,9 @@
 
     /* FU chips (read-only indicators in row) */
     .fu-chips{display:flex;gap:4px;flex-shrink:0}
-    .fu-chip{font-size:10px;font-weight:500;padding:3px 7px;border-radius:4px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
-    .fu-chip-sent{background:var(--success-dim);color:var(--success);border-color:transparent}
-    .fu-chip-due{background:var(--warning-dim);color:var(--warning);border-color:transparent}
+    .fu-chip{font-size:10px;font-weight:500;padding:2px 7px;border-radius:5px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+    .fu-chip-sent{background:var(--accent-dim);color:var(--accent);border-color:rgba(139,124,184,0.15)}
+    .fu-chip-due{background:var(--warning-dim);color:var(--warning);border-color:rgba(226,179,64,0.15)}
 
     /* Lead rows */
     .leads-table{display:flex;flex-direction:column}
@@ -111,7 +114,7 @@
     .lead-name{font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
     .lead-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-top:1px}
     .angle-chip{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:var(--accent-dim);color:var(--accent);white-space:nowrap;flex-shrink:0}
-    .reply-y-chip{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--success-dim);color:var(--success);white-space:nowrap;flex-shrink:0}
+    .reply-y-chip{font-size:10px;font-weight:500;padding:2px 7px;border-radius:5px;background:var(--success-dim);color:var(--success);border:1px solid rgba(52,211,153,0.15);white-space:nowrap;flex-shrink:0}
 
     /* Expanded detail */
     .lead-row-expand{padding:16px 20px 18px;background:var(--elevated);border-radius:0 0 10px 10px;border-top:1px solid var(--border);animation:expandIn .2s ease}
@@ -121,9 +124,10 @@
     .expand-field .ef-label{color:var(--muted);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
     .expand-field .ef-val{color:var(--text);font-weight:500}
     .expand-fu{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-    .fu-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;transition:background .12s;white-space:nowrap}
-    .fu-btn.fu-sent{background:var(--success-dim);color:var(--success);border-color:transparent}
-    .fu-btn.fu-due{background:var(--warning-dim);color:var(--warning);border-color:transparent}
+    .fu-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;font-size:11px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .fu-btn:hover{border-color:var(--border-hover);color:var(--text-dim)}
+    .fu-btn.fu-sent{background:var(--accent-dim);color:var(--accent);border-color:rgba(139,124,184,0.15)}
+    .fu-btn.fu-due{background:var(--warning-dim);color:var(--warning);border-color:rgba(226,179,64,0.15)}
     .fu-btn.fu-overdue{background:var(--danger-dim);color:var(--danger);border-color:transparent}
     .expand-actions{display:flex;gap:8px;flex-wrap:wrap}
 
@@ -192,11 +196,11 @@
     .flex{display:flex;gap:8px;align-items:center}
 
     /* Nav count badge */
-    .nav-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#0A0910;font-size:10px;font-weight:700;margin-left:6px;line-height:1}
+    .nav-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:10px;background:var(--mauve);color:#fff;font-size:10px;font-weight:600;margin-left:auto;line-height:1}
 
     /* Source badges */
-    .source-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0}
-    .source-qualifier{border:1px solid var(--accent);color:var(--accent);background:transparent}
+    .source-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0;border:1px solid}
+    .source-qualifier{background:var(--accent-dim);color:var(--accent);border-color:rgba(139,124,184,0.15)}
     .source-manual{border:1px solid #888;color:#888;background:transparent}
 
     /* Mark as Sent button (Inbox) */
@@ -356,9 +360,9 @@
     .score-badge-warm{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:12px;background:#F5A623;color:#0d0a00;letter-spacing:.04em;margin-bottom:8px}
 
     /* Content top bar */
-    .content-topbar{display:flex;align-items:center;justify-content:flex-end;padding:14px 28px;border-bottom:1px solid var(--border);background:rgba(10,9,16,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:sticky;top:0;z-index:9}
-    .btn-add-lead-trigger{background:var(--accent);color:#0A0910;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;letter-spacing:.01em}
-    .btn-add-lead-trigger:hover{opacity:.85}
+    .content-topbar{display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:1px solid var(--border);background:rgba(10,9,16,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:sticky;top:0;z-index:9}
+    .btn-add-lead-trigger{background:var(--accent);color:#0A0910;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.01em}
+    .btn-add-lead-trigger:hover{background:var(--accent-hover);box-shadow:0 0 20px var(--accent-glow)}
     @media(max-width:900px){ .content-topbar{position:static} }
 
     /* Outlook integration */
@@ -485,12 +489,14 @@
     </div>
 
     <nav class="sidebar-nav">
-      <button class="nav-item tabBtn" data-tab="dashboard">Dashboard</button>
-      <button class="nav-item tabBtn" data-tab="inbox">Inbox <span class="nav-count-badge" id="inboxNavBadge" style="display:none"></span></button>
-      <button class="nav-item tabBtn" data-tab="pipeline">Pipeline</button>
-      <button class="nav-item tabBtn" data-tab="followups">Follow Ups <span class="nav-count-badge" id="followUpsNavBadge" style="display:none"></span></button>
-      <button class="nav-item tabBtn" data-tab="linkedin">LinkedIn</button>
-      <button class="nav-item tabBtn" data-tab="email">Email</button>
+      <div class="sidebar-section-label">Overview</div>
+      <button class="nav-item tabBtn" data-tab="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</button>
+      <button class="nav-item tabBtn" data-tab="pipeline"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pipeline</button>
+      <div class="sidebar-section-label">Actions</div>
+      <button class="nav-item tabBtn" data-tab="followups"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Follow Ups <span class="nav-count-badge" id="followUpsNavBadge" style="display:none"></span></button>
+      <button class="nav-item tabBtn" data-tab="inbox"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Inbox <span class="nav-count-badge" id="inboxNavBadge" style="display:none"></span></button>
+      <button class="nav-item tabBtn" data-tab="email"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M9 9h6v6H9z"/></svg>Email</button>
+      <button class="nav-item tabBtn" data-tab="linkedin"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</button>
     </nav>
 
     <div class="sidebar-actions">
@@ -528,6 +534,7 @@
     </div>
 
     <div class="content-topbar">
+      <span class="topbar-title" id="topbarTitle" style="font-family:'Instrument Serif',serif;font-size:20px;font-weight:400;flex:1">Dashboard</span>
       <button class="btn-add-lead-trigger" id="btnAddLeadTrigger">+ Add Lead</button>
     </div>
 
@@ -1715,6 +1722,7 @@
       document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
       const titles={dashboard:'Dashboard',inbox:'Inbox',pipeline:'Pipeline',followups:'Follow Ups',linkedin:'LinkedIn',email:'Email'};
       const mobileTitle=document.getElementById('mobileTitle'); if(mobileTitle) mobileTitle.textContent=titles[name]||name;
+      const topbarTitle=document.getElementById('topbarTitle'); if(topbarTitle) topbarTitle.textContent=titles[name]||name;
       if(name==='email') populateEmailLeadDropdown();
       if(name==='linkedin'){ const _r=localStorage.getItem(STORAGE_KEY); if(_r){ leads=JSON.parse(_r); leads.forEach(l=>{ ensureFUDates(l); if(!l.source)l.source='manual'; if(l.doNotContact===undefined)l.doNotContact=false; if(!l.channel)l.channel='Email'; }); } renderLinkedIn(); }
       closeMobileSidebar();
