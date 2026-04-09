@@ -1110,7 +1110,8 @@ ${pageText}`;
         score:        r.score || '',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
         draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : '',
-        ctaVariant:   window._ctaVariant || 'demo'
+        ctaVariant:   window._ctaVariant || 'demo',
+        subjectLine:  window._lastDraft ? (window._lastDraft.subject || '') : ''
       };
 
       try {

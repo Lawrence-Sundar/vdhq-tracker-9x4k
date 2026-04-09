@@ -598,6 +598,10 @@
           <select id="pFilterCta"><option value="All">All</option><option value="Demo">Demo</option><option value="Audit">Audit</option></select>
         </div>
         <div class="filter-group">
+          <span class="filter-inline-label">Subject</span>
+          <select id="pFilterSubject"><option value="All">All</option></select>
+        </div>
+        <div class="filter-group">
           <span class="filter-inline-label">LinkedIn</span>
           <select id="pFilterNoLinkedin"><option value="All">All</option><option value="No LinkedIn">No LinkedIn</option></select>
         </div>
@@ -1027,11 +1031,21 @@
 
     function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Re-Engage Overdue':'sdot-p-overdue','Demo First Overdue':'sdot-p-overdue'}; return m[status]||'sdot-p-notsent'; }
 
-    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.ctaVariant!=='All') count++; if(pipelineFilter.noLinkedin!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
+    function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.ctaVariant!=='All') count++; if(pipelineFilter.subjectLine!=='All') count++; if(pipelineFilter.noLinkedin!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl) countEl.textContent=count; }
 
-    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',ctaVariant:'All',noLinkedin:'All'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.value='All'; const cta=document.getElementById('pFilterCta'); if(cta) cta.value='All'; const nli=document.getElementById('pFilterNoLinkedin'); if(nli) nli.value='All'; renderPipeline(); }
+    function resetPipelineFilters(){ pipelineFilter={status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',ctaVariant:'All',subjectLine:'All',noLinkedin:'All'}; document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.status==='All')); const src=document.getElementById('pFilterSource'); if(src) src.value='All'; const city=document.getElementById('pFilterCity'); if(city) city.value='All'; const sort=document.getElementById('pFilterSort'); if(sort) sort.value='newest'; const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.value='All'; const cta=document.getElementById('pFilterCta'); if(cta) cta.value='All'; const subj=document.getElementById('pFilterSubject'); if(subj) subj.value='All'; const nli=document.getElementById('pFilterNoLinkedin'); if(nli) nli.value='All'; renderPipeline(); }
+
+    function populateSubjectFilter(){
+      const sel=document.getElementById('pFilterSubject'); if(!sel) return;
+      const current=sel.value;
+      const subjects=[...new Set(leads.map(l=>l.subjectLine).filter(Boolean))].sort();
+      sel.innerHTML='<option value="All">All</option>'+subjects.map(s=>'<option value="'+escapeHtml(s)+'">'+escapeHtml(s)+'</option>').join('');
+      sel.value=subjects.includes(current)?current:'All';
+      if(sel.value==='All'&&current!=='All') pipelineFilter.subjectLine='All';
+    }
 
     function renderPipeline(){
+      populateSubjectFilter();
       const container=document.getElementById('pipelineList'); if(!container) return; container.innerHTML='';
       const td=todayISO();
       const sq=(document.getElementById('pipelineSearch')||{value:''}).value.toLowerCase().trim();
@@ -1063,6 +1077,7 @@
           if(pipelineFilter.ctaVariant==='Demo'&&cv!=='demo') return false;
           if(pipelineFilter.ctaVariant==='Audit'&&cv!=='audit') return false;
         }
+        if(pipelineFilter.subjectLine!=='All'&&(l.subjectLine||'')!==pipelineFilter.subjectLine) return false;
         if(pipelineFilter.noLinkedin==='No LinkedIn'&&!l.linkedinNotFound) return false;
         return passesBaseFilters(l);
       });
@@ -1410,6 +1425,7 @@
       const sort=document.getElementById('pFilterSort'); if(sort) sort.addEventListener('change',()=>{ pipelineFilter.sort=sort.value; renderPipeline(); });
       const fuStage=document.getElementById('pFilterFUStage'); if(fuStage) fuStage.addEventListener('change',()=>{ pipelineFilter.fuStage=fuStage.value; renderPipeline(); });
       const ctaF=document.getElementById('pFilterCta'); if(ctaF) ctaF.addEventListener('change',()=>{ pipelineFilter.ctaVariant=ctaF.value; renderPipeline(); });
+      const subjF=document.getElementById('pFilterSubject'); if(subjF) subjF.addEventListener('change',()=>{ pipelineFilter.subjectLine=subjF.value; renderPipeline(); });
       const noLinkedin=document.getElementById('pFilterNoLinkedin'); if(noLinkedin) noLinkedin.addEventListener('change',()=>{ pipelineFilter.noLinkedin=noLinkedin.value; renderPipeline(); });
       const resetBtn=document.getElementById('btnResetFilters'); if(resetBtn) resetBtn.addEventListener('click',resetPipelineFilters);
       const psearch=document.getElementById('pipelineSearch'); if(psearch) psearch.addEventListener('input',()=>renderPipeline());
@@ -1697,7 +1713,7 @@
 
     let expandedLeadId = null;
     let expandedFollowUpId = null;
-    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',ctaVariant:'All',noLinkedin:'All'};
+    let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',ctaVariant:'All',subjectLine:'All',noLinkedin:'All'};
     let fuFilter = {fuType:'All', city:'All'};
 
     let selectedPipelineIds = new Set();
