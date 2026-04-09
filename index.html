@@ -1828,35 +1828,37 @@
       // Step 1: Create draft message
       const draftPayload = { subject, body: { contentType: 'HTML', content: htmlBody }, toRecipients: [{ emailAddress: { address: to } }] };
       const draftResp = await fetch('https://graph.microsoft.com/v1.0/me/messages', { method: 'POST', headers, body: JSON.stringify(draftPayload) });
-      console.log('Graph draft response status:', draftResp.status, await draftResp.clone().text());
       if(!draftResp.ok){ const err = await draftResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Draft creation failed: ' + draftResp.status); }
       const draftData = await draftResp.json();
       const messageId = draftData.id;
+      const conversationId = draftData.conversationId;
+      console.log('Draft conversationId:', conversationId);
       // Step 2: Send the draft
       const sendResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + messageId + '/send', { method: 'POST', headers });
       if(!sendResp.ok){ const err = await sendResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Send failed: ' + sendResp.status); }
-      // Step 3: Fetch the actual sent message ID from Sent Items
-      console.log('Fetching sent message ID...');
-      const sentResp = await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/SentItems/messages?$top=1&$orderby=sentDateTime desc&$select=id,subject', { headers: { Authorization: 'Bearer ' + token } });
-      const sentData = await sentResp.json();
-      console.log('Sent Items response:', JSON.stringify(sentData));
-      if(sentData.value && sentData.value.length){ const sentMessageId = sentData.value[0].id; console.log('threadMessageId to save:', sentMessageId); return sentMessageId; }
-      console.warn('Could not fetch sent message ID, falling back to draft ID');
-      return messageId;
+      console.log('threadMessageId to save (conversationId):', conversationId);
+      return conversationId;
     }
 
-    async function sendGraphReply(threadMessageId, htmlBody){
+    async function sendGraphReply(conversationId, htmlBody){
       const token = await getGraphToken();
       const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
-      // Step 1: Create reply draft
-      const replyResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + threadMessageId + '/createReply', { method: 'POST', headers });
+      // Step 1: Find the latest message in this conversation
+      const findResp = await fetch("https://graph.microsoft.com/v1.0/me/messages?$filter=conversationId eq '" + conversationId + "'&$orderby=sentDateTime desc&$top=1&$select=id", { method: 'GET', headers });
+      if(!findResp.ok){ const err = await findResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Find conversation message failed: ' + findResp.status); }
+      const findData = await findResp.json();
+      if(!findData.value || !findData.value.length) throw new Error('No messages found for conversationId: ' + conversationId);
+      const parentMessageId = findData.value[0].id;
+      console.log('Replying to message ID:', parentMessageId);
+      // Step 2: Create reply draft
+      const replyResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + parentMessageId + '/createReply', { method: 'POST', headers });
       if(!replyResp.ok){ const err = await replyResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Create reply failed: ' + replyResp.status); }
       const replyData = await replyResp.json();
       const replyId = replyData.id;
-      // Step 2: Patch reply draft with HTML body
+      // Step 3: Patch reply draft with HTML body
       const patchResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + replyId, { method: 'PATCH', headers, body: JSON.stringify({ body: { contentType: 'HTML', content: htmlBody } }) });
       if(!patchResp.ok){ const err = await patchResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Patch reply failed: ' + patchResp.status); }
-      // Step 3: Send the reply
+      // Step 4: Send the reply
       const sendResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + replyId + '/send', { method: 'POST', headers });
       if(!sendResp.ok){ const err = await sendResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Send reply failed: ' + sendResp.status); }
     }
