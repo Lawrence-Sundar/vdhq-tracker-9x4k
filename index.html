@@ -1671,17 +1671,17 @@
 
     // ── Email Sequence Manager ──────────────────────────────────────────────
     // Initial emails are Qualifier-generated only — no templates here.
-    const _FU1_TPL = { subject: '[Contact name] - just checking in', body: `Hi [greeting],\n\nJust checking this reached you - happy to answer any questions if you have them.\n\nLawrence\nVersa Digital HQ` };
-    const _FU2_TPL = { subject: '[Contact name] - free demo', body: `Hi [greeting],\n\nStill happy to put together a free demo for [Clinic Name] if you'd like to see it before committing to anything.\n\nversadigital.co/demo - or just reply and we'll set up a quick call.\n\nLawrence\nVersa Digital HQ` };
-    const _FU3_TPL = { subject: '[Contact name] - last note', body: `Hi [greeting],\n\nLast note from me. If the timing isn't right, no problem at all - happy to pick this up whenever suits.\n\nLawrence\nVersa Digital HQ` };
+    const _FU1_TPL = { subject: 'just checking in', body: `Hi [greeting],\n\nJust wanted to make sure my note about [Clinic Name]'s after-hours enquiries reached you - worth 10 minutes to see if it's relevant?\n\nLawrence\nVersa Digital HQ` };
+    const _FU2_TPL = { subject: 'free demo', body: `Hi [greeting],\n\nCurious what you think of this - put together a quick interactive demo showing exactly how it works for a clinic like [Clinic Name]: versadigital.co/demo\n\nHappy to walk through it on a call if useful.\n\nLawrence\nVersa Digital HQ` };
+    const _FU3_TPL = { subject: 'last note', body: `Hi [greeting],\n\nLast note from me. If the timing isn't right, no problem at all - happy to pick this up whenever suits.\n\nLawrence\nVersa Digital HQ` };
 
     const DEMO_FIRST_TEMPLATE = {
-      subject: '[Contact name] \u2013 90 seconds',
-      body: `Hi [greeting],\n\nI realise you may be perfectly happy with how things work at [Clinic Name] right now.\n\nOne last thing \u2014 would you be open to seeing a 90-second demo of what we've built? No call, no commitment, just a link. If it\u2019s not relevant I\u2019ll stop emailing.\n\nversadigital.co/demo\n\nLawrence\nVersa Digital HQ`
+      subject: '90 seconds',
+      body: `Hi [greeting],\n\nI realise you may be perfectly happy with how things work at [Clinic Name] right now.\n\nOne last thing - would you be open to seeing a 90-second demo of what we've built? No call, no commitment, just a link. If it's not relevant I'll stop emailing.\n\nversadigital.co/demo\n\nLawrence\nVersa Digital HQ`
     };
     const RE_ENGAGE_TEMPLATE = {
-      subject: '[Contact name] - wanted to make sure this reached you',
-      body: `Hi [greeting],\n\nI reached out a couple of times over the past few weeks - just wanted to follow up in case my emails didn't land.\n\nI'm Lawrence. I just launched an automation business and I'm offering two dental clinics a completely free intake system - full build, no cost, just an honest review if it delivers.\n\nAt the end of 60 days you'll also receive a full report showing exactly how many enquiries came in, how many arrived after hours, and how quickly each one was responded to - yours to keep regardless.\n\nHappy to show you a quick demo first with no obligation: versadigital.co/demo\n\nWorth a quick look?\n\nLawrence\nVersa Digital HQ`
+      subject: 'wanted to make sure this reached you',
+      body: `Hi [greeting],\n\nReached out a few times recently - just wanted to make sure this landed.\n\nI'm Lawrence. I build intake automation for independent dental clinics and I'm offering two clinics a completely free build - no cost, just an honest review if it delivers.\n\nMind if I send over a quick audit showing how many enquiries [Clinic Name] is likely missing after hours?\n\nLawrence\nVersa Digital HQ`
     };
 
     let expandedLeadId = null;
