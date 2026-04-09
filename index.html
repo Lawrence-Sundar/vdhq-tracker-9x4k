@@ -1840,7 +1840,7 @@
       const sentResp = await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/SentItems/messages?$top=1&$orderby=sentDateTime desc&$select=id,subject', { headers: { Authorization: 'Bearer ' + token } });
       const sentData = await sentResp.json();
       console.log('Sent Items response:', JSON.stringify(sentData));
-      if(sentData.value && sentData.value.length){ console.log('Sent message ID:', sentData.value[0].id); return sentData.value[0].id; }
+      if(sentData.value && sentData.value.length){ const sentMessageId = sentData.value[0].id; console.log('threadMessageId to save:', sentMessageId); return sentMessageId; }
       console.warn('Could not fetch sent message ID, falling back to draft ID');
       return messageId;
     }
