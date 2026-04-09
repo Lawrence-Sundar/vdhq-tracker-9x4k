@@ -760,13 +760,40 @@
       </div>
 
       <div class="card">
-        <div class="email-section-label">Step 2 — Select Follow-Up Type</div>
+        <div class="email-section-label">Step 2 — Select Email Type</div>
         <div class="btn-group">
+          <button class="toggle-btn" data-type="Initial">Initial</button>
           <button class="toggle-btn" data-type="FU1">FU1</button>
           <button class="toggle-btn" data-type="FU2">FU2</button>
           <button class="toggle-btn" data-type="FU3">FU3</button>
           <button class="toggle-btn" data-type="Re-Engage">Re-Engage</button>
           <button class="toggle-btn" data-type="Demo First">Demo First</button>
+        </div>
+      </div>
+
+      <div class="card" id="initialGenCard" style="display:none">
+        <div class="email-section-label">Initial Email — Inputs</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <label style="font-size:11px;color:#aab;display:block;margin-bottom:4px">Clinic Name</label>
+            <input type="text" id="initialClinicName" style="width:100%;background:#111113;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#e6eef2;padding:8px 10px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#aab;display:block;margin-bottom:4px">Intake Method</label>
+            <select id="initialIntakeMethod" style="width:100%;background:#111113;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#e6eef2;padding:8px 10px;font-size:13px;box-sizing:border-box">
+              <option value="a contact form">Contact Form</option>
+              <option value="a phone number">Phone Only</option>
+              <option value="an email link">Email Link</option>
+            </select>
+          </div>
+          <div id="initialApiKeyWrap" style="display:none">
+            <label style="font-size:11px;color:#aab;display:block;margin-bottom:4px">Anthropic API Key</label>
+            <div style="display:flex;gap:6px">
+              <input type="password" id="initialApiKeyInput" placeholder="sk-ant-..." style="flex:1;background:#111113;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#e6eef2;padding:8px 10px;font-size:13px;box-sizing:border-box">
+              <button class="btn btn-primary btn-sm" id="btnSaveInitialApiKey">Save</button>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btnGenerateInitial">Generate Initial Email</button>
         </div>
       </div>
 
@@ -1734,6 +1761,8 @@
     function emailAutofill(){
       const sel=document.getElementById('emailLeadSelect'); const id=sel.value;
       const autofill=document.getElementById('emailAutofill');
+      window._initialDraft=null;
+      const cn=document.getElementById('initialClinicName'); if(cn) cn.value='';
       if(!id){ autofill.style.display='none'; emailState.leadId=null; refreshEmailPreview(); return; }
       const lead=leads.find(l=>l.id==id); if(!lead){ autofill.style.display='none'; return; }
       emailState.leadId=id;
@@ -1749,6 +1778,14 @@
     function setActiveType(type){
       emailState.type=type;
       document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active-type',b.dataset.type===type));
+      const initCard=document.getElementById('initialGenCard');
+      if(initCard) initCard.style.display=type==='Initial'?'block':'none';
+      if(type==='Initial'){
+        const lead=emailState.leadId?leads.find(l=>l.id==emailState.leadId):null;
+        if(lead){
+          const cn=document.getElementById('initialClinicName'); if(cn&&!cn.value) cn.value=lead.clinicName||'';
+        }
+      }
       refreshEmailPreview();
     }
 
@@ -1760,6 +1797,18 @@
       const isFU=type==='FU1'||type==='FU2'||type==='FU3';
       if(!leadId||!type){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const lead=leads.find(l=>l.id==leadId); if(!lead){ wrap.style.display='none'; placeholder.style.display='block'; return; }
+      if(type==='Initial'){
+        if(window._initialDraft){
+          document.getElementById('emailSubjectPreview').textContent='Subject: '+(window._initialDraft.subject||'');
+          const bodyHtml=escapeHtml(window._initialDraft.body||'');
+          document.getElementById('emailBodyPreview').innerHTML=bodyHtml;
+          placeholder.style.display='none'; wrap.style.display='block';
+        } else {
+          wrap.style.display='none'; placeholder.style.display='block';
+        }
+        const tipEl=document.getElementById('fu2DemoTip'); if(tipEl) tipEl.style.display='none';
+        return;
+      }
       const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : isDemoFirst ? DEMO_FIRST_TEMPLATE : isFU ? (type==='FU1'?_FU1_TPL:type==='FU2'?_FU2_TPL:_FU3_TPL) : null;
       if(!tpl){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
@@ -1784,9 +1833,104 @@
 
     function showCopyConfirm(msg){ const el=document.getElementById('copyConfirm'); el.textContent=msg||'Copied!'; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1800); }
 
+    window._initialDraft = null;
+
+    const INITIAL_SYSTEM_PROMPT = `You are writing a warm, honest cold outreach email on behalf of Lawrence at Versa Digital HQ. Lawrence has just launched an automation business and is looking for his first dental clinic partner.
+
+TONE: Genuine, warm, direct. Sounds like a real person who visited their website - not a salesperson. Simple language - third to sixth grade reading level. No corporate language. No jargon.
+
+STRUCTURE - four parts, strict order:
+1. Opening line - clinic-specific pain point observation. Reference the clinic name and what you noticed about their intake setup. Opens a loop without stating a problem explicitly. One sentence. Clinic first, Lawrence second.
+Example: "Noticed [Clinic Name]'s enquiry form goes quiet after closing time - when patients submit after hours, how quickly does your team typically get back to them?"
+2. Introduction + mechanism - who Lawrence is and exactly how the system works in one sentence. Specific enough to be credible. Simple enough for anyone to understand.
+Example: "I'm Lawrence - I build intake automation specifically for independent dental clinics. The system captures every enquiry the moment it arrives, sends the patient an instant confirmation, and delivers a clean log to your team by morning. Nothing handled by hand."
+3. The offer - free build, demo first, zero cost, honest review in return. Two sentences maximum. Reference the clinic name.
+Example: "I'm looking for my first clinic partner and I'd love to build this for [Clinic Name] at zero cost. Demo first, no commitment - all I ask is honest feedback."
+4. CTA - confident, specific, one-word reply possible. Personalised to the clinic. No calendar link. No passive language.
+Example: "Want me to show you what that looks like for [Clinic Name]?"
+Sign off: Lawrence / Versa Digital HQ
+
+HARD RULES:
+- Maximum 100 words body excluding greeting and sign off
+- No statistics or percentages
+- No em dashes
+- No product name in body
+- No negative framing - never "losing patients", "missing out"
+- No filler words - never "just", "simply", "I wanted to reach out"
+- No links of any kind
+- No unsubscribe language
+- Zero reading level complexity - "handled by hand" not "manually processed"
+- Opening line must reference the clinic name specifically
+- CTA must be confident and personalised - never passive
+- In the body JSON field, separate the greeting, each paragraph, the close, and the sign-off with a blank line (two newline characters \\n\\n between each section)
+
+SUBJECT LINE:
+- Lowercase only - no capitalisation
+- Format: specific honest observation or simple question
+- Examples: "missed enquiries after hours" / "quick question" / "question for [first name]"
+- Max 6 words
+- No city references
+- No contact name in subject - lowercase observation only
+
+FIELDS PROVIDED:
+- Greeting - use for greeting line
+- Clinic Name - reference in opening line and CTA
+- City - available if needed
+- Intake method - reference in opening observation
+
+Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
+
+    async function generateInitialEmail(){
+      const apiKey = sessionStorage.getItem('vdhq_api_key');
+      if(!apiKey){
+        document.getElementById('initialApiKeyWrap').style.display='block';
+        return;
+      }
+      const lead = emailState.leadId ? leads.find(l=>l.id==emailState.leadId) : null;
+      if(!lead){ alert('Select a lead first.'); return; }
+      const clinic = document.getElementById('initialClinicName').value.trim() || lead.clinicName || '[Clinic Name]';
+      const intake = document.getElementById('initialIntakeMethod').value;
+      const greeting = buildGreetingName(lead.contactName);
+      const city = lead.city || '';
+      const btn = document.getElementById('btnGenerateInitial');
+      btn.disabled=true; btn.textContent='Generating...';
+      try{
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method:'POST',
+          headers:{ 'x-api-key':apiKey, 'anthropic-version':'2023-06-01', 'content-type':'application/json', 'anthropic-dangerous-direct-browser-access':'true' },
+          body:JSON.stringify({
+            model:'claude-haiku-4-5-20251001',
+            max_tokens:1000,
+            system:INITIAL_SYSTEM_PROMPT,
+            messages:[{role:'user',content:`Write a cold outreach email using the details below.\n\nClinic: ${clinic}\nGreeting: ${greeting}\nCity: ${city}\nIntake method: ${intake}\n\nReturn ONLY a raw JSON object with exactly two fields: { "subject": "...", "body": "..." }\nNo markdown, no code fences, no explanation.`}]
+          })
+        });
+        if(!res.ok){ const err=await res.json().catch(()=>({})); throw new Error(err.error?.message||'API error: '+res.status); }
+        const data=await res.json();
+        const raw=(data.content&&data.content[0]&&data.content[0].text)||'';
+        const clean=raw.replace(/^```json?\s*/i,'').replace(/\s*```$/,'').trim();
+        const draft=JSON.parse(clean);
+        window._initialDraft=draft;
+        lead.draftSubject=draft.subject||'';
+        lead.draftBody=draft.body||'';
+        lead.subjectLine=draft.subject||'';
+        save();
+        refreshEmailPreview();
+      }catch(e){
+        alert('Generation failed: '+e.message);
+      }finally{
+        btn.disabled=false; btn.textContent='Generate Initial Email';
+      }
+    }
+
     function bindEmailTab(){
       document.getElementById('emailLeadSelect').addEventListener('change',emailAutofill);
       document.querySelectorAll('[data-type]').forEach(b=>{ b.addEventListener('click',()=>setActiveType(b.dataset.type)); });
+      document.getElementById('btnGenerateInitial').addEventListener('click',generateInitialEmail);
+      document.getElementById('btnSaveInitialApiKey').addEventListener('click',()=>{
+        const key=document.getElementById('initialApiKeyInput').value.trim();
+        if(key){ sessionStorage.setItem('vdhq_api_key',key); document.getElementById('initialApiKeyWrap').style.display='none'; generateInitialEmail(); }
+      });
       document.getElementById('btnCopySubject').addEventListener('click',()=>{ const text=document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,''); navigator.clipboard.writeText(text).then(()=>showCopyConfirm('Subject copied!')); });
       document.getElementById('btnCopyEmail').addEventListener('click',()=>{
         const bodyEl=document.getElementById('emailBodyPreview');
