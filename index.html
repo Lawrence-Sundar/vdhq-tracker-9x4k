@@ -1351,7 +1351,15 @@
         }
         const htmlBody='<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">'+escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>')+'</div>';
         try{
-          await sendGraphEmail(lead.email,subject,htmlBody);
+          if(fuKey==='initial'){
+            const msgId=await sendGraphEmail(lead.email,subject,htmlBody);
+            if(msgId) lead.threadMessageId=msgId;
+          } else if(lead.threadMessageId){
+            await sendGraphReply(lead.threadMessageId,htmlBody);
+          } else {
+            console.warn('[runBulkSend] No threadMessageId for '+(lead.clinicName||id)+' — sending as fresh email');
+            await sendGraphEmail(lead.email,subject,htmlBody);
+          }
           if(fuKey==='initial'){ lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); }
           else if(fuKey==='fu1'){ lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),4); }
           else if(fuKey==='fu2'){ lead.fu2Sent=true; lead.fu2SentOn=todayISO(); lead.fu3Date=addDays(todayISO(),7); }
@@ -1815,9 +1823,33 @@
     async function sendGraphEmail(to, subject, htmlBody){
       to = (to||'').trim().replace(/[.,;:\s]+$/, '');
       const token = await getGraphToken();
-      const payload = { message: { subject, body: { contentType: 'HTML', content: htmlBody }, toRecipients: [{ emailAddress: { address: to } }] }, saveToSentItems: true };
-      const resp = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if(!resp.ok){ const err = await resp.json().catch(() => ({})); throw new Error(err.error?.message || 'Send failed: ' + resp.status); }
+      const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+      // Step 1: Create draft message
+      const draftPayload = { subject, body: { contentType: 'HTML', content: htmlBody }, toRecipients: [{ emailAddress: { address: to } }] };
+      const draftResp = await fetch('https://graph.microsoft.com/v1.0/me/messages', { method: 'POST', headers, body: JSON.stringify(draftPayload) });
+      if(!draftResp.ok){ const err = await draftResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Draft creation failed: ' + draftResp.status); }
+      const draftData = await draftResp.json();
+      const messageId = draftData.id;
+      // Step 2: Send the draft
+      const sendResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + messageId + '/send', { method: 'POST', headers });
+      if(!sendResp.ok){ const err = await sendResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Send failed: ' + sendResp.status); }
+      return messageId;
+    }
+
+    async function sendGraphReply(threadMessageId, htmlBody){
+      const token = await getGraphToken();
+      const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+      // Step 1: Create reply draft
+      const replyResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + threadMessageId + '/createReply', { method: 'POST', headers });
+      if(!replyResp.ok){ const err = await replyResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Create reply failed: ' + replyResp.status); }
+      const replyData = await replyResp.json();
+      const replyId = replyData.id;
+      // Step 2: Patch reply draft with HTML body
+      const patchResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + replyId, { method: 'PATCH', headers, body: JSON.stringify({ body: { contentType: 'HTML', content: htmlBody } }) });
+      if(!patchResp.ok){ const err = await patchResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Patch reply failed: ' + patchResp.status); }
+      // Step 3: Send the reply
+      const sendResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + replyId + '/send', { method: 'POST', headers });
+      if(!sendResp.ok){ const err = await sendResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Send reply failed: ' + sendResp.status); }
     }
 
     function updateOutlookUI(){
@@ -1866,14 +1898,22 @@
       const origText = btn.textContent;
       btn.textContent = 'Sending...'; btn.disabled = true;
       try{
-        await sendGraphEmail(lead.email, subject, htmlBody);
+        const isInitialSend = selectedType === 'Initial' && !lead.dateSent;
+        const isFollowUp = isFU || isReEngageSend || isDemoFirstSend;
+        if(isFollowUp && lead.threadMessageId){
+          await sendGraphReply(lead.threadMessageId, htmlBody);
+        } else {
+          if(isFollowUp && !lead.threadMessageId) console.warn('[sendViaOutlook] No threadMessageId for ' + lead.clinicName + ' — sending as fresh email');
+          const msgId = await sendGraphEmail(lead.email, subject, htmlBody);
+          if(isInitialSend && msgId) lead.threadMessageId = msgId;
+        }
         if(isFU){
           markFUFromFollowUps(lead.id, selectedType.toLowerCase());
         } else if(isReEngageSend){
           lead.reEngageSent = true; lead.reEngageSentOn = todayISO(); save();
         } else if(isDemoFirstSend){
           lead.demoFirstSent = true; lead.demoFirstDate = todayISO(); save();
-        } else if(selectedType === 'Initial' && !lead.dateSent){
+        } else if(isInitialSend){
           lead.dateSent = todayISO(); lead.initialSentDate = todayISO(); ensureFUDates(lead); save();
         }
         showCopyConfirm('Sent via Outlook!');
@@ -1996,7 +2036,8 @@
         if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:11px">Sending...</span>';
         const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(lead.draftBody).replace(/\n/g,'<br>') + '</div>';
         try{
-          await sendGraphEmail(lead.email, lead.draftSubject, htmlBody);
+          const msgId = await sendGraphEmail(lead.email, lead.draftSubject, htmlBody);
+          if(msgId) lead.threadMessageId = msgId;
           lead.dateSent = todayISO();
           lead.initialSentDate = todayISO();
           lead.fuDatesLocked = false;
@@ -2038,7 +2079,12 @@
         const body = tpl.body.replace(/\[greeting\]/g,contactForBody).replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic).replace(/\[City\]/g,lead.city||'[City]');
         const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>') + '</div>';
         try{
-          await sendGraphEmail(lead.email, subject, htmlBody);
+          if(lead.threadMessageId){
+            await sendGraphReply(lead.threadMessageId, htmlBody);
+          } else {
+            console.warn('[runSendAll] No threadMessageId for ' + (lead.clinicName||id) + ' — sending as fresh email');
+            await sendGraphEmail(lead.email, subject, htmlBody);
+          }
           markFUFromFollowUps(id, fuKey);
           sent++;
           if(statusEl) statusEl.innerHTML = '<span style="color:#4CAF7D;font-size:11px">&#10003; Sent</span>';
