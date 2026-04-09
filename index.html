@@ -1836,8 +1836,11 @@
       const sendResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + messageId + '/send', { method: 'POST', headers });
       if(!sendResp.ok){ const err = await sendResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Send failed: ' + sendResp.status); }
       // Step 3: Fetch the actual sent message ID from Sent Items
-      const sentResp = await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/SentItems/messages?$top=1&$orderby=sentDateTime desc&$select=id,subject', { method: 'GET', headers });
-      if(sentResp.ok){ const sentData = await sentResp.json(); if(sentData.value && sentData.value.length){ console.log('Sent message ID:', sentData.value[0].id); return sentData.value[0].id; } }
+      console.log('Fetching sent message ID...');
+      const sentResp = await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/SentItems/messages?$top=1&$orderby=sentDateTime desc&$select=id,subject', { headers: { Authorization: 'Bearer ' + token } });
+      const sentData = await sentResp.json();
+      console.log('Sent Items response:', JSON.stringify(sentData));
+      if(sentData.value && sentData.value.length){ console.log('Sent message ID:', sentData.value[0].id); return sentData.value[0].id; }
       console.warn('Could not fetch sent message ID, falling back to draft ID');
       return messageId;
     }
