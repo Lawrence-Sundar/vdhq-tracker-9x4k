@@ -343,6 +343,13 @@
           <div class="section-label">Email Body</div>
           <div id="draftBody" class="draft-body-field"></div>
           <textarea id="editBodyInput" style="display:none;width:100%;background:#071018;border:1px solid rgba(201,168,76,0.4);border-radius:6px;color:#e6eef2;padding:10px 12px;font-size:13px;line-height:1.8;resize:vertical;box-sizing:border-box;font-family:inherit;outline:none"></textarea>
+          <div id="ctaVariantWrap" style="margin-top:12px">
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#aab;display:block;margin-bottom:6px">CTA Variant</label>
+            <div style="display:flex;gap:6px">
+              <button class="secondary" id="btnCtaDemo" style="font-size:12px;padding:5px 14px;opacity:1">Demo</button>
+              <button class="secondary" id="btnCtaAudit" style="font-size:12px;padding:5px 14px;opacity:0.5">Audit</button>
+            </div>
+          </div>
           <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
             <button class="copy-btn" id="btnCopyEmail">Copy Email</button>
             <button class="btn-edit" id="btnEditDraft">Edit</button>
@@ -1013,6 +1020,33 @@ ${pageText}`;
                document.getElementById('btnCopyEmail'));
     });
 
+    // CTA Variant toggle
+    window._ctaVariant = 'demo';
+    const CTA_DEMO_TEXT = clinic => `Want me to show you what that looks like for ${clinic}?`;
+    const CTA_AUDIT_TEXT = 'I put together a quick audit for your clinic - want me to send it over?';
+
+    function setCtaVariant(variant) {
+      window._ctaVariant = variant;
+      document.getElementById('btnCtaDemo').style.opacity = variant === 'demo' ? '1' : '0.5';
+      document.getElementById('btnCtaAudit').style.opacity = variant === 'audit' ? '1' : '0.5';
+      if (!window._lastDraft) return;
+      const body = window._lastDraft.body || '';
+      const clinic = window._lastResult ? (window._lastResult.clinic_name || '[Clinic Name]') : '[Clinic Name]';
+      const demoRx = /Want me to show you what that looks like for .+\?/;
+      const auditRx = /I put together a quick audit for your clinic - want me to send it over\?/;
+      let newBody;
+      if (variant === 'audit') {
+        newBody = body.replace(demoRx, CTA_AUDIT_TEXT);
+      } else {
+        newBody = body.replace(auditRx, CTA_DEMO_TEXT(clinic));
+      }
+      window._lastDraft.body = newBody;
+      document.getElementById('draftBody').textContent = newBody;
+    }
+
+    document.getElementById('btnCtaDemo').addEventListener('click', () => setCtaVariant('demo'));
+    document.getElementById('btnCtaAudit').addEventListener('click', () => setCtaVariant('audit'));
+
     document.getElementById('btnConfirmTracker').addEventListener('click', confirmAddToTracker);
     document.getElementById('btnMarkSent').addEventListener('click', markAsSent);
     document.getElementById('btnAddAnother').addEventListener('click', resetAll);
@@ -1075,7 +1109,8 @@ ${pageText}`;
         reviewCount:  r.review_count != null ? String(r.review_count) : '',
         score:        r.score || '',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
-        draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : ''
+        draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : '',
+        ctaVariant:   window._ctaVariant || 'demo'
       };
 
       try {
@@ -1140,6 +1175,7 @@ ${pageText}`;
       window._createdLeadId     = null;
       window._manuallyQualified = false;
       window._oohDetected       = false;
+      window._ctaVariant        = 'demo';
       selectedEmail = '';
 
       // Reset inputs
@@ -1157,6 +1193,10 @@ ${pageText}`;
         document.getElementById('editBodyInput').style.display   = 'none';
         document.getElementById('btnEditDraft').textContent      = 'Edit';
       }
+
+      // Reset CTA variant toggle
+      const _ctaD = document.getElementById('btnCtaDemo'); if (_ctaD) _ctaD.style.opacity = '1';
+      const _ctaA = document.getElementById('btnCtaAudit'); if (_ctaA) _ctaA.style.opacity = '0.5';
 
       // Reset draft section
       hide('emailDraftSection');
