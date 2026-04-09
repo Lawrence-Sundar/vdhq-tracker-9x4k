@@ -131,6 +131,21 @@
     .fu-btn.fu-overdue{background:var(--danger-dim);color:var(--danger);border-color:transparent}
     .expand-actions{display:flex;gap:8px;flex-wrap:wrap}
 
+    /* Dashboard stats grid */
+    .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+    @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+    .stat-card{background:linear-gradient(135deg,var(--surface) 0%,var(--elevated) 100%);border:1px solid var(--border);border-radius:12px;padding:16px 18px;transition:all .2s;position:relative;overflow:hidden}
+    .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:0;transition:opacity .2s}
+    .stat-card:hover::after{opacity:1}
+    .stat-card:hover{border-color:var(--border-hover)}
+    .stat-card-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    .stat-card-value{font-size:28px;font-weight:300;font-variant-numeric:tabular-nums;line-height:1}
+    .stat-card-value.violet{color:var(--accent)}
+    .stat-card-value.mauve{color:var(--mauve)}
+    .stat-card-value.green{color:var(--success)}
+    .stat-card-value.amber{color:var(--warning)}
+    .stat-card-sub{font-size:11px;color:var(--muted);margin-top:6px}
+
     /* Dashboard */
     .dash-empty{color:var(--muted);font-size:13px;padding:16px 0}
     .dash-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
@@ -540,13 +555,36 @@
 
     <!-- Dashboard -->
     <section id="tab-dashboard" class="tabPane">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Dashboard</div>
-          <div class="page-sub">Follow-ups due today</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-label">Total Leads</div>
+          <div class="stat-card-value violet" id="dashStatTotal">0</div>
+          <div class="stat-card-sub" id="dashStatTotalSub">--</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Total Sent</div>
+          <div class="stat-card-value" id="dashStatSent">0</div>
+          <div class="stat-card-sub" id="dashStatSentSub">--</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">FU Due Today</div>
+          <div class="stat-card-value amber" id="dashStatFUDue">0</div>
+          <div class="stat-card-sub" id="dashStatFUDueSub">--</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Replied</div>
+          <div class="stat-card-value mauve" id="dashStatReplied">0</div>
+          <div class="stat-card-sub" id="dashStatRepliedSub">--</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Not Sent</div>
+          <div class="stat-card-value green" id="dashStatNotSent">0</div>
+          <div class="stat-card-sub" id="dashStatNotSentSub">--</div>
         </div>
       </div>
-      <div class="card" style="padding:0 16px">
+
+      <div class="card" style="padding:14px 18px">
+        <div style="font-family:'Instrument Serif',serif;font-size:16px;font-weight:400;margin-bottom:14px">Follow-Ups Due Today</div>
         <div id="dashboard" class="dash-rows"></div>
       </div>
     </section>
@@ -1021,8 +1059,33 @@
 
     function renderDashboard(){
       const container=document.getElementById('dashboard'); container.innerHTML='';
-      const dueItems=[]; const td=todayISO();
+      const td=todayISO();
+
+      // Stats cards
+      const totalLeads=leads.length;
+      const sentLeads=leads.filter(l=>l.dateSent).length;
+      const repliedLeads=leads.filter(l=>l.reply==='Y').length;
+      const notSentLeads=leads.filter(l=>!l.dateSent).length;
+      const dueItems=[];
       leads.forEach(l=>{ if(l.reply==='Y') return; if(l.fu1Date===td&&!l.fu1Sent) dueItems.push({lead:l,type:'FU1',fu:'fu1'}); if(l.fu2Date===td&&!l.fu2Sent) dueItems.push({lead:l,type:'FU2',fu:'fu2'}); if(l.fu3Date===td&&!l.fu3Sent) dueItems.push({lead:l,type:'FU3',fu:'fu3'}); });
+      const fu1Due=dueItems.filter(d=>d.type==='FU1').length;
+      const fu2Due=dueItems.filter(d=>d.type==='FU2').length;
+      const fu3Due=dueItems.filter(d=>d.type==='FU3').length;
+      const replyRate=sentLeads>0?(repliedLeads/sentLeads*100).toFixed(1)+'%':'--';
+
+      const _s=id=>document.getElementById(id);
+      if(_s('dashStatTotal')) _s('dashStatTotal').textContent=totalLeads;
+      if(_s('dashStatTotalSub')) _s('dashStatTotalSub').textContent=sentLeads+' sent';
+      if(_s('dashStatSent')) _s('dashStatSent').textContent=sentLeads;
+      if(_s('dashStatSentSub')) _s('dashStatSentSub').textContent=(sentLeads&&totalLeads)?(sentLeads/totalLeads*100).toFixed(0)+'% of total':'--';
+      if(_s('dashStatFUDue')) _s('dashStatFUDue').textContent=dueItems.length;
+      if(_s('dashStatFUDueSub')) _s('dashStatFUDueSub').textContent=fu1Due+' FU1 · '+fu2Due+' FU2 · '+fu3Due+' FU3';
+      if(_s('dashStatReplied')) _s('dashStatReplied').textContent=repliedLeads;
+      if(_s('dashStatRepliedSub')) _s('dashStatRepliedSub').textContent=replyRate+' rate';
+      if(_s('dashStatNotSent')) _s('dashStatNotSent').textContent=notSentLeads;
+      if(_s('dashStatNotSentSub')) _s('dashStatNotSentSub').textContent=notSentLeads===1?'Draft ready':notSentLeads+' drafts ready';
+
+      // Due items list
       if(dueItems.length===0){ container.innerHTML='<div class="dash-empty">All clear — no follow-ups due today.</div>'; return; }
       dueItems.slice(0,20).forEach(item=>{
         const l=item.lead; const row=document.createElement('div'); row.className='dash-row';
