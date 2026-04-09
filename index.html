@@ -1831,23 +1831,23 @@
       if(!draftResp.ok){ const err = await draftResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Draft creation failed: ' + draftResp.status); }
       const draftData = await draftResp.json();
       const messageId = draftData.id;
-      const conversationId = draftData.conversationId;
-      console.log('Draft conversationId:', conversationId);
+      const internetMessageId = draftData.internetMessageId;
+      console.log('Draft internetMessageId:', internetMessageId);
       // Step 2: Send the draft
       const sendResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + messageId + '/send', { method: 'POST', headers });
       if(!sendResp.ok){ const err = await sendResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Send failed: ' + sendResp.status); }
-      console.log('threadMessageId to save (conversationId):', conversationId);
-      return conversationId;
+      console.log('threadMessageId to save (internetMessageId):', internetMessageId);
+      return internetMessageId;
     }
 
-    async function sendGraphReply(conversationId, htmlBody){
+    async function sendGraphReply(internetMessageId, htmlBody){
       const token = await getGraphToken();
       const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
-      // Step 1: Find the latest message in this conversation
-      const findResp = await fetch("https://graph.microsoft.com/v1.0/me/messages?$filter=conversationId eq '" + conversationId + "'&$orderby=sentDateTime desc&$top=1&$select=id", { method: 'GET', headers });
-      if(!findResp.ok){ const err = await findResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Find conversation message failed: ' + findResp.status); }
+      // Step 1: Find the sent message by internetMessageId
+      const findResp = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/SentItems/messages?$filter=internetMessageId eq '" + internetMessageId + "'&$select=id", { method: 'GET', headers });
+      if(!findResp.ok){ const err = await findResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Find message by internetMessageId failed: ' + findResp.status); }
       const findData = await findResp.json();
-      if(!findData.value || !findData.value.length) throw new Error('No messages found for conversationId: ' + conversationId);
+      if(!findData.value || !findData.value.length) throw new Error('No message found for internetMessageId: ' + internetMessageId);
       const parentMessageId = findData.value[0].id;
       console.log('Replying to message ID:', parentMessageId);
       // Step 2: Create reply draft
@@ -1916,7 +1916,7 @@
         } else {
           if(isFollowUp && !lead.threadMessageId) console.warn('[sendViaOutlook] No threadMessageId for ' + lead.clinicName + ' — sending as fresh email');
           const msgId = await sendGraphEmail(lead.email, subject, htmlBody);
-          if(isInitialSend && msgId) lead.threadMessageId = msgId;
+          if(isInitialSend && msgId){ lead.threadMessageId = msgId; console.log('Saved threadMessageId on lead:', lead.clinicName, msgId); }
         }
         if(isFU){
           markFUFromFollowUps(lead.id, selectedType.toLowerCase());
