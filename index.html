@@ -29,8 +29,8 @@
     .sidebar-brand{padding:24px 20px 20px;border-bottom:1px solid rgba(139,124,184,0.06)}
     .sidebar-brand-name{font-family:'Instrument Serif',serif;font-size:20px;font-weight:400;letter-spacing:0.02em}
     .sidebar-brand-sub{font-size:10px;color:var(--accent);margin-top:4px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase}
-    .sidebar-nav{padding:8px;flex:1}
-    .nav-item{display:flex;align-items:center;width:100%;padding:7px 10px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:13px;font-family:inherit;font-weight:400;cursor:pointer;text-align:left;transition:all .15s;margin-bottom:2px;position:relative}
+    .sidebar-nav{padding:12px 10px;flex:1}
+    .nav-item{display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:13px;font-family:inherit;font-weight:400;cursor:pointer;text-align:left;transition:all .15s;margin-bottom:2px;position:relative}
     .nav-item:hover{background:rgba(139,124,184,0.04);color:var(--text-dim)}
     .nav-item.active{background:rgba(139,124,184,0.08);color:var(--accent);font-weight:500}
     .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--accent);border-radius:0 3px 3px 0}
@@ -41,10 +41,10 @@
     .sidebar-action-btn{display:flex;align-items:center;width:100%;padding:7px 10px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;text-align:left;transition:background .12s,color .12s}
     .sidebar-action-btn:hover{background:var(--elevated);color:var(--text)}
     .sidebar-action-btn.danger:hover{color:var(--danger)}
-    .sidebar-stats{padding:14px 16px;border-top:1px solid var(--border)}
-    .stat-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+    .sidebar-stats{padding:16px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+    .stat-item{display:flex;justify-content:space-between;align-items:center}
     .stat-label{font-size:11px;color:var(--muted)}
-    .stat-value{font-size:12px;font-weight:600}
+    .stat-value{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
     .stat-value.accent{color:var(--accent)}
     .stat-value.warning{color:var(--warning)}
 
@@ -412,7 +412,7 @@
     .li-notes-preview{font-size:11px;color:var(--muted);line-height:1.4;word-break:break-word;white-space:pre-wrap}
     .li-notes-ta{width:100%;font-size:11px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 7px;border-radius:5px;font-family:inherit;resize:vertical;box-sizing:border-box}
     .li-status-badge{display:inline-block;padding:2px 8px;font-size:11px;border-radius:4px;font-weight:500}
-    .li-status-notsent{background:rgba(201,168,76,.12);color:var(--accent)}
+    .li-status-notsent{background:var(--accent-dim);color:var(--accent)}
     .li-status-sent{background:rgba(76,175,125,.12);color:#4CAF7D}
     .li-status-fu{background:rgba(240,164,41,.12);color:#F0A429}
     .li-status-replied{background:rgba(76,175,125,.18);color:#4CAF7D}
