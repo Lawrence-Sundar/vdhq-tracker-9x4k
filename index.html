@@ -1822,11 +1822,13 @@
 
     async function sendGraphEmail(to, subject, htmlBody){
       to = (to||'').trim().replace(/[.,;:\s]+$/, '');
+      console.log('sendGraphEmail called with:', {to, subject, contentType: 'HTML'});
       const token = await getGraphToken();
       const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
       // Step 1: Create draft message
       const draftPayload = { subject, body: { contentType: 'HTML', content: htmlBody }, toRecipients: [{ emailAddress: { address: to } }] };
       const draftResp = await fetch('https://graph.microsoft.com/v1.0/me/messages', { method: 'POST', headers, body: JSON.stringify(draftPayload) });
+      console.log('Graph draft response status:', draftResp.status, await draftResp.clone().text());
       if(!draftResp.ok){ const err = await draftResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Draft creation failed: ' + draftResp.status); }
       const draftData = await draftResp.json();
       const messageId = draftData.id;
