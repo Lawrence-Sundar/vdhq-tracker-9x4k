@@ -1355,7 +1355,7 @@
             const msgId=await sendGraphEmail(lead.email,subject,htmlBody);
             if(msgId) lead.threadMessageId=msgId;
           } else if(lead.threadMessageId){
-            await sendGraphReply(lead.threadMessageId,htmlBody);
+            await sendGraphReply(lead.threadMessageId,htmlBody,lead.email);
           } else {
             console.warn('[runBulkSend] No threadMessageId for '+(lead.clinicName||id)+' — sending as fresh email');
             await sendGraphEmail(lead.email,subject,htmlBody);
@@ -1840,7 +1840,7 @@
       return internetMessageId;
     }
 
-    async function sendGraphReply(internetMessageId, htmlBody){
+    async function sendGraphReply(internetMessageId, htmlBody, toEmail){
       const token = await getGraphToken();
       const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
       // Step 1: Find the sent message by internetMessageId
@@ -1856,7 +1856,7 @@
       const replyData = await replyResp.json();
       const replyId = replyData.id;
       // Step 3: Patch reply draft with HTML body
-      const patchResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + replyId, { method: 'PATCH', headers, body: JSON.stringify({ body: { contentType: 'HTML', content: htmlBody } }) });
+      const patchResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + replyId, { method: 'PATCH', headers, body: JSON.stringify({ body: { contentType: 'HTML', content: htmlBody }, toRecipients: [{ emailAddress: { address: toEmail } }] }) });
       if(!patchResp.ok){ const err = await patchResp.json().catch(() => ({})); throw new Error(err.error?.message || 'Patch reply failed: ' + patchResp.status); }
       // Step 4: Send the reply
       const sendResp = await fetch('https://graph.microsoft.com/v1.0/me/messages/' + replyId + '/send', { method: 'POST', headers });
@@ -1912,7 +1912,7 @@
         const isInitialSend = selectedType === 'Initial' && !lead.dateSent;
         const isFollowUp = isFU || isReEngageSend || isDemoFirstSend;
         if(isFollowUp && lead.threadMessageId){
-          await sendGraphReply(lead.threadMessageId, htmlBody);
+          await sendGraphReply(lead.threadMessageId, htmlBody, lead.email);
         } else {
           if(isFollowUp && !lead.threadMessageId) console.warn('[sendViaOutlook] No threadMessageId for ' + lead.clinicName + ' — sending as fresh email');
           const msgId = await sendGraphEmail(lead.email, subject, htmlBody);
@@ -2091,7 +2091,7 @@
         const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>') + '</div>';
         try{
           if(lead.threadMessageId){
-            await sendGraphReply(lead.threadMessageId, htmlBody);
+            await sendGraphReply(lead.threadMessageId, htmlBody, lead.email);
           } else {
             console.warn('[runSendAll] No threadMessageId for ' + (lead.clinicName||id) + ' — sending as fresh email');
             await sendGraphEmail(lead.email, subject, htmlBody);
