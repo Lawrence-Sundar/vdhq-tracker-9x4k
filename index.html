@@ -136,11 +136,11 @@
 
     /* Dashboard stats grid */
     .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-    @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr)!important}}
+    @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)!important}}
     .dash-grid{display:grid;grid-template-columns:3fr 2fr;gap:14px;margin-bottom:22px}
-    .stat-card{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 26px;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
-    .stat-card:hover{border-color:var(--border-hover)}
-    .stat-card:hover{border-color:var(--border-hover)}
+    .stat-card{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 26px;transition:all .25s ease;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+    .stat-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.18)}
     .stat-card-label{font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
     .stat-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .stat-card-value{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
@@ -158,6 +158,27 @@
     .dash-row-name{font-weight:500;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dash-row-sub{font-size:16px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dash-fu-label{font-size:16px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--warning-dim);color:var(--warning);white-space:nowrap;flex-shrink:0}
+    .dash-fu-label-overdue{background:var(--danger-dim);color:var(--danger)}
+    .stat-card-value.red{color:var(--danger)}
+
+    /* Funnel bar */
+    .funnel-bar{display:flex;align-items:center;gap:0;height:32px;border-radius:8px;overflow:hidden;margin-bottom:8px;background:rgba(120,80,160,0.06)}
+    .funnel-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;transition:width .4s ease;min-width:0;overflow:hidden;white-space:nowrap}
+    .funnel-legend{display:flex;gap:16px;flex-wrap:wrap}
+    .funnel-legend-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+    .funnel-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .funnel-legend-val{font-weight:600;color:var(--text)}
+
+    /* Bar chart */
+    .bar-chart-row{display:flex;align-items:flex-end;gap:4px;height:160px;padding:0 4px}
+    .bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+    .bar-stack{display:flex;align-items:flex-end;gap:2px;width:100%}
+    .bar-col{border-radius:4px 4px 0 0;min-height:0;transition:height .4s ease;flex:1}
+    .bar-label{font-size:11px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+    /* Compose email btn in dashboard */
+    .btn-dash-compose{background:transparent;border:1px solid var(--border);color:var(--accent);padding:4px 10px;border-radius:6px;font-size:15px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+    .btn-dash-compose:hover{border-color:var(--accent);background:var(--accent-dim)}
 
     /* Filters */
     .filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
@@ -566,7 +587,7 @@
     <!-- Dashboard -->
     <section id="tab-dashboard" class="tabPane">
       <!-- Stats row -->
-      <div class="stats-grid">
+      <div class="stats-grid" style="grid-template-columns:repeat(5,1fr)">
         <div class="stat-card">
           <div class="stat-card-label"><span class="stat-card-icon" style="background:rgba(168,85,247,0.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> Total Leads</div>
           <div class="stat-card-value violet" id="dashStatTotal">0</div>
@@ -587,38 +608,36 @@
           <div class="stat-card-value amber" id="dashStatFUDue">0</div>
           <div class="stat-card-sub" id="dashStatFUDueSub">--</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-card-label"><span class="stat-card-icon" style="background:rgba(239,68,68,0.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span> Overdue</div>
+          <div class="stat-card-value red" id="dashStatOverdue">0</div>
+          <div class="stat-card-sub" id="dashStatOverdueSub">--</div>
+        </div>
+      </div>
+
+      <!-- Conversion funnel -->
+      <div class="card" style="padding:20px 24px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:15px;font-weight:600">Pipeline Funnel</div>
+        </div>
+        <div class="funnel-bar" id="dashFunnelBar"></div>
+        <div class="funnel-legend" id="dashFunnelLegend"></div>
       </div>
 
       <!-- Main grid: chart + pipeline -->
       <div class="dash-grid">
-        <!-- Outreach Analytics chart -->
+        <!-- Weekly Activity bar chart -->
         <div class="card" style="padding:24px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-            <div style="font-size:15px;font-weight:600">Outreach Analytics</div>
+            <div style="font-size:15px;font-weight:600">Weekly Activity</div>
             <div style="display:flex;gap:16px;font-size:12px;color:var(--muted)">
               <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#a855f7"></span> Sent</span>
               <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#f472b6"></span> Replies</span>
             </div>
           </div>
-          <div id="dashChartArea" style="width:100%;height:200px;position:relative">
-            <svg id="dashChartSvg" width="100%" height="100%" viewBox="0 0 600 200" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="sentGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#a855f7" stop-opacity="0.2"/>
-                  <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
-                </linearGradient>
-              </defs>
-              <line x1="0" y1="50" x2="600" y2="50" stroke="rgba(120,80,160,0.06)"/>
-              <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(120,80,160,0.06)"/>
-              <line x1="0" y1="150" x2="600" y2="150" stroke="rgba(120,80,160,0.06)"/>
-              <polyline id="dashSentFill" fill="url(#sentGrad)" stroke="none" points="0,200 0,160 100,140 200,120 300,80 400,100 500,60 600,45 600,200"/>
-              <polyline id="dashSentLine" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="0,160 100,140 200,120 300,80 400,100 500,60 600,45"/>
-              <polyline id="dashReplyLine" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6,4" points="0,190 100,188 200,185 300,182 400,186 500,180 600,178"/>
-            </svg>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0 0;font-size:11px;color:var(--muted)" id="dashChartLabels">
-            <span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span><span>Week 5</span><span>Week 6</span><span>Week 7</span>
-          </div>
+          <div id="dashBarChart" class="bar-chart-row"></div>
+          <div id="dashBarLabels" style="display:flex;justify-content:space-around;padding:6px 4px 0;font-size:11px;color:var(--muted)"></div>
+          <div id="dashBarEmpty" style="display:none;color:var(--muted);font-size:14px;text-align:center;padding:60px 0">Start sending emails to see weekly activity</div>
         </div>
 
         <!-- Lead Pipeline donut + recent activity -->
@@ -631,11 +650,13 @@
                 <circle cx="21" cy="21" r="16" fill="none" stroke="#a855f7" stroke-width="5" stroke-dasharray="50 50.4" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutSent"/>
                 <circle cx="21" cy="21" r="16" fill="none" stroke="#22d3ee" stroke-width="5" stroke-dasharray="20 80.4" stroke-dashoffset="-50" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutNotSent"/>
                 <circle cx="21" cy="21" r="16" fill="none" stroke="#f472b6" stroke-width="5" stroke-dasharray="5 95.4" stroke-dashoffset="-70" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutReplied"/>
+                <circle cx="21" cy="21" r="16" fill="none" stroke="#c084fc" stroke-width="5" stroke-dasharray="0 100.4" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutConverted"/>
               </svg>
               <div style="display:flex;flex-direction:column;gap:8px">
                 <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#a855f7;flex-shrink:0"></span> Sent <span style="margin-left:auto;font-weight:600;color:var(--text)" id="donutSentVal">0</span></div>
                 <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#22d3ee;flex-shrink:0"></span> Not Sent <span style="margin-left:auto;font-weight:600;color:var(--text)" id="donutNotSentVal">0</span></div>
                 <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#f472b6;flex-shrink:0"></span> Replied <span style="margin-left:auto;font-weight:600;color:var(--text)" id="donutRepliedVal">0</span></div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#c084fc;flex-shrink:0"></span> Converted <span style="margin-left:auto;font-weight:600;color:var(--text)" id="donutConvertedVal">0</span></div>
               </div>
             </div>
           </div>
@@ -650,10 +671,11 @@
         </div>
       </div>
 
-      <!-- Follow-ups due today -->
+      <!-- Follow-ups due & overdue -->
       <div class="card" style="padding:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div style="font-size:15px;font-weight:600">Follow-Ups Due Today</div>
+          <div style="font-size:15px;font-weight:600">Action Required</div>
+          <div style="font-size:13px;color:var(--muted)" id="dashActionCount"></div>
         </div>
         <div id="dashboard" class="dash-rows"></div>
       </div>
@@ -1132,70 +1154,201 @@
     function renderDashboard(){
       const container=document.getElementById('dashboard'); container.innerHTML='';
       const td=todayISO();
+      const _s=id=>document.getElementById(id);
 
-      // Stats cards
+      // --- Counts ---
       const totalLeads=leads.length;
       const sentLeads=leads.filter(l=>l.dateSent).length;
       const repliedLeads=leads.filter(l=>l.reply==='Y').length;
+      const convertedLeads=leads.filter(l=>(l.replyType||'')==='Converted').length;
       const notSentLeads=leads.filter(l=>!l.dateSent).length;
-      const dueItems=[];
-      leads.forEach(l=>{ if(l.reply==='Y') return; if(l.fu1Date===td&&!l.fu1Sent) dueItems.push({lead:l,type:'FU1',fu:'fu1'}); if(l.fu2Date===td&&!l.fu2Sent) dueItems.push({lead:l,type:'FU2',fu:'fu2'}); if(l.fu3Date===td&&!l.fu3Sent) dueItems.push({lead:l,type:'FU3',fu:'fu3'}); });
-      const fu1Due=dueItems.filter(d=>d.type==='FU1').length;
-      const fu2Due=dueItems.filter(d=>d.type==='FU2').length;
-      const fu3Due=dueItems.filter(d=>d.type==='FU3').length;
+      // Sent-only = sent but not replied and not converted
+      const sentOnlyLeads=sentLeads-repliedLeads;
+
+      // Due today (exact date match)
+      const dueToday=[];
+      leads.forEach(l=>{ if(l.reply==='Y'||l.doNotContact) return; if(l.fu1Date===td&&!l.fu1Sent) dueToday.push({lead:l,type:'FU1',fu:'fu1',overdue:false}); if(l.fu2Date===td&&!l.fu2Sent) dueToday.push({lead:l,type:'FU2',fu:'fu2',overdue:false}); if(l.fu3Date===td&&!l.fu3Sent) dueToday.push({lead:l,type:'FU3',fu:'fu3',overdue:false}); });
+
+      // Overdue (past due, not sent)
+      const overdueItems=[];
+      leads.forEach(l=>{
+        if(l.reply==='Y'||l.doNotContact) return;
+        const status=computeStatus(l);
+        if(status==='Converted'||status==='Not Interested'||status==='Do Not Contact'||status==='Disqualified') return;
+        const fus=[{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
+        for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<td){ overdueItems.push({lead:l,type:fu.label,fu:fu.key,overdue:true}); break; } }
+        // Re-Engage overdue
+        if(l.fu3Sent&&!l.reEngageSent){ if(l.reEngageDate){ const nd=normDateStr(l.reEngageDate); if(nd&&nd<td) overdueItems.push({lead:l,type:'Re-Engage',fu:'reEngage',overdue:true}); } else if(l.fu3SentOn){ const d=Math.round((new Date(td)-new Date(normDateStr(l.fu3SentOn)))/86400000); if(d>=3) overdueItems.push({lead:l,type:'Re-Engage',fu:'reEngage',overdue:true}); } }
+        // Demo First overdue
+        if(l.reEngageSent&&!l.demoFirstSent&&l.reEngageSentOn){ const d=Math.round((new Date(td)-new Date(normDateStr(l.reEngageSentOn)))/86400000); if(d>=7) overdueItems.push({lead:l,type:'Demo First',fu:'demoFirst',overdue:true}); }
+      });
+
+      const fu1Due=dueToday.filter(d=>d.type==='FU1').length;
+      const fu2Due=dueToday.filter(d=>d.type==='FU2').length;
+      const fu3Due=dueToday.filter(d=>d.type==='FU3').length;
       const replyRate=sentLeads>0?(repliedLeads/sentLeads*100).toFixed(1)+'%':'--';
 
-      const _s=id=>document.getElementById(id);
+      // --- Stat cards ---
       if(_s('dashStatTotal')) _s('dashStatTotal').textContent=totalLeads;
       if(_s('dashStatTotalSub')) _s('dashStatTotalSub').textContent=sentLeads+' sent';
       if(_s('dashStatSent')) _s('dashStatSent').textContent=sentLeads;
       if(_s('dashStatSentSub')) _s('dashStatSentSub').textContent=(sentLeads&&totalLeads)?(sentLeads/totalLeads*100).toFixed(0)+'% of total':'--';
-      if(_s('dashStatFUDue')) _s('dashStatFUDue').textContent=dueItems.length;
+      if(_s('dashStatFUDue')) _s('dashStatFUDue').textContent=dueToday.length;
       if(_s('dashStatFUDueSub')) _s('dashStatFUDueSub').textContent=fu1Due+' FU1 · '+fu2Due+' FU2 · '+fu3Due+' FU3';
       if(_s('dashStatReplied')) _s('dashStatReplied').textContent=repliedLeads;
       if(_s('dashStatRepliedSub')) _s('dashStatRepliedSub').textContent=replyRate+' rate';
+      if(_s('dashStatOverdue')) _s('dashStatOverdue').textContent=overdueItems.length;
+      if(_s('dashStatOverdueSub')) _s('dashStatOverdueSub').textContent=overdueItems.length===0?'All caught up':'Needs attention';
       if(_s('dashStatNotSent')) _s('dashStatNotSent').textContent=notSentLeads;
       if(_s('dashStatNotSentSub')) _s('dashStatNotSentSub').textContent=notSentLeads===1?'Draft ready':notSentLeads+' drafts ready';
 
-      // Donut chart
-      const total=totalLeads||1;
-      const sentPct=(sentLeads/total*100).toFixed(0);
-      const notSentPct=(notSentLeads/total*100).toFixed(0);
-      const repliedPct=(repliedLeads/total*100).toFixed(0);
-      const circ=100.4;
-      if(_s('donutSent')){_s('donutSent').setAttribute('stroke-dasharray',sentPct+' '+(circ-sentPct))}
-      if(_s('donutNotSent')){_s('donutNotSent').setAttribute('stroke-dasharray',notSentPct+' '+(circ-notSentPct));_s('donutNotSent').setAttribute('stroke-dashoffset','-'+sentPct)}
-      if(_s('donutReplied')){_s('donutReplied').setAttribute('stroke-dasharray',repliedPct+' '+(circ-repliedPct));_s('donutReplied').setAttribute('stroke-dashoffset','-'+(parseInt(sentPct)+parseInt(notSentPct)))}
-      if(_s('donutSentVal')) _s('donutSentVal').textContent=sentLeads;
-      if(_s('donutNotSentVal')) _s('donutNotSentVal').textContent=notSentLeads;
-      if(_s('donutRepliedVal')) _s('donutRepliedVal').textContent=repliedLeads;
+      // --- Conversion funnel ---
+      const funnelBar=_s('dashFunnelBar');
+      const funnelLegend=_s('dashFunnelLegend');
+      if(funnelBar&&funnelLegend){
+        const funnelData=[
+          {label:'Total',count:totalLeads,color:'rgba(120,80,160,0.3)'},
+          {label:'Sent',count:sentOnlyLeads>0?sentOnlyLeads:0,color:'#a855f7'},
+          {label:'Replied',count:repliedLeads-convertedLeads>0?repliedLeads-convertedLeads:0,color:'#f472b6'},
+          {label:'Converted',count:convertedLeads,color:'#c084fc'}
+        ];
+        // Funnel shows segments proportional to total
+        const t=totalLeads||1;
+        funnelBar.innerHTML=funnelData.filter(d=>d.count>0).map(d=>{
+          const pct=Math.max((d.count/t*100),2);
+          return '<div class="funnel-seg" style="width:'+pct+'%;background:'+d.color+'" title="'+d.label+': '+d.count+'">'+( pct>=8?d.count:'')+'</div>';
+        }).join('');
+        funnelLegend.innerHTML=funnelData.map(d=>'<div class="funnel-legend-item"><span class="funnel-legend-dot" style="background:'+d.color+'"></span>'+d.label+' <span class="funnel-legend-val">'+d.count+'</span></div>').join('');
+      }
 
-      // Activity feed - show last 5 actions based on dates
+      // --- Donut chart (4 segments: Sent, Not Sent, Replied, Converted) ---
+      const total=totalLeads||1;
+      const circ=100.4;
+      const sentPct=((sentOnlyLeads>0?sentOnlyLeads:0)/total*100);
+      const notSentPct=(notSentLeads/total*100);
+      const repliedOnlyPct=((repliedLeads-convertedLeads>0?repliedLeads-convertedLeads:0)/total*100);
+      const convertedPct=(convertedLeads/total*100);
+      let offset=0;
+      if(_s('donutSent')){_s('donutSent').setAttribute('stroke-dasharray',sentPct.toFixed(1)+' '+(circ-sentPct).toFixed(1));_s('donutSent').setAttribute('stroke-dashoffset','0')} offset+=sentPct;
+      if(_s('donutNotSent')){_s('donutNotSent').setAttribute('stroke-dasharray',notSentPct.toFixed(1)+' '+(circ-notSentPct).toFixed(1));_s('donutNotSent').setAttribute('stroke-dashoffset','-'+offset.toFixed(1))} offset+=notSentPct;
+      if(_s('donutReplied')){_s('donutReplied').setAttribute('stroke-dasharray',repliedOnlyPct.toFixed(1)+' '+(circ-repliedOnlyPct).toFixed(1));_s('donutReplied').setAttribute('stroke-dashoffset','-'+offset.toFixed(1))} offset+=repliedOnlyPct;
+      if(_s('donutConverted')){_s('donutConverted').setAttribute('stroke-dasharray',convertedPct.toFixed(1)+' '+(circ-convertedPct).toFixed(1));_s('donutConverted').setAttribute('stroke-dashoffset','-'+offset.toFixed(1))}
+      if(_s('donutSentVal')) _s('donutSentVal').textContent=sentOnlyLeads>0?sentOnlyLeads:0;
+      if(_s('donutNotSentVal')) _s('donutNotSentVal').textContent=notSentLeads;
+      if(_s('donutRepliedVal')) _s('donutRepliedVal').textContent=repliedLeads-convertedLeads>0?repliedLeads-convertedLeads:0;
+      if(_s('donutConvertedVal')) _s('donutConvertedVal').textContent=convertedLeads;
+
+      // --- Weekly bar chart (data-driven) ---
+      const barChart=_s('dashBarChart');
+      const barLabels=_s('dashBarLabels');
+      const barEmpty=_s('dashBarEmpty');
+      if(barChart){
+        // Collect all send/reply dates and group by ISO week
+        const weekMap={};
+        const getWeekKey=dateStr=>{
+          if(!dateStr) return null;
+          const d=new Date(normDateStr(dateStr)||dateStr);
+          if(isNaN(d.getTime())) return null;
+          const jan1=new Date(d.getFullYear(),0,1);
+          const weekNum=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+          return d.getFullYear()+'-W'+String(weekNum).padStart(2,'0');
+        };
+        const getWeekStart=dateStr=>{
+          if(!dateStr) return null;
+          const d=new Date(normDateStr(dateStr)||dateStr);
+          if(isNaN(d.getTime())) return null;
+          const day=d.getDay(); const diff=d.getDate()-day+(day===0?-6:1);
+          return new Date(d.getFullYear(),d.getMonth(),diff);
+        };
+        leads.forEach(l=>{
+          // Count sends
+          const sendDate=l.initialSentDate||l.dateSent;
+          const wk=getWeekKey(sendDate);
+          if(wk){ if(!weekMap[wk]) weekMap[wk]={sent:0,replies:0,start:getWeekStart(sendDate)}; weekMap[wk].sent++; }
+          // Count replies
+          if(l.reply==='Y'){
+            const rDate=l.dateSent; const rwk=getWeekKey(rDate);
+            if(rwk){ if(!weekMap[rwk]) weekMap[rwk]={sent:0,replies:0,start:getWeekStart(rDate)}; weekMap[rwk].replies++; }
+          }
+        });
+        const weekKeys=Object.keys(weekMap).sort();
+        const last8=weekKeys.slice(-8);
+        if(last8.length===0){
+          barChart.style.display='none';
+          if(barLabels) barLabels.style.display='none';
+          if(barEmpty) barEmpty.style.display='block';
+        } else {
+          barChart.style.display='';
+          if(barLabels) barLabels.style.display='';
+          if(barEmpty) barEmpty.style.display='none';
+          const maxVal=Math.max(...last8.map(k=>Math.max(weekMap[k].sent,weekMap[k].replies)),1);
+          barChart.innerHTML=last8.map(k=>{
+            const w=weekMap[k];
+            const sentH=Math.max((w.sent/maxVal*140),w.sent>0?4:0);
+            const replyH=Math.max((w.replies/maxVal*140),w.replies>0?4:0);
+            return '<div class="bar-group"><div class="bar-stack"><div class="bar-col" style="height:'+sentH+'px;background:#a855f7" title="Sent: '+w.sent+'"></div><div class="bar-col" style="height:'+replyH+'px;background:#f472b6" title="Replies: '+w.replies+'"></div></div></div>';
+          }).join('');
+          if(barLabels){
+            const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            barLabels.innerHTML=last8.map(k=>{
+              const ws=weekMap[k].start;
+              return '<span>'+(ws?months[ws.getMonth()]+' '+ws.getDate():k)+'</span>';
+            }).join('');
+          }
+        }
+      }
+
+      // --- Activity feed (with timestamps, all event types) ---
       const actFeed=_s('dashActivityFeed');
       if(actFeed){
         const acts=[];
+        const _ago=dateStr=>{
+          if(!dateStr) return '';
+          const d=new Date(normDateStr(dateStr)||dateStr);
+          if(isNaN(d.getTime())) return '';
+          const days=Math.round((new Date(td)-d)/86400000);
+          if(days===0) return 'Today';
+          if(days===1) return '1d ago';
+          if(days<7) return days+'d ago';
+          if(days<30) return Math.floor(days/7)+'w ago';
+          return Math.floor(days/30)+'mo ago';
+        };
         leads.forEach(l=>{
-          if(l.initialSentDate) acts.push({text:'Sent initial to <strong>'+escapeHtml(l.clinicName||'')+'</strong>',date:l.initialSentDate,color:'#a855f7'});
-          if(l.fu1SentOn) acts.push({text:'FU1 sent to <strong>'+escapeHtml(l.clinicName||'')+'</strong>',date:l.fu1SentOn,color:'#22d3ee'});
-          if(l.fu2SentOn) acts.push({text:'FU2 sent to <strong>'+escapeHtml(l.clinicName||'')+'</strong>',date:l.fu2SentOn,color:'#fbbf24'});
-          if(l.reply==='Y') acts.push({text:'<strong>'+escapeHtml(l.clinicName||'')+'</strong> replied',date:l.dateSent||'',color:'#f472b6'});
+          const name=escapeHtml(l.clinicName||'');
+          if(l.initialSentDate) acts.push({text:'Sent initial to <strong>'+name+'</strong>',date:l.initialSentDate,color:'#a855f7'});
+          if(l.fu1SentOn) acts.push({text:'FU1 sent to <strong>'+name+'</strong>',date:l.fu1SentOn,color:'#22d3ee'});
+          if(l.fu2SentOn) acts.push({text:'FU2 sent to <strong>'+name+'</strong>',date:l.fu2SentOn,color:'#22d3ee'});
+          if(l.fu3SentOn) acts.push({text:'FU3 sent to <strong>'+name+'</strong>',date:l.fu3SentOn,color:'#fbbf24'});
+          if(l.reEngageSentOn) acts.push({text:'Re-Engage sent to <strong>'+name+'</strong>',date:l.reEngageSentOn,color:'#fbbf24'});
+          if(l.demoFirstSentOn) acts.push({text:'Demo First sent to <strong>'+name+'</strong>',date:l.demoFirstSentOn,color:'#c084fc'});
+          if(l.reply==='Y') acts.push({text:'<strong>'+name+'</strong> replied',date:l.dateSent||'',color:'#f472b6'});
         });
         acts.sort((a,b)=>b.date.localeCompare(a.date));
-        const top5=acts.slice(0,5);
-        if(top5.length){
-          actFeed.innerHTML=top5.map(a=>'<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(120,80,160,0.06)"><div style="width:8px;height:8px;border-radius:50%;background:'+a.color+';flex-shrink:0"></div><span style="font-size:13px;flex:1">'+a.text+'</span></div>').join('');
+        const top8=acts.slice(0,8);
+        if(top8.length){
+          actFeed.innerHTML=top8.map(a=>{
+            const ago=_ago(a.date);
+            return '<div style="display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(120,80,160,0.06)"><div style="width:8px;height:8px;border-radius:50%;background:'+a.color+';flex-shrink:0"></div><span style="font-size:13px;flex:1">'+a.text+'</span>'+(ago?'<span style="font-size:11px;color:var(--muted);flex-shrink:0">'+ago+'</span>':'')+'</div>';
+          }).join('');
         } else {
           actFeed.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No recent activity</div>';
         }
       }
 
-      // Due items list
-      if(dueItems.length===0){ container.innerHTML='<div class="dash-empty">All clear — no follow-ups due today.</div>'; return; }
-      dueItems.slice(0,20).forEach(item=>{
+      // --- Action Required list (overdue first, then due today) ---
+      const allActions=[...overdueItems,...dueToday];
+      const actionCountEl=_s('dashActionCount');
+      if(actionCountEl) actionCountEl.textContent=overdueItems.length>0?overdueItems.length+' overdue, '+dueToday.length+' due today':dueToday.length+' due today';
+
+      if(allActions.length===0){ container.innerHTML='<div class="dash-empty">All clear — no follow-ups due.</div>'; return; }
+      allActions.slice(0,25).forEach(item=>{
         const l=item.lead; const row=document.createElement('div'); row.className='dash-row';
-        const isSent=l[item.fu+'Sent'];
-        row.innerHTML=`<span class="dash-fu-label">${item.type}</span><div class="dash-row-info"><div class="dash-row-name">${escapeHtml(l.clinicName||'(no name)')}</div><div class="dash-row-sub">${escapeHtml(l.contactName||'')}${l.email?' · '+escapeHtml(l.email):''}</div></div><button class="fu-btn ${isSent?'fu-sent':''}" data-id="${l.id}" data-fu="${item.fu}">${isSent?'&#10003; Sent':'Mark Sent'}</button>`;
+        const isOverdue=item.overdue;
+        const fuKey=item.fu;
+        const isSent=fuKey==='reEngage'?l.reEngageSent:fuKey==='demoFirst'?l.demoFirstSent:l[fuKey+'Sent'];
+        row.innerHTML=`<span class="dash-fu-label${isOverdue?' dash-fu-label-overdue':''}">${isOverdue?'OVERDUE':'TODAY'}</span><span style="font-size:14px;font-weight:500;padding:2px 6px;border-radius:4px;background:var(--elevated);color:var(--text-dim)">${item.type}</span><div class="dash-row-info"><div class="dash-row-name">${escapeHtml(l.clinicName||'(no name)')}</div><div class="dash-row-sub">${escapeHtml(l.contactName||'')}${l.email?' · '+escapeHtml(l.email):''}</div></div><button class="btn-dash-compose" data-id="${l.id}" data-futype="${item.type}" title="Compose email">Compose</button><button class="fu-btn ${isSent?'fu-sent':''}" data-id="${l.id}" data-fu="${fuKey}">${isSent?'&#10003; Sent':'Mark Sent'}</button>`;
         const fuBtn=row.querySelector('.fu-btn[data-fu]'); if(fuBtn) fuBtn.addEventListener('click',()=>markFUSent(fuBtn.dataset.id,fuBtn.dataset.fu));
+        const composeBtn=row.querySelector('.btn-dash-compose'); if(composeBtn) composeBtn.addEventListener('click',()=>goToFUEmail(composeBtn.dataset.id,composeBtn.dataset.futype));
         container.appendChild(row);
       });
     }
@@ -1889,7 +2042,7 @@
       document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
       const titles={dashboard:'Dashboard',inbox:'Inbox',pipeline:'Pipeline',followups:'Follow Ups',linkedin:'LinkedIn',email:'Email'};
       const mobileTitle=document.getElementById('mobileTitle'); if(mobileTitle) mobileTitle.textContent=titles[name]||name;
-      const topbarTitle=document.getElementById('topbarTitle'); if(topbarTitle) topbarTitle.textContent=titles[name]||name;
+      const topbarTitle=document.getElementById('topbarTitle'); if(topbarTitle){ if(name==='dashboard'){ topbarTitle.innerHTML='Hi, <strong style="font-weight:600">Lawrence!</strong>'; } else { topbarTitle.textContent=titles[name]||name; } }
       if(name==='email') populateEmailLeadDropdown();
       if(name==='linkedin'){ const _r=localStorage.getItem(STORAGE_KEY); if(_r){ leads=JSON.parse(_r); leads.forEach(l=>{ ensureFUDates(l); if(!l.source)l.source='manual'; if(l.doNotContact===undefined)l.doNotContact=false; if(!l.channel)l.channel='Email'; }); } renderLinkedIn(); }
       closeMobileSidebar();
