@@ -31,7 +31,7 @@
     #sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--sidebar-bg);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;z-index:20}
     .sidebar-brand{padding:24px 18px;display:flex;align-items:center;gap:12px}
     .sidebar-brand-name{font-size:16px;font-weight:600}
-    .sidebar-brand-sub{display:none}
+    .sidebar-brand-sub{font-size:12px;font-weight:400;color:var(--muted)}
     .sidebar-nav{padding:8px 10px;flex:1}
     .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:16px;font-family:inherit;font-weight:500;cursor:pointer;text-align:left;transition:all .15s;margin-bottom:1px}
     .nav-item:hover{background:rgba(168,85,247,0.06);color:var(--text)}
@@ -146,7 +146,7 @@
     .stat-card-sub{font-size:12px;color:var(--muted);margin-top:8px}
 
     /* Dashboard */
-    .dash-section{font-size:16px;font-weight:600;color:var(--text);margin-bottom:16px}
+    .dash-section{font-size:16px;font-weight:600;color:var(--text);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em}
     .dash-empty{color:var(--muted);font-size:16px;padding:16px 0}
     .dash-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(120,80,160,0.08)}
     .dash-row:last-child{border-bottom:none}
@@ -176,7 +176,7 @@
     .btn-view-lead:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
 
     /* Compose email btn in dashboard */
-    .btn-dash-compose{background:transparent;border:1px solid var(--border);color:var(--accent);padding:4px 10px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+    .btn-dash-compose{background:transparent;border:1px solid var(--border);color:var(--accent);padding:4px 10px;border-radius:6px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
     .btn-dash-compose:hover{border-color:var(--accent);background:var(--accent-dim)}
 
     /* Activity item */
@@ -250,7 +250,7 @@
     .flex{display:flex;gap:8px;align-items:center}
 
     /* Nav count badge */
-    .nav-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 5px;border-radius:50%;background:#ef4444;color:#fff;font-size:12px;font-weight:600;margin-left:auto;line-height:1}
+    .nav-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:50%;background:#ef4444;color:#fff;font-size:12px;font-weight:600;margin-left:auto;line-height:1;text-align:center}
 
     /* Source badges */
     .source-badge{font-size:14px;font-weight:500;padding:2px 7px;border-radius:6px;white-space:nowrap;flex-shrink:0;border:1px solid}
@@ -423,8 +423,8 @@
     /* Outlook integration */
     .outlook-connected{display:none;align-items:center;gap:8px;padding:7px 10px}
     .outlook-dot{width:7px;height:7px;border-radius:50%;background:#4CAF7D;flex-shrink:0}
-    .outlook-label{font-size:14px;color:#4CAF7D;font-weight:500;line-height:1.3}
-    .outlook-email{font-size:14px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+    .outlook-label{font-size:12px;color:#4CAF7D;font-weight:500;line-height:1.3}
+    .outlook-email{font-size:12px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
 
     /* Send All modal */
     #sendAllBackdrop{justify-content:center;align-items:center}
@@ -558,13 +558,13 @@
 
     <div class="sidebar-actions">
       <div style="margin-bottom:4px;padding-bottom:6px;border-bottom:1px solid var(--border)">
-        <button class="sidebar-action-btn" id="btnConnectOutlook">&#9993; Connect Outlook</button>
+        <button class="sidebar-action-btn" id="btnConnectOutlook" style="font-size:12px;color:var(--muted)">&#9993; Connect Outlook</button>
         <div class="outlook-connected" id="outlookConnected">
           <span class="outlook-dot"></span>
           <div style="min-width:0"><div class="outlook-label">Outlook Connected</div><div class="outlook-email" id="outlookEmail"></div></div>
         </div>
       </div>
-      <button class="sidebar-action-btn" id="btnToolsToggle" onclick="document.getElementById('toolsDrawer').style.display=document.getElementById('toolsDrawer').style.display==='none'?'flex':'none';this.querySelector('.tools-arrow').textContent=document.getElementById('toolsDrawer').style.display==='none'?'▸':'▾'">&#9881; Tools <span class="tools-arrow" style="margin-left:auto;font-size:11px;opacity:0.5">▸</span></button>
+      <button class="sidebar-action-btn" id="btnToolsToggle" onclick="document.getElementById('toolsDrawer').style.display=document.getElementById('toolsDrawer').style.display==='none'?'flex':'none';this.querySelector('.tools-arrow').textContent=document.getElementById('toolsDrawer').style.display==='none'?'▸':'▾'">&#9881; Tools <span class="tools-arrow" style="margin-left:auto;font-size:12px;opacity:0.5">▸</span></button>
       <div id="toolsDrawer" style="display:none;flex-direction:column;gap:1px;padding-left:8px">
         <input id="csvFile" type="file" accept="text/csv" style="display:none">
         <button class="sidebar-action-btn" id="btnImport">↑ Import CSV</button>
@@ -595,12 +595,12 @@
     </div>
 
     <div class="content-topbar">
-      <span class="topbar-title" id="topbarTitle" style="font-size:22px;font-weight:300;flex:1">Hi, <strong style="font-weight:600">Lawrence!</strong></span>
+      <span class="topbar-title" id="topbarTitle" style="font-size:20px;font-weight:300;flex:1">Hi, <strong style="font-weight:600">Lawrence!</strong></span>
       <button class="btn-add-lead-trigger" id="btnAddLeadTrigger">+ Add Lead</button>
     </div>
 
     <!-- Dashboard -->
-    <section id="tab-dashboard" class="tabPane" style="padding:28px 32px">
+    <section id="tab-dashboard" class="tabPane" style="padding:24px 32px">
       <!-- KPI Stats — 4 cards -->
       <div class="stats-grid">
         <div class="stat-card">
@@ -619,7 +619,7 @@
           <div class="stat-card-sub" id="dashStatRepliedSub">--</div>
         </div>
         <div class="stat-card">
-          <div class="stat-card-label">FU Due Today</div>
+          <div class="stat-card-label">Follow-Ups Due</div>
           <div class="stat-card-value" id="dashStatFUDue">0</div>
           <div class="stat-card-sub" id="dashStatFUDueSub">--</div>
         </div>
@@ -751,10 +751,10 @@
         <input type="checkbox" class="sel-check" id="pSelectAll" title="Select / deselect all filtered">
         <span id="pSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
         <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
-        <button class="btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" id="btnSel10">Select 10</button>
-        <button class="btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" id="btnSel25">Select 25</button>
-        <button class="btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" id="btnSel50">Select 50</button>
-        <button class="btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" id="btnSelClear">Clear</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSel10">Select 10</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSel25">Select 25</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSel50">Select 50</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSelClear">Clear</button>
         <div style="margin-left:auto" id="bulkSendWrap" style="display:none">
           <button class="btn-bulk-send" id="btnBulkSendPipeline" style="font-size:12px;padding:5px 12px">Send via Outlook</button>
         </div>
@@ -822,7 +822,7 @@
       <div class="li-filters">
         <input id="liSearch" type="text" placeholder="Search clinics..." style="font-size:12px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:inherit;width:200px;outline:none">
         <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">City</span>
+          <span style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">City</span>
           <select id="liFilterCity">
             <option value="All">All</option>
             <option value="London">London</option>
@@ -836,7 +836,7 @@
           </select>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Status</span>
+          <span style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Status</span>
           <select id="liFilterStatus">
             <option value="All">All</option>
             <option value="Not Sent">Not Sent</option>
@@ -852,7 +852,7 @@
         </div>
         <label><input type="checkbox" id="liExcludeNoContact" checked> Exclude leads with no named contact</label>
         <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Activity</span>
+          <span style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Activity</span>
           <select id="liFilterActivity">
             <option value="All">All</option>
             <option value="Connection Sent">Connection Sent</option>
@@ -921,11 +921,11 @@
         <div class="email-section-label">Step 3 — Initial Email Inputs</div>
         <div style="display:flex;flex-direction:column;gap:10px">
           <div>
-            <label style="font-size:11px;color:#aab;display:block;margin-bottom:4px">Clinic Name</label>
+            <label style="font-size:12px;color:#aab;display:block;margin-bottom:4px">Clinic Name</label>
             <input type="text" id="initialClinicName" style="width:100%;background:var(--elevated);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-size:13px;box-sizing:border-box">
           </div>
           <div>
-            <label style="font-size:11px;color:#aab;display:block;margin-bottom:4px">Intake Method</label>
+            <label style="font-size:12px;color:#aab;display:block;margin-bottom:4px">Intake Method</label>
             <select id="initialIntakeMethod" style="width:100%;background:var(--elevated);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-size:13px;box-sizing:border-box">
               <option value="a contact form">Contact Form</option>
               <option value="a phone number">Phone Only</option>
@@ -933,7 +933,7 @@
             </select>
           </div>
           <div id="initialApiKeyWrap" style="display:none">
-            <label style="font-size:11px;color:#aab;display:block;margin-bottom:4px">Anthropic API Key</label>
+            <label style="font-size:12px;color:#aab;display:block;margin-bottom:4px">Anthropic API Key</label>
             <div style="display:flex;gap:6px">
               <input type="password" id="initialApiKeyInput" placeholder="sk-ant-..." style="flex:1;background:var(--elevated);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-size:13px;box-sizing:border-box">
               <button class="btn btn-primary btn-sm" id="btnSaveInitialApiKey">Save</button>
@@ -954,7 +954,7 @@
             <button class="btn-send-outlook" id="btnSendOutlook" style="display:none">Send via Outlook</button>
             <span class="copy-confirm" id="copyConfirm">Copied!</span>
           </div>
-          <div id="fu2DemoTip" style="display:none;margin-top:8px;font-size:11px;color:#666">Tip: if the demo link doesn't appear as a hyperlink in your email client, highlight the URL and use Insert Link.</div>
+          <div id="fu2DemoTip" style="display:none;margin-top:8px;font-size:12px;color:#666">Tip: if the demo link doesn't appear as a hyperlink in your email client, highlight the URL and use Insert Link.</div>
         </div>
         <div id="emailPreviewPlaceholder" class="muted small">Select a lead, angle and follow-up type to generate the email.</div>
       </div>
@@ -965,8 +965,8 @@
   <div id="leadDetailBackdrop" class="modal-backdrop" aria-hidden="true">
     <div id="leadDetailModal" class="modal" role="dialog" aria-modal="true" aria-label="Lead details">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <h3 id="leadDetailTitle" style="font-size:18px;font-weight:600;margin:0"></h3>
-        <button onclick="closeLeadDetail()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px;line-height:1">&times;</button>
+        <h3 id="leadDetailTitle" style="font-size:16px;font-weight:600;margin:0"></h3>
+        <button onclick="closeLeadDetail()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px;line-height:1">&times;</button>
       </div>
       <div id="leadDetailContent" style="overflow-y:auto;max-height:calc(90vh - 80px)"></div>
     </div>
@@ -977,7 +977,7 @@
     <div id="addLeadPanel" class="modal" role="dialog" aria-modal="true" aria-label="Add Lead">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
         <h3 style="margin-bottom:0">Add New Clinic</h3>
-        <button id="addLeadClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+        <button id="addLeadClose" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
       </div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px">All fields optional — add what you have.</p>
       <form id="leadForm">
@@ -1032,7 +1032,7 @@
     <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-label="Edit lead">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h3 style="margin-bottom:0">Edit Lead</h3>
-        <button id="editClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+        <button id="editClose" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
       </div>
       <form id="editForm">
         <div class="form-row"><div><label>Clinic Name</label><input id="e_clinicName" type="text"></div><div class="w160"><label>Date Sent</label><input id="e_dateSent" type="date"></div></div>
@@ -1055,7 +1055,7 @@
     <div id="backupModal" class="modal" role="dialog" aria-modal="true" aria-label="Restore from backup">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <h3 style="margin-bottom:0">Restore from Backup</h3>
-        <button id="backupClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+        <button id="backupClose" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
       </div>
       <div id="backupList"></div>
       <div style="margin-top:16px;font-size:12px;color:var(--muted)">Up to 5 automatic backups are kept. Restoring will overwrite your current data.</div>
@@ -1067,7 +1067,7 @@
     <div id="sendInitialModal" class="modal" role="dialog" aria-modal="true" aria-label="Send Initial Emails">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h3 style="margin-bottom:0">Send Initial Emails</h3>
-        <button id="sendInitialClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+        <button id="sendInitialClose" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
       </div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Review below then confirm. Emails send sequentially via your connected Outlook account.</p>
       <div id="sendInitialList" style="margin-bottom:16px"></div>
@@ -1081,7 +1081,7 @@
     <div id="sendAllModal" class="modal" role="dialog" aria-modal="true" aria-label="Send All Due Today">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h3 style="margin-bottom:0">Send All Due Today</h3>
-        <button id="sendAllClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+        <button id="sendAllClose" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
       </div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Review below then confirm. Emails send sequentially via your connected Outlook account.</p>
       <div id="sendAllList" style="margin-bottom:16px"></div>
@@ -1095,7 +1095,7 @@
     <div id="bulkSendModal" class="modal" role="dialog" aria-modal="true" aria-label="Send Selected">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h3 style="margin-bottom:0">Send Selected</h3>
-        <button id="bulkSendClose" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+        <button id="bulkSendClose" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
       </div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Review below then confirm. Emails send sequentially via your connected Outlook account.</p>
       <div id="bulkSendList" style="margin-bottom:16px"></div>
@@ -1323,7 +1323,7 @@
         const isOverdue=item.overdue;
         const fuKey=item.fu;
         const isSent=fuKey==='reEngage'?l.reEngageSent:fuKey==='demoFirst'?l.demoFirstSent:l[fuKey+'Sent'];
-        row.innerHTML=`<span class="dash-fu-label${isOverdue?' dash-fu-label-overdue':''}">${isOverdue?'OVERDUE':'TODAY'}</span><span style="font-size:12px;font-weight:500;padding:2px 6px;border-radius:4px;background:var(--elevated);color:var(--text-dim)">${item.type}</span><div class="dash-row-info"><div class="dash-row-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</div><div class="dash-row-sub">${escapeHtml(l.contactName||'')}${l.email?' · '+escapeHtml(l.email):''}</div></div><button class="btn-dash-compose" data-id="${l.id}" data-futype="${item.type}">Compose</button><button class="fu-btn ${isSent?'fu-sent':''}" data-id="${l.id}" data-fu="${fuKey}">${isSent?'&#10003; Sent':'Mark Sent'}</button>`;
+        row.innerHTML=`<span class="dash-fu-label${isOverdue?' dash-fu-label-overdue':''}">${isOverdue?'OVERDUE':'TODAY'}</span><span style="font-size:12px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--elevated);color:var(--text-dim)">${item.type}</span><div class="dash-row-info"><div class="dash-row-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</div><div class="dash-row-sub">${escapeHtml(l.contactName||'')}${l.email?' · '+escapeHtml(l.email):''}</div></div><button class="btn-dash-compose" data-id="${l.id}" data-futype="${item.type}">Compose</button><button class="fu-btn ${isSent?'fu-sent':''}" data-id="${l.id}" data-fu="${fuKey}">${isSent?'&#10003; Sent':'Mark Sent'}</button>`;
         const fuBtn=row.querySelector('.fu-btn[data-fu]'); if(fuBtn) fuBtn.addEventListener('click',()=>markFUSent(fuBtn.dataset.id,fuBtn.dataset.fu));
         const composeBtn=row.querySelector('.btn-dash-compose'); if(composeBtn) composeBtn.addEventListener('click',()=>goToFUEmail(composeBtn.dataset.id,composeBtn.dataset.futype));
         container.appendChild(row);
@@ -1773,14 +1773,14 @@
         const row=rows[i]; const id=row.dataset.id; const fuKey=row.dataset.fukey; const fuLabel=row.dataset.fulabel;
         const statusEl=document.getElementById(`bs-${id}-${fuKey}`);
         const lead=leads.find(l=>String(l.id)===String(id));
-        if(!lead||!lead.email){ failed++; if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:11px">Skipped</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
-        if(statusEl) statusEl.innerHTML='<span style="color:#888;font-size:11px">Sending...</span>';
+        if(!lead||!lead.email){ failed++; if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:12px">Skipped</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
+        if(statusEl) statusEl.innerHTML='<span style="color:#888;font-size:12px">Sending...</span>';
         let subject, body;
         if(fuKey==='initial'){ subject=lead.draftSubject||''; body=lead.draftBody||''; }
         else{
           const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cb=buildGreetingName(lead.contactName); const cl=lead.clinicName||'[Clinic Name]';
           const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:fuLabel==='FU1'?_FU1_TPL:fuLabel==='FU2'?_FU2_TPL:fuLabel==='FU3'?_FU3_TPL:null;
-          if(!tpl){ failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': no template'); if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:11px">No template</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
+          if(!tpl){ failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': no template'); if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:12px">No template</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
           subject=tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl);
           body=tpl.body.replace(/\[greeting\]/g,cb).replace(/\[name\]/g,cb).replace(/\[Contact\]/g,cb).replace(/\[Clinic Name\]/g,cl).replace(/\[City\]/g,lead.city||'[City]');
         }
@@ -1801,15 +1801,15 @@
           else if(fuKey==='fu3'){ lead.fu3Sent=true; lead.fu3SentOn=todayISO(); lead.reEngageDate=addDays(todayISO(),3); }
           else if(fuKey==='reEngage'){ lead.reEngageSent=true; lead.reEngageSentOn=todayISO(); }
           else if(fuKey==='demoFirst'){ lead.demoFirstSent=true; lead.demoFirstDate=todayISO(); }
-          sent++; if(statusEl) statusEl.innerHTML='<span style="color:#4CAF7D;font-size:11px">&#10003; Sent</span>';
+          sent++; if(statusEl) statusEl.innerHTML='<span style="color:#4CAF7D;font-size:12px">&#10003; Sent</span>';
         } catch(e){
-          failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': '+escapeHtml(e.message)); if(statusEl) statusEl.innerHTML=`<span style="color:#E5484D;font-size:11px" title="${escapeHtml(e.message)}">Failed</span>`;
+          failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': '+escapeHtml(e.message)); if(statusEl) statusEl.innerHTML=`<span style="color:#E5484D;font-size:12px" title="${escapeHtml(e.message)}">Failed</span>`;
         }
         if(progressEl) progressEl.textContent=(sent+failed)+' / '+total;
         if(i<rows.length-1) await new Promise(r=>setTimeout(r,500));
       }
       selectedPipelineIds.clear(); selectedFollowUpItems.clear(); save();
-      if(progressEl){ let summary='Done \u2014 '+sent+' sent'+(failed?', '+failed+' failed':''); if(failedDetails.length) summary+='<br><span style="color:#E5484D;font-size:11px;line-height:1.8">'+failedDetails.map(d=>'&middot; '+d).join('<br>')+'</span>'; progressEl.innerHTML=summary; }
+      if(progressEl){ let summary='Done \u2014 '+sent+' sent'+(failed?', '+failed+' failed':''); if(failedDetails.length) summary+='<br><span style="color:#E5484D;font-size:12px;line-height:1.8">'+failedDetails.map(d=>'&middot; '+d).join('<br>')+'</span>'; progressEl.innerHTML=summary; }
       if(confirmBtn){ confirmBtn.textContent='Close'; confirmBtn.disabled=false; confirmBtn.onclick=closeBulkSendModal; }
     }
 
@@ -2532,7 +2532,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       });
       if(withoutEmail.length){
         const note = document.createElement('div');
-        note.style.cssText = 'margin-top:10px;font-size:11px;color:#888;padding:8px 10px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)';
+        note.style.cssText = 'margin-top:10px;font-size:12px;color:#888;padding:8px 10px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)';
         note.innerHTML = `<strong style="color:#F0A429">${withoutEmail.length} lead${withoutEmail.length===1?'':'s'} skipped</strong> - no email on record: ` + withoutEmail.map(i=>escapeHtml(i.lead.clinicName||'(no name)')).join(', ');
         listEl.appendChild(note);
       }
@@ -2575,7 +2575,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       });
       if(withDraftNoEmail.length || noDraft.length){
         const note = document.createElement('div');
-        note.style.cssText = 'margin-top:10px;font-size:11px;color:#888;padding:8px 10px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)';
+        note.style.cssText = 'margin-top:10px;font-size:12px;color:#888;padding:8px 10px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)';
         const parts = [];
         if(withDraftNoEmail.length) parts.push('<strong style="color:#F0A429">' + withDraftNoEmail.length + ' skipped — no email on record:</strong> ' + withDraftNoEmail.map(l=>(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')).join(', '));
         if(noDraft.length) parts.push('<strong style="color:#F0A429">' + noDraft.length + ' skipped — no draft (generate via Qualifier):</strong> ' + noDraft.map(l=>(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')).join(', '));
@@ -2604,7 +2604,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         const statusEl = document.getElementById('sis-' + id);
         const lead = leads.find(l => l.id == id);
         if(!lead || !lead.email || !lead.draftSubject || !lead.draftBody) continue;
-        if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:11px">Sending...</span>';
+        if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:12px">Sending...</span>';
         const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(lead.draftBody).replace(/\n/g,'<br>') + '</div>';
         try{
           const msgId = await sendGraphEmail(lead.email, lead.draftSubject, htmlBody);
@@ -2614,10 +2614,10 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
           lead.fuDatesLocked = false;
           ensureFUDates(lead);
           sent++;
-          if(statusEl) statusEl.innerHTML = '<span style="color:#4CAF7D;font-size:11px">&#10003; Sent</span>';
+          if(statusEl) statusEl.innerHTML = '<span style="color:#4CAF7D;font-size:12px">&#10003; Sent</span>';
         } catch(e){
           failed++;
-          if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:11px" title="' + escapeHtml(e.message) + '">Failed</span>';
+          if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:12px" title="' + escapeHtml(e.message) + '">Failed</span>';
         }
         if(progressEl) progressEl.textContent = (sent + failed) + ' / ' + total;
       }
@@ -2640,9 +2640,9 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         const statusEl = document.getElementById(`sas-${id}-${fuKey}`);
         const lead = leads.find(l => l.id == id);
         if(!lead || !lead.email) continue;
-        if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:11px">Sending...</span>';
+        if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:12px">Sending...</span>';
         const tpl = fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : fuLabel==='FU1' ? _FU1_TPL : fuLabel==='FU2' ? _FU2_TPL : fuLabel==='FU3' ? _FU3_TPL : null;
-        if(!tpl){ if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:11px">No template</span>'; failed++; continue; }
+        if(!tpl){ if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:12px">No template</span>'; failed++; continue; }
         const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
         const contactForBody = buildGreetingName(lead.contactName);
         const clinic = lead.clinicName || '[Clinic Name]';
@@ -2658,10 +2658,10 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
           }
           markFUFromFollowUps(id, fuKey);
           sent++;
-          if(statusEl) statusEl.innerHTML = '<span style="color:#4CAF7D;font-size:11px">&#10003; Sent</span>';
+          if(statusEl) statusEl.innerHTML = '<span style="color:#4CAF7D;font-size:12px">&#10003; Sent</span>';
         } catch(e){
           failed++;
-          if(statusEl) statusEl.innerHTML = `<span style="color:#E5484D;font-size:11px" title="${escapeHtml(e.message)}">Failed</span>`;
+          if(statusEl) statusEl.innerHTML = `<span style="color:#E5484D;font-size:12px" title="${escapeHtml(e.message)}">Failed</span>`;
         }
         if(progressEl) progressEl.textContent = (sent + failed) + ' / ' + total;
       }
@@ -2741,7 +2741,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
 
         const websiteHtml = l.website
           ? '<div style="margin-top:4px"><a href="' + escapeHtml(l.website) + '" target="_blank" rel="noopener" class="li-website-link">' + escapeHtml(l.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></div>'
-          : '<div style="margin-top:4px;font-size:11px;color:#444">No website</div>';
+          : '<div style="margin-top:4px;font-size:12px;color:#444">No website</div>';
 
         const isDual = !!(l.principalName && l.practiceManagerName);
         let profileCell, dmCell, contactCell, clinicCell;
@@ -2807,7 +2807,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
             dmCell = '<div style="display:flex;flex-direction:column;gap:4px">' + dmPart + connPart + copyBtn + '</div>';
           }
           contactCell = l.linkedinContact
-            ? escapeHtml(l.linkedinContact) + '<div style="font-size:11px;color:var(--muted);margin-top:2px">Enquiry contact: ' + escapeHtml(l.contactName || '—') + '</div>'
+            ? escapeHtml(l.linkedinContact) + '<div style="font-size:12px;color:var(--muted);margin-top:2px">Enquiry contact: ' + escapeHtml(l.contactName || '—') + '</div>'
             : escapeHtml(l.contactName || '—');
           const notesInner = l.linkedinNotes
             ? '<div class="li-notes-preview" id="li-notes-preview-' + l.id + '">' + escapeHtml(l.linkedinNotes) + ' <button class="li-notes-link" onclick="expandLinkedInNote(' + l.id + ')">Edit</button></div>'
