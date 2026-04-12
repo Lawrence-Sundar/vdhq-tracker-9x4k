@@ -93,6 +93,7 @@
     .btn-sm{padding:5px 10px;font-size:16px;border-radius:6px}
     .btn-delete{border-color:rgba(232,105,122,.35);color:var(--danger)}
     .btn-delete:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-dim)}
+    input:invalid:not(:placeholder-shown){border-color:var(--danger)}
 
     /* Status dots */
     .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:0}
@@ -122,7 +123,7 @@
     /* Expanded detail */
     .lead-row-expand{padding:16px 20px 18px;background:rgba(30,20,45,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:0 0 14px 14px;border-top:1px solid var(--border);animation:expandIn .2s ease}
     @keyframes expandIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-    .expand-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-bottom:12px}
+    .expand-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:12px}
     .expand-field{font-size:16px}
     .expand-field .ef-label{color:var(--muted);display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1px}
     .expand-field .ef-val{color:var(--text);font-weight:500}
@@ -195,7 +196,7 @@
     /* Email tab */
     .email-section-label{font-size:16px;font-weight:600;color:var(--text);margin-bottom:12px}
     .btn-group{display:flex;gap:6px;flex-wrap:wrap}
-    .toggle-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:7px 14px;border-radius:8px;font-size:16px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .toggle-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:7px 14px;border-radius:8px;font-size:14px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
     .toggle-btn:hover{border-color:var(--border-hover);color:var(--text-dim)}
     .toggle-btn.active-angle{background:var(--accent);color:#fff;border-color:transparent}
     .toggle-btn.active-type{background:var(--accent);color:#fff;border-color:transparent}
@@ -332,8 +333,10 @@
     .fu-row-actions{display:flex;gap:6px;flex-shrink:0}
     .btn-fu-action{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:6px;font-size:14px;font-family:inherit;cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap}
     .btn-fu-action:hover{border-color:rgba(255,255,255,.15);color:var(--text)}
-    .btn-fu-replied{border-color:rgba(76,175,125,.3);color:#4CAF7D}
-    .btn-fu-replied:hover{background:rgba(76,175,125,.1);border-color:#4CAF7D}
+    .btn-fu-replied{border-color:var(--border);color:var(--success)}
+    .btn-fu-replied:hover{background:rgba(76,175,125,.1);border-color:var(--success)}
+    .btn-fu-email{background:var(--accent);color:#fff;border-color:transparent}
+    .btn-fu-email:hover{opacity:.85}
     .fu-empty-state{text-align:center;padding:40px 20px;color:#4CAF7D;font-size:16px;line-height:1.6}
     .fu-empty-icon{font-size:28px;margin-bottom:12px}
 
@@ -453,8 +456,8 @@
     .btn-li-view:hover{background:var(--accent-hover)}
     .li-edit-link{font-size:14px;color:var(--muted);cursor:pointer;text-decoration:underline;margin-left:6px;background:none;border:none;padding:0}
     .li-edit-link:hover{color:var(--text)}
-    .btn-li-dm{padding:5px 11px;font-size:16px;border-radius:6px;background:var(--accent);color:#fff;border:none;cursor:pointer;white-space:nowrap}
-    .btn-li-dm:hover{opacity:.85}
+    .btn-li-dm{padding:5px 11px;font-size:16px;border-radius:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(168,85,247,0.2);cursor:pointer;white-space:nowrap}
+    .btn-li-dm:hover{background:rgba(168,85,247,0.15)}
     .btn-li-conn{padding:5px 11px;font-size:16px;border-radius:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(168,85,247,0.2);cursor:pointer;white-space:nowrap}
     .btn-li-conn:hover{background:rgba(168,85,247,0.15)}
     .li-dm-badge{display:inline-block;padding:4px 9px;font-size:14px;border-radius:6px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
@@ -514,7 +517,7 @@
     }
 
     /* Multi-select bulk send */
-    .sel-check{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:1px}
+    .sel-check{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:1px}
     .lead-row-main.row-selected,.fu-row-main.row-selected{background:var(--accent-dim)}
     .bulk-action-bar{display:none;align-items:center;gap:10px;padding:7px 4px 9px;margin-bottom:2px}
     .btn-bulk-send{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:16px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;white-space:nowrap}
@@ -791,7 +794,7 @@
         <span class="da-sep">|</span>
         <span class="da-stat"><span class="da-val" id="daQualified-f">0</span> Leads Qualified</span>
         <span class="da-sep">|</span>
-        <span class="da-total">Total: <span id="daTotal-f">0</span> / 100</span>
+        <span class="da-total" title="Daily action target">Total: <span id="daTotal-f">0</span> / 100</span>
       </div>
       <div class="secondary-filter-bar" style="margin-top:12px">
         <div class="filter-group">
@@ -821,7 +824,7 @@
         </div>
       </div>
       <div class="li-filters">
-        <input id="liSearch" type="text" placeholder="Search clinics..." style="font-size:12px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:inherit;width:200px;outline:none">
+        <input id="liSearch" type="text" placeholder="Search clinics..." style="font-size:14px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:inherit;width:200px;outline:none">
         <div style="display:flex;align-items:center;gap:6px">
           <span style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">City</span>
           <select id="liFilterCity">
@@ -1022,7 +1025,7 @@
         <div style="margin-bottom:12px"><label>Notes</label><textarea id="notes"></textarea></div>
         <div class="flex">
           <button type="submit" class="btn btn-primary">Add Lead</button>
-          <button type="button" id="btnFillTest" class="btn btn-ghost">Add Example</button>
+          <button type="button" id="btnFillTest" class="btn btn-ghost" style="opacity:0.5;font-size:12px">Add Example</button>
         </div>
       </form>
     </div>
@@ -1203,7 +1206,7 @@
       if(_s('dashStatFUDue')) _s('dashStatFUDue').textContent=dueToday.length;
       if(_s('dashStatFUDueSub')){
         let fuSub=fuParts.length?fuParts.join(' · '):'No FUs due';
-        if(overdueItems.length) fuSub+='<span style="color:#F59E0B"> · '+overdueItems.length+' overdue</span>';
+        if(overdueItems.length) fuSub+='<br><span style="color:#F59E0B;font-size:12px">'+overdueItems.length+' overdue</span>';
         _s('dashStatFUDueSub').innerHTML=fuSub;
       }
       if(_s('dashStatNotSent')) _s('dashStatNotSent').textContent=notSentLeads;
