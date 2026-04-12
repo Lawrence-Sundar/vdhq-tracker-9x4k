@@ -109,13 +109,13 @@
 
     /* Lead rows */
     .leads-table{display:flex;flex-direction:column}
-    .lead-row{border-bottom:1px solid var(--border)}
+    .lead-row{border-bottom:1px solid rgba(120,80,160,0.08)}
     .lead-row:last-child{border-bottom:none}
-    .lead-row-main{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;border-radius:10px;transition:background .12s;min-height:40px}
+    .lead-row-main{display:flex;align-items:center;gap:10px;padding:10px 8px;cursor:pointer;border-radius:8px;transition:background .12s;min-height:44px}
     .lead-row-main:hover{background:rgba(168,85,247,0.04)}
     .lead-row-info{flex:1;min-width:0}
-    .lead-name{font-weight:500;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-    .lead-sub{font-size:16px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-top:1px}
+    .lead-name{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+    .lead-sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-top:2px}
     .angle-chip{font-size:14px;font-weight:500;padding:2px 7px;border-radius:4px;background:var(--accent-dim);color:var(--accent);white-space:nowrap;flex-shrink:0}
     .reply-y-chip{font-size:14px;font-weight:500;padding:2px 7px;border-radius:5px;background:var(--success-dim);color:var(--success);border:1px solid rgba(52,211,153,0.15);white-space:nowrap;flex-shrink:0}
 
@@ -290,15 +290,15 @@
 
     /* Pipeline — status filter button group */
     .status-filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-    .status-filter-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 14px;border-radius:8px;font-size:17px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .status-filter-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 12px;border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
     .status-filter-btn:hover{border-color:var(--border-hover);color:var(--text-dim)}
     .status-filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
 
     /* Pipeline — secondary filter bar */
     .secondary-filter-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
     .filter-group{display:flex;align-items:center;gap:6px}
-    .filter-inline-label{font-size:14px;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;font-weight:500}
-    .filter-group select{width:auto;padding:5px 8px;font-size:16px}
+    .filter-inline-label{font-size:11px;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+    .filter-group select{width:auto;padding:5px 8px;font-size:13px}
 
     /* Pipeline — filter reset badge */
     .filter-reset-badge{background:var(--elevated);border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:12px;font-size:15px;font-family:inherit;cursor:pointer;transition:border-color .12s,color .12s}
@@ -665,76 +665,84 @@
     </section>
 
     <!-- Pipeline -->
-    <section id="tab-pipeline" class="tabPane">
-      <div class="page-header">
-        <div><div class="page-title">Pipeline</div></div>
-        <div id="pipelineFilterBadge" style="display:none">
-          <button class="filter-reset-badge" id="btnResetFilters">Filters (<span id="filterCount">0</span>)</button>
+    <section id="tab-pipeline" class="tabPane" style="padding:24px 32px">
+      <!-- Header: title + search -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="font-size:16px;font-weight:600">Pipeline</div>
+          <div id="pipelineCount" style="font-size:12px;color:var(--muted)"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input id="pipelineSearch" type="text" placeholder="Search clinics..." style="font-size:13px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;font-family:inherit;width:220px;outline:none">
+          <button class="btn-ghost btn-sm" id="btnToggleFilters" onclick="const d=document.getElementById('pipelineFiltersPanel');d.style.display=d.style.display==='none'?'block':'none'">Filters <span id="filterCount" style="display:none">0</span></button>
+          <div id="pipelineFilterBadge" style="display:none"><button class="filter-reset-badge" id="btnResetFilters" style="font-size:12px">Reset</button></div>
         </div>
       </div>
-      <div class="daily-actions-bar">
-        <span class="da-label">Today's Actions</span>
-        <span class="da-stat"><span class="da-val" id="daFreshSends-p">0</span> Fresh Sends</span>
-        <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daFollowups-p">0</span> Follow-ups</span>
-        <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daLinkedinDM-p">0</span> LinkedIn DMs</span>
-        <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daLinkedinConn-p">0</span> LinkedIn Connections</span>
-        <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daQualified-p">0</span> Leads Qualified</span>
-        <span class="da-sep">|</span>
-        <span class="da-total">Total: <span id="daTotal-p">0</span> / 100</span>
-      </div>
-      <div class="status-filter-bar">
+
+      <!-- Status pills -->
+      <div class="status-filter-bar" style="margin-bottom:16px">
         <button class="status-filter-btn active" data-status="All">All</button>
         <button class="status-filter-btn" data-status="Not Sent">Not Sent</button>
         <button class="status-filter-btn" data-status="Sent">Sent</button>
         <button class="status-filter-btn" data-status="Follow Up Due">Follow Up Due</button>
         <button class="status-filter-btn" data-status="Replied">Replied</button>
         <button class="status-filter-btn" data-status="Converted">Converted</button>
-        <button class="status-filter-btn" data-status="Do Not Contact">Do Not Contact</button>
+        <button class="status-filter-btn" data-status="Do Not Contact">DNC</button>
       </div>
-      <div class="secondary-filter-bar">
-        <div class="filter-group">
-          <span class="filter-inline-label">Source</span>
-          <select id="pFilterSource"><option value="All">All</option><option value="Qualifier">Qualifier</option><option value="Manual">Manual</option></select>
-        </div>
-        <div class="filter-group">
-          <span class="filter-inline-label">City</span>
-          <select id="pFilterCity"><option value="All">All</option><option value="London">London</option><option value="Manchester">Manchester</option><option value="Birmingham">Birmingham</option><option value="Leeds">Leeds</option><option value="Bristol">Bristol</option><option value="Edinburgh">Edinburgh</option><option value="Glasgow">Glasgow</option><option value="Other">Other</option></select>
-        </div>
-        <div class="filter-group">
-          <span class="filter-inline-label">Sort</span>
-          <select id="pFilterSort"><option value="newest">Date Added (Newest)</option><option value="oldest">Date Added (Oldest)</option><option value="fuSoonest">FU Due (Soonest)</option></select>
-        </div>
-        <div class="filter-group">
-          <span class="filter-inline-label">FU Stage</span>
-          <select id="pFilterFUStage"><option value="All">All</option><option value="Initial Not Sent">Initial Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Re-Engage Sent">Re-Engage Sent</option><option value="Demo First Sent">Demo First Sent</option><option value="Cover Variant Sent">Cover Variant Sent</option></select>
-        </div>
-        <div class="filter-group">
-          <span class="filter-inline-label">CTA</span>
-          <select id="pFilterCta"><option value="All">All</option><option value="Demo">Demo</option><option value="Audit">Audit</option></select>
-        </div>
-        <div class="filter-group">
-          <span class="filter-inline-label">Subject</span>
-          <select id="pFilterSubject"><option value="All">All</option></select>
-        </div>
-        <div class="filter-group">
-          <span class="filter-inline-label">LinkedIn</span>
-          <select id="pFilterNoLinkedin"><option value="All">All</option><option value="No LinkedIn">No LinkedIn</option></select>
+
+      <!-- Collapsible filters panel -->
+      <div id="pipelineFiltersPanel" style="display:none;margin-bottom:16px">
+        <div class="card" style="padding:16px 20px">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+            <div class="filter-group">
+              <span class="filter-inline-label">Source</span>
+              <select id="pFilterSource"><option value="All">All</option><option value="Qualifier">Qualifier</option><option value="Manual">Manual</option></select>
+            </div>
+            <div class="filter-group">
+              <span class="filter-inline-label">City</span>
+              <select id="pFilterCity"><option value="All">All</option><option value="London">London</option><option value="Manchester">Manchester</option><option value="Birmingham">Birmingham</option><option value="Leeds">Leeds</option><option value="Bristol">Bristol</option><option value="Edinburgh">Edinburgh</option><option value="Glasgow">Glasgow</option><option value="Other">Other</option></select>
+            </div>
+            <div class="filter-group">
+              <span class="filter-inline-label">Sort</span>
+              <select id="pFilterSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="fuSoonest">FU Soonest</option></select>
+            </div>
+            <div class="filter-group">
+              <span class="filter-inline-label">FU Stage</span>
+              <select id="pFilterFUStage"><option value="All">All</option><option value="Initial Not Sent">Initial Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Re-Engage Sent">Re-Engage Sent</option><option value="Demo First Sent">Demo First Sent</option><option value="Cover Variant Sent">Cover Variant Sent</option></select>
+            </div>
+            <div class="filter-group">
+              <span class="filter-inline-label">CTA</span>
+              <select id="pFilterCta"><option value="All">All</option><option value="Demo">Demo</option><option value="Audit">Audit</option></select>
+            </div>
+            <div class="filter-group">
+              <span class="filter-inline-label">Subject</span>
+              <select id="pFilterSubject"><option value="All">All</option></select>
+            </div>
+            <div class="filter-group">
+              <span class="filter-inline-label">LinkedIn</span>
+              <select id="pFilterNoLinkedin"><option value="All">All</option><option value="No LinkedIn">No LinkedIn</option></select>
+            </div>
+          </div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 4px 0;gap:12px">
-        <div id="pipelineCount" style="font-size:12px;color:#888;font-family:inherit;white-space:nowrap"></div>
-        <input id="pipelineSearch" type="text" placeholder="Search clinics..." style="font-size:12px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:inherit;width:200px;outline:none">
-      </div>
+
+      <!-- Daily actions (hidden, IDs preserved for renderDailyActionsBar) -->
+      <span id="daFreshSends-p" style="display:none">0</span>
+      <span id="daFollowups-p" style="display:none">0</span>
+      <span id="daLinkedinDM-p" style="display:none">0</span>
+      <span id="daLinkedinConn-p" style="display:none">0</span>
+      <span id="daQualified-p" style="display:none">0</span>
+      <span id="daTotal-p" style="display:none">0</span>
+
+      <!-- Bulk actions -->
       <div id="pipelineBulkBar" class="bulk-action-bar">
         <input type="checkbox" class="sel-check" id="pSelectAll" title="Select all filtered">
         <span id="pSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
         <button class="btn-bulk-send" id="btnBulkSendPipeline">Send via Outlook</button>
       </div>
-      <div class="card" style="padding:0 12px">
+
+      <!-- Lead list -->
+      <div class="card" style="padding:4px 16px">
         <div id="pipelineList" class="leads-table"></div>
       </div>
     </section>
@@ -1409,7 +1417,8 @@
         const main=document.createElement('div'); main.className='lead-row-main';
         const _pCbChecked=selectedPipelineIds.has(String(l.id));
         if(_pCbChecked) main.classList.add('row-selected');
-        main.innerHTML=`<input type="checkbox" class="sel-check" id="pcb-${l.id}" ${_pCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="row-right">${urgHtml}<span class="date-added-label">${dateAdded}</span></div>`;
+        const contextChip=urgency?`<span class="fu-urgency ${urgency.dotClass}">${escapeHtml(urgency.label)}</span>`:status==='Replied'?'<span style="font-size:12px;color:var(--success);font-weight:500">Replied</span>':status==='Converted'?'<span style="font-size:12px;color:#34d399;font-weight:500">Converted</span>':status==='Not Sent'?'<span style="font-size:12px;color:var(--muted)">Not sent</span>':'';
+        main.innerHTML=`<input type="checkbox" class="sel-check" id="pcb-${l.id}" ${_pCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${l.city?' · '+escapeHtml(l.city):''}</span></div><div class="row-right">${contextChip}</div>`;
         const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
         const hasDraft=!!(l.draftSubject||l.draftBody);
         // Reply on record section (only if replyText saved)
