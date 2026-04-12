@@ -171,6 +171,10 @@
     .bar-stack{display:flex;align-items:flex-end;gap:3px;width:100%;padding:0 2px}
     .bar-col{border-radius:4px 4px 0 0;min-height:0;transition:height .4s ease;flex:1}
 
+    /* View lead button in pipeline rows */
+    .btn-view-lead{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+    .btn-view-lead:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
     /* Compose email btn in dashboard */
     .btn-dash-compose{background:transparent;border:1px solid var(--border);color:var(--accent);padding:4px 10px;border-radius:6px;font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
     .btn-dash-compose:hover{border-color:var(--accent);background:var(--accent-dim)}
@@ -212,6 +216,12 @@
     .modal{width:440px;background:rgba(25,15,35,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);height:100%;overflow-y:auto;box-shadow:-12px 0 40px rgba(0,0,0,.5);padding:28px;transform:translateX(20px);transition:transform .22s;border-left:1px solid var(--sidebar-border)}
     .modal.open{transform:translateX(0)}
     .modal h3{font-size:20px;font-weight:600;margin-bottom:20px}
+
+    /* Lead Detail modal — centred wide overlay */
+    #leadDetailBackdrop{justify-content:center;align-items:center}
+    #leadDetailModal{width:720px;max-width:calc(100vw - 32px);height:auto;max-height:90vh;border-left:none;border-radius:12px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.75);transform:translateY(-12px);overflow:hidden}
+    #leadDetailModal.open{transform:translateY(0)}
+    @media(max-width:760px){#leadDetailModal{width:100%;max-width:100%;border-radius:0;max-height:100vh}}
 
     /* Edit modal — centred overlay (overrides the default right-slide modal) */
     #editBackdrop{justify-content:center;align-items:center}
@@ -326,12 +336,12 @@
     .fu-empty-icon{font-size:28px;margin-bottom:12px}
 
     /* Pipeline — FU urgency indicator */
-    .fu-urgency{display:flex;align-items:center;gap:4px;font-size:15px;font-weight:500;white-space:nowrap;flex-shrink:0}
+    .fu-urgency{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;white-space:nowrap;flex-shrink:0}
     .fu-urg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block}
-    .fu-urg-overdue{color:#E5484D}
-    .fu-urg-overdue .fu-urg-dot{background:#E5484D}
-    .fu-urg-today{color:#F0A429}
-    .fu-urg-today .fu-urg-dot{background:#F0A429}
+    .fu-urg-overdue{color:#F59E0B}
+    .fu-urg-overdue .fu-urg-dot{background:#F59E0B}
+    .fu-urg-today{color:#F59E0B}
+    .fu-urg-today .fu-urg-dot{background:#F59E0B}
     .fu-urg-soon{color:var(--muted)}
     .fu-urg-soon .fu-urg-dot{background:var(--muted)}
 
@@ -942,6 +952,17 @@
     </section>
   </main>
 
+  <!-- Lead Detail modal (centered, replaces inline expand) -->
+  <div id="leadDetailBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="leadDetailModal" class="modal" role="dialog" aria-modal="true" aria-label="Lead details">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 id="leadDetailTitle" style="font-size:18px;font-weight:600;margin:0"></h3>
+        <button onclick="closeLeadDetail()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px;line-height:1">&times;</button>
+      </div>
+      <div id="leadDetailContent" style="overflow-y:auto;max-height:calc(90vh - 80px)"></div>
+    </div>
+  </div>
+
   <!-- Add Lead slide-in panel -->
   <div id="addLeadBackdrop" class="modal-backdrop" aria-hidden="true">
     <div id="addLeadPanel" class="modal" role="dialog" aria-modal="true" aria-label="Add Lead">
@@ -1334,6 +1355,27 @@
       if(!isOpen){ expand.style.display='block'; expandedLeadId=id; } else { expandedLeadId=null; }
     }
 
+    function openLeadDetail(id){
+      const expand=document.getElementById('expand-'+id);
+      if(!expand) return;
+      const lead=leads.find(l=>String(l.id)===String(id));
+      const title=document.getElementById('leadDetailTitle');
+      const content=document.getElementById('leadDetailContent');
+      if(title) title.textContent=lead?lead.clinicName:'Lead Details';
+      if(content){
+        // Move the expand div into the modal
+        expand.style.display='block';
+        content.innerHTML='';
+        content.appendChild(expand);
+      }
+      document.getElementById('leadDetailBackdrop').classList.add('open');
+      expandedLeadId=id;
+    }
+    function closeLeadDetail(){
+      document.getElementById('leadDetailBackdrop').classList.remove('open');
+      // On next renderAll, the expand div will be regenerated in place
+    }
+
     function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); save(); }
 
     function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(lead.reply==='Y') return 'Replied'; if(_rt==='Disqualified') return 'Disqualified'; if(!lead.dateSent) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; if(!lead.reEngageSent&&lead.fu3Sent&&lead.fu3SentOn){ const _d=Math.round((new Date(td)-new Date(normDateStr(lead.fu3SentOn)))/86400000); if(_d>=7) return 'Re-Engage Overdue'; } if(!lead.demoFirstSent&&lead.reEngageSent&&lead.reEngageSentOn){ const _d=Math.round((new Date(td)-new Date(normDateStr(lead.reEngageSentOn)))/86400000); if(_d>=14) return 'Demo First Overdue'; } return 'Sent'; }
@@ -1418,7 +1460,8 @@
         const _pCbChecked=selectedPipelineIds.has(String(l.id));
         if(_pCbChecked) main.classList.add('row-selected');
         const contextChip=urgency?`<span class="fu-urgency ${urgency.dotClass}">${escapeHtml(urgency.label)}</span>`:status==='Replied'?'<span style="font-size:12px;color:var(--success);font-weight:500">Replied</span>':status==='Converted'?'<span style="font-size:12px;color:#34d399;font-weight:500">Converted</span>':status==='Not Sent'?'<span style="font-size:12px;color:var(--muted)">Not sent</span>':'';
-        main.innerHTML=`<input type="checkbox" class="sel-check" id="pcb-${l.id}" ${_pCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${l.city?' · '+escapeHtml(l.city):''}</span></div><div class="row-right">${contextChip}</div>`;
+        const cityDisplay=l.city&&l.city.toLowerCase()!=='unknown'?' · '+escapeHtml(l.city):'';
+        main.innerHTML=`<input type="checkbox" class="sel-check" id="pcb-${l.id}" ${_pCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${escapeHtml(l.clinicName||'(no name)')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${cityDisplay}</span></div><div class="row-right">${contextChip}<button class="btn-view-lead" data-id="${l.id}">View</button></div>`;
         const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
         const hasDraft=!!(l.draftSubject||l.draftBody);
         // Reply on record section (only if replyText saved)
@@ -1432,7 +1475,8 @@
         const _dfBadge=(()=>{ if(l.demoFirstSent) return '<button class="fu-btn fu-sent">&#10003; Demo First sent</button>'; if(!l.reEngageSent) return ''; const _ds=l.reEngageSentOn?normDateStr(l.reEngageSentOn):''; if(!_ds) return ''; const _dd=Math.round((new Date(td)-new Date(_ds))/86400000); if(_dd>=14) return '<button class="fu-btn fu-overdue">Demo First Due</button>'; if(_dd>=7) return '<button class="fu-btn fu-due">Demo First Due</button>'; return `<button class="fu-btn">Demo First \u00b7 ${formatDateISOtoShortUK(addDays(_ds,7))}</button>`; })();
         expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml(l.channel||'—')}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div><div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button>${_reBadge}${_dfBadge}</div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
         expand.innerHTML += onRecordHtml + logReplyHtml;
-        main.addEventListener('click',()=>toggleExpand(l.id));
+        const _viewBtn=main.querySelector('.btn-view-lead');
+        if(_viewBtn) _viewBtn.addEventListener('click',e=>{ e.stopPropagation(); openLeadDetail(l.id); });
         const _pCb=main.querySelector(`#pcb-${l.id}`);
         if(_pCb){ _pCb.addEventListener('click',e=>e.stopPropagation()); _pCb.addEventListener('change',e=>{ if(e.target.checked) selectedPipelineIds.add(String(l.id)); else selectedPipelineIds.delete(String(l.id)); main.classList.toggle('row-selected',e.target.checked); updatePipelineSelectionBar(); }); }
         // Bind expand row buttons directly so they work after filter changes (when renderPipeline is called without attachButtons)
@@ -1965,6 +2009,7 @@
       document.getElementById('btnAddLeadTrigger').addEventListener('click',openAddLeadPanel);
       document.getElementById('addLeadClose').addEventListener('click',closeAddLeadPanel);
       document.getElementById('addLeadBackdrop').addEventListener('click',e=>{ if(e.target===document.getElementById('addLeadBackdrop')) closeAddLeadPanel(); });
+      document.getElementById('leadDetailBackdrop').addEventListener('click',e=>{ if(e.target===document.getElementById('leadDetailBackdrop')) closeLeadDetail(); });
 
       document.getElementById('hamburger').onclick=openMobileSidebar;
       document.getElementById('sidebarOverlay').onclick=closeMobileSidebar;
