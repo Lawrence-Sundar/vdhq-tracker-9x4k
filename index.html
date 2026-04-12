@@ -636,7 +636,7 @@
             </div>
           </div>
           <div id="dashBarChart" class="bar-chart-row"></div>
-          <div id="dashBarLabels" style="display:flex;gap:6px;padding:8px 0 0;font-size:11px;color:var(--muted)"></div>
+          <div id="dashBarLabels" class="bar-chart-row" style="height:auto;padding:8px 0 0;font-size:12px;color:var(--muted);align-items:center"></div>
           <div id="dashBarEmpty" style="display:none;color:var(--muted);font-size:14px;text-align:center;padding:60px 0">Start sending emails to see weekly activity</div>
         </div>
 
@@ -1206,17 +1206,18 @@
       const funnelBar=_s('dashFunnelBar');
       const funnelLegend=_s('dashFunnelLegend');
       if(funnelBar&&funnelLegend){
+        const repliedOnly=repliedLeads-convertedLeads>0?repliedLeads-convertedLeads:0;
         const funnelData=[
-          {label:'Total',count:totalLeads,color:'rgba(120,80,160,0.3)'},
+          {label:'Not Sent',count:notSentLeads,color:'#22d3ee'},
           {label:'Sent',count:sentOnlyLeads>0?sentOnlyLeads:0,color:'#a855f7'},
-          {label:'Replied',count:repliedLeads-convertedLeads>0?repliedLeads-convertedLeads:0,color:'#f472b6'},
+          {label:'Replied',count:repliedOnly,color:'#f472b6'},
           {label:'Converted',count:convertedLeads,color:'#34d399'}
         ];
-        // Funnel shows segments proportional to total
         const t=totalLeads||1;
         funnelBar.innerHTML=funnelData.filter(d=>d.count>0).map(d=>{
-          const pct=Math.max((d.count/t*100),2);
-          return '<div class="funnel-seg" style="width:'+pct+'%;background:'+d.color+'" title="'+d.label+': '+d.count+'">'+( pct>=8?d.count:'')+'</div>';
+          const pct=Math.max((d.count/t*100),4);
+          const label=d.count>0?(d.label+' '+d.count):'';
+          return '<div class="funnel-seg" style="width:'+pct+'%;background:'+d.color+'" title="'+d.label+': '+d.count+'">'+( pct>=12?label:d.count)+'</div>';
         }).join('');
         funnelLegend.innerHTML=funnelData.map(d=>'<div class="funnel-legend-item"><span class="funnel-legend-dot" style="background:'+d.color+'"></span>'+d.label+' <span class="funnel-legend-val">'+d.count+'</span></div>').join('');
       }
@@ -1291,9 +1292,13 @@
           }).join('');
           if(barLabels){
             const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            let _prevMon='';
             barLabels.innerHTML=last8.map(k=>{
               const ws=weekMap[k].start;
-              return '<span style="flex:1;text-align:center">'+(ws?months[ws.getMonth()]+' '+ws.getDate():k)+'</span>';
+              if(!ws) return '<div style="flex:1;text-align:center">'+k+'</div>';
+              const mon=months[ws.getMonth()];
+              const showMon=(mon!==_prevMon); _prevMon=mon;
+              return '<div style="flex:1;text-align:center">'+(showMon?mon+' ':'')+ws.getDate()+'</div>';
             }).join('');
           }
         }
