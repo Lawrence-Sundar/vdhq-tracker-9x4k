@@ -746,10 +746,18 @@
       <span id="daTotal-p" style="display:none">0</span>
 
       <!-- Bulk actions -->
-      <div id="pipelineBulkBar" class="bulk-action-bar">
-        <input type="checkbox" class="sel-check" id="pSelectAll" title="Select all filtered">
+      <!-- Bulk selection bar — always visible -->
+      <div id="pipelineBulkBar" style="display:flex;align-items:center;gap:8px;padding:8px 0;margin-bottom:4px;flex-wrap:wrap">
+        <input type="checkbox" class="sel-check" id="pSelectAll" title="Select / deselect all filtered">
         <span id="pSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
-        <button class="btn-bulk-send" id="btnBulkSendPipeline">Send via Outlook</button>
+        <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
+        <button class="btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" id="btnSel10">Select 10</button>
+        <button class="btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" id="btnSel25">Select 25</button>
+        <button class="btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" id="btnSel50">Select 50</button>
+        <button class="btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" id="btnSelClear">Clear</button>
+        <div style="margin-left:auto" id="bulkSendWrap" style="display:none">
+          <button class="btn-bulk-send" id="btnBulkSendPipeline" style="font-size:12px;padding:5px 12px">Send via Outlook</button>
+        </div>
       </div>
 
       <!-- Lead list -->
@@ -1672,16 +1680,22 @@
     }
 
     function updatePipelineSelectionBar(){
-      const bar=document.getElementById('pipelineBulkBar');
       const countEl=document.getElementById('pSelCount');
       const sa=document.getElementById('pSelectAll');
+      const sendWrap=document.getElementById('bulkSendWrap');
       if(countEl) countEl.textContent=selectedPipelineIds.size+' selected';
-      if(bar) bar.style.display=selectedPipelineIds.size>0?'flex':'none';
+      if(sendWrap) sendWrap.style.display=selectedPipelineIds.size>0?'':'none';
       if(sa){
         const eligible=_lastPipelineFiltered.filter(l=>computeStatus(l)!=='Not Interested');
         sa.checked=eligible.length>0&&eligible.every(l=>selectedPipelineIds.has(String(l.id)));
         sa.indeterminate=!sa.checked&&selectedPipelineIds.size>0;
       }
+    }
+    function quickSelectPipeline(n){
+      selectedPipelineIds.clear();
+      const eligible=_lastPipelineFiltered.filter(l=>computeStatus(l)!=='Not Interested');
+      eligible.slice(0,n).forEach(l=>selectedPipelineIds.add(String(l.id)));
+      renderPipeline();
     }
 
     function updateFollowUpsSelectionBar(){
@@ -1825,6 +1839,10 @@
       const noLinkedin=document.getElementById('pFilterNoLinkedin'); if(noLinkedin) noLinkedin.addEventListener('change',()=>{ pipelineFilter.noLinkedin=noLinkedin.value; renderPipeline(); });
       const resetBtn=document.getElementById('btnResetFilters'); if(resetBtn) resetBtn.addEventListener('click',resetPipelineFilters);
       const psearch=document.getElementById('pipelineSearch'); if(psearch) psearch.addEventListener('input',()=>renderPipeline());
+      const s10=document.getElementById('btnSel10'); if(s10) s10.addEventListener('click',()=>quickSelectPipeline(10));
+      const s25=document.getElementById('btnSel25'); if(s25) s25.addEventListener('click',()=>quickSelectPipeline(25));
+      const s50=document.getElementById('btnSel50'); if(s50) s50.addEventListener('click',()=>quickSelectPipeline(50));
+      const sClear=document.getElementById('btnSelClear'); if(sClear) sClear.addEventListener('click',()=>{ selectedPipelineIds.clear(); renderPipeline(); });
     }
 
     function renderInbox(){
