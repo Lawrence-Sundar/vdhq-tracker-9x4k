@@ -124,7 +124,7 @@
     @keyframes expandIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
     .expand-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-bottom:12px}
     .expand-field{font-size:16px}
-    .expand-field .ef-label{color:var(--muted);display:block;font-size:14px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+    .expand-field .ef-label{color:var(--muted);display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1px}
     .expand-field .ef-val{color:var(--text);font-weight:500}
     .expand-fu{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
     .fu-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;font-size:16px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -172,7 +172,7 @@
     .bar-col{border-radius:4px 4px 0 0;min-height:0;transition:height .4s ease;flex:1}
 
     /* View lead button in pipeline rows */
-    .btn-view-lead{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+    .btn-view-lead{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 12px;border-radius:6px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
     .btn-view-lead:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
 
     /* Compose email btn in dashboard */
@@ -203,7 +203,7 @@
     .autofill-field{background:var(--elevated);border-radius:6px;padding:8px 10px;border:1px solid var(--border)}
     .autofill-field span{display:block;font-size:14px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
     .autofill-field strong{font-size:16px}
-    .email-preview-box{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:16px;line-height:1.65;white-space:pre-wrap;word-break:break-word;min-height:180px;color:#d4e8f0}
+    .email-preview-box{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;min-height:180px;color:#d4e8f0}
     .subject-line{font-size:16px;font-weight:600;color:var(--accent);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
     .email-actions{display:flex;gap:8px;margin-top:12px;align-items:center}
     .copy-confirm{font-size:16px;color:var(--success);opacity:0;transition:opacity .2s}
@@ -288,7 +288,7 @@
     .ni-badge{display:inline-block;font-size:14px;font-style:italic;padding:2px 9px;border-radius:12px;background:#222;color:#666;letter-spacing:.03em;margin-bottom:8px}
 
     /* Daily Actions Bar */
-    .daily-actions-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px 20px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 22px;margin-bottom:18px}
+    .daily-actions-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px 20px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 20px;margin-bottom:18px}
     .da-label{font-size:14px;font-weight:600;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-right:4px}
     .da-sep{color:#333;font-size:16px}
     .da-stat{font-size:16px;color:#666}
@@ -327,8 +327,8 @@
     .fu-section-label{display:block;font-size:16px;font-weight:600;color:var(--warning);padding:20px 4px 8px}
     .fu-row-main{display:flex;align-items:center;gap:10px;padding:9px 4px;min-height:40px}
     .fu-due-badge{font-size:14px;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0}
-    .fu-due-badge-overdue{background:rgba(229,72,77,.12);color:#E5484D}
-    .fu-due-badge-today{background:rgba(240,164,41,.12);color:#F0A429}
+    .fu-due-badge-overdue{background:rgba(229,72,77,.12);color:#E5484D;border:1px solid rgba(229,72,77,.25)}
+    .fu-due-badge-today{background:rgba(240,164,41,.12);color:#F0A429;border:1px solid rgba(240,164,41,.25)}
     .fu-row-actions{display:flex;gap:6px;flex-shrink:0}
     .btn-fu-action{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:6px;font-size:14px;font-family:inherit;cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap}
     .btn-fu-action:hover{border-color:rgba(255,255,255,.15);color:var(--text)}
@@ -411,7 +411,7 @@
     .email-auto-note{font-size:14px;color:var(--muted);margin-top:8px;padding:5px 8px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)}
 
     /* Score badges (Pipeline expand) */
-    .score-badge-hot{display:inline-block;font-size:14px;font-weight:700;padding:2px 9px;border-radius:12px;background:#2D7D46;color:#fff;letter-spacing:.04em;margin-bottom:8px}
+    .score-badge-hot{display:inline-block;font-size:14px;font-weight:700;padding:2px 9px;border-radius:12px;background:var(--accent);color:#fff;letter-spacing:.04em;margin-bottom:8px}
     .score-badge-warm{display:inline-block;font-size:14px;font-weight:700;padding:2px 9px;border-radius:12px;background:#F5A623;color:#0d0a00;letter-spacing:.04em;margin-bottom:8px}
 
     /* Content top bar */
@@ -433,14 +433,14 @@
     @media(max-width:640px){#sendAllModal{width:100%;max-width:100%;border-radius:0 0 10px 10px;border-left:none;border-right:none;border-top:none;align-self:flex-end;max-height:92vh;transform:translateY(20px)}#sendAllModal.open{transform:translateY(0)}}
     /* LinkedIn tab */
     .li-filters{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-    .li-filters select{padding:5px 8px;font-size:16px;border-radius:6px;border:1px solid var(--border);background:var(--elevated);color:var(--text);font-family:inherit;cursor:pointer}
-    .li-filters label{display:flex;align-items:center;gap:6px;font-size:16px;color:var(--muted);cursor:pointer;white-space:nowrap}
+    .li-filters select{padding:5px 8px;font-size:14px;border-radius:8px;border:1px solid var(--border);background:var(--elevated);color:var(--text);font-family:inherit;cursor:pointer}
+    .li-filters label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap}
     .li-filters input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
     .li-summary{font-size:16px;color:var(--muted);margin-bottom:8px}
     .li-summary span{color:var(--text);font-weight:500}
     .li-notice{font-size:14px;color:var(--muted);margin-bottom:14px}
     .li-table{width:100%;border-collapse:collapse;font-size:16px}
-    .li-table th{text-align:left;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+    .li-table th{text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
     .li-table td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
     .li-table tr:last-child td{border-bottom:none}
     .li-table tr:hover td{background:var(--elevated)}
@@ -681,7 +681,7 @@
       <!-- Header: title + search -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <div style="display:flex;align-items:center;gap:16px">
-          <div style="font-size:16px;font-weight:600">Pipeline</div>
+          <div class="page-title">Pipeline</div>
           <div id="pipelineCount" style="font-size:12px;color:var(--muted)"></div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
@@ -700,6 +700,7 @@
         <button class="status-filter-btn" data-status="Converted">Converted <span class="tab-count" id="tcConverted"></span></button>
         <button class="status-filter-btn" data-status="DNC">DNC <span class="tab-count" id="tcDNC"></span></button>
       </div>
+      <div style="display:flex;gap:12px;font-size:12px;color:var(--muted);margin-bottom:12px;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-sent" style="width:6px;height:6px"></span>Sent</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-fudue" style="width:6px;height:6px"></span>FU Due</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-replied" style="width:6px;height:6px"></span>Replied</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-notsent" style="width:6px;height:6px"></span>Not Sent</span></div>
 
       <!-- Collapsible filters panel -->
       <div id="pipelineFiltersPanel" style="display:none;margin-bottom:16px">
@@ -956,7 +957,7 @@
           </div>
           <div id="fu2DemoTip" style="display:none;margin-top:8px;font-size:12px;color:#666">Tip: if the demo link doesn't appear as a hyperlink in your email client, highlight the URL and use Insert Link.</div>
         </div>
-        <div id="emailPreviewPlaceholder" class="muted small">Select a lead, angle and follow-up type to generate the email.</div>
+        <div id="emailPreviewPlaceholder" class="muted small" style="font-size:14px">Select a lead, angle and follow-up type to generate the email.</div>
       </div>
     </section>
   </main>
@@ -964,7 +965,7 @@
   <!-- Lead Detail modal (centered, replaces inline expand) -->
   <div id="leadDetailBackdrop" class="modal-backdrop" aria-hidden="true">
     <div id="leadDetailModal" class="modal" role="dialog" aria-modal="true" aria-label="Lead details">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
         <h3 id="leadDetailTitle" style="font-size:16px;font-weight:600;margin:0"></h3>
         <button onclick="closeLeadDetail()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px;line-height:1">&times;</button>
       </div>
@@ -996,13 +997,13 @@
         <div class="form-row">
           <div><label>Email Address</label><input type="email" id="email"></div>
           <div class="w200"><label>Channel</label>
-            <select id="channel"><option>Email</option><option>Contact Form</option><option>DM</option></select>
+            <select id="channel"><option value="" disabled selected>— select —</option><option>Email</option><option>Contact Form</option><option>DM</option></select>
           </div>
           <div class="w100"><label>Reviews</label><input type="text" id="reviewCount" placeholder="e.g. 47"></div>
         </div>
         <div class="form-row">
           <div class="w200"><label>Angle</label>
-            <select id="angle"><option>After-Hours</option><option>Coordination</option><option>Conversion</option></select>
+            <select id="angle"><option value="" disabled selected>— select —</option><option>After-Hours</option><option>Coordination</option><option>Conversion</option></select>
           </div>
           <div class="w120"><label>Reply</label>
             <select id="reply"><option value="N">No</option><option value="Y">Yes</option></select>
@@ -1349,7 +1350,7 @@
         const main=document.createElement('div'); main.className='lead-row-main';
         main.innerHTML=`<span class="sdot ${statusDotClass(l)}"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${l.city?' · '+escapeHtml(l.city):''}</span></div>${l.angle?`<span class="angle-chip">${escapeHtml(l.angle)}</span>`:''}<div class="fu-chips"><span class="fu-chip ${l.fu1Sent?'fu-chip-sent':fu1Due?'fu-chip-due':''}">FU1</span><span class="fu-chip ${l.fu2Sent?'fu-chip-sent':fu2Due?'fu-chip-due':''}">FU2</span><span class="fu-chip ${l.fu3Sent?'fu-chip-sent':fu3Due?'fu-chip-due':''}">FU3</span>${l.coverVariantSent?'<span class="fu-chip" style="border-color:var(--accent);color:var(--accent)">Cover</span>':''}</div>${l.reply==='Y'?'<span class="reply-y-chip">Replied</span>':''}`;
         const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
-        expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions"><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button></div>`;
+        expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions"><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button></div>`;
         main.addEventListener('click',()=>toggleExpand(l.id));
         row.appendChild(main); row.appendChild(expand); container.appendChild(row);
       });
@@ -1519,7 +1520,7 @@
         const scoreBadgeHtml=(l.score==='Hot')?'<span class="score-badge-hot">HOT LEAD</span>':(l.score==='Warm')?'<span class="score-badge-warm">WARM LEAD</span>':'';
         const _reBadge=(()=>{ if(l.reEngageSent) return '<button class="fu-btn fu-sent">&#10003; Re-Engage sent</button>'; if(!l.fu3Sent) return ''; const _rs=l.fu3SentOn?normDateStr(l.fu3SentOn):''; if(!_rs) return l.reEngageDate?`<button class="fu-btn">Re-Engage \u00b7 ${formatDateISOtoShortUK(l.reEngageDate)}</button>`:''; const _rd=Math.round((new Date(td)-new Date(_rs))/86400000); if(_rd>=7) return '<button class="fu-btn fu-overdue">Re-Engage Due</button>'; if(_rd>=3) return '<button class="fu-btn fu-due">Re-Engage Due</button>'; return l.reEngageDate?`<button class="fu-btn">Re-Engage \u00b7 ${formatDateISOtoShortUK(l.reEngageDate)}</button>`:''; })();
         const _dfBadge=(()=>{ if(l.demoFirstSent) return '<button class="fu-btn fu-sent">&#10003; Demo First sent</button>'; if(!l.reEngageSent) return ''; const _ds=l.reEngageSentOn?normDateStr(l.reEngageSentOn):''; if(!_ds) return ''; const _dd=Math.round((new Date(td)-new Date(_ds))/86400000); if(_dd>=14) return '<button class="fu-btn fu-overdue">Demo First Due</button>'; if(_dd>=7) return '<button class="fu-btn fu-due">Demo First Due</button>'; return `<button class="fu-btn">Demo First \u00b7 ${formatDateISOtoShortUK(addDays(_ds,7))}</button>`; })();
-        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div><div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button>${_reBadge}${_dfBadge}</div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
+        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div><div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button>${_reBadge}${_dfBadge}</div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
         expand.innerHTML += onRecordHtml + logReplyHtml;
         const _viewBtn=main.querySelector('.btn-view-lead');
         if(_viewBtn) _viewBtn.addEventListener('click',e=>{ e.stopPropagation(); openLeadDetail(l.id); });
@@ -1563,7 +1564,7 @@
           const hasDraft=!!(l.draftSubject||l.draftBody);
           const dncBadgeHtml=l.doNotContact?'<span class="dnc-badge">DO NOT CONTACT</span>':'';
           const niBadgeHtml='<span class="ni-badge">NOT INTERESTED</span>';
-          expand.innerHTML=`${dncBadgeHtml}${niBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-actions"><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
+          expand.innerHTML=`${dncBadgeHtml}${niBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-actions"><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
           main.addEventListener('click',()=>toggleExpand(l.id));
           const editBtn=expand.querySelector('[data-action="edit"]'); if(editBtn) editBtn.addEventListener('click',e=>{ e.stopPropagation(); openEdit(editBtn.dataset.id); });
           const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn) deleteBtn.addEventListener('click',e=>{ e.stopPropagation(); deleteLead(deleteBtn.dataset.id); });
