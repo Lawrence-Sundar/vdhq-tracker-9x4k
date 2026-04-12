@@ -1374,7 +1374,7 @@
     }
     function closeLeadDetail(){
       document.getElementById('leadDetailBackdrop').classList.remove('open');
-      // On next renderAll, the expand div will be regenerated in place
+      expandedLeadId=null;
     }
 
     function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); save(); }
@@ -1496,7 +1496,7 @@
         bindExpandRA(l.id, expand);
         row.appendChild(main); row.appendChild(expand); container.appendChild(row);
       });
-      if(expandedLeadId){ const el=document.getElementById('expand-'+expandedLeadId); if(el) el.style.display='block'; }
+      // (expand restore removed — details now open in modal, not inline)
 
       // ── Not Interested collapsed section ──────────────────────────────────
       if(niLeads.length>0){
@@ -1531,7 +1531,7 @@
           row.appendChild(main); row.appendChild(expand); niBody.appendChild(row);
         });
         niSection.appendChild(niHeader); niSection.appendChild(niBody); container.appendChild(niSection);
-        if(expandedLeadId){ const el=document.getElementById('expand-'+expandedLeadId); if(el){ el.style.display='block'; const nb=document.getElementById('niSectionBody'); const na=document.getElementById('niToggleArrow'); if(nb&&el.closest('.ni-section-body')){ nb.style.display='block'; if(na) na.innerHTML='&#9660;'; } } }
+        // (expand restore removed — details now open in modal)
       }
       updatePipelineSelectionBar();
     }
