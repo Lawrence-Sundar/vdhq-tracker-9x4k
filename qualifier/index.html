@@ -297,6 +297,17 @@
         <textarea id="customObsInput" rows="3" placeholder="Paste any specific detail about this clinic — e.g. legacy email provider, owner-operated, no digital booking infrastructure" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
       </div>
 
+      <!-- Confirm Intake Method -->
+      <div class="card" id="intakeMethodCard" style="display:none">
+        <div class="section-label">Confirm Intake Method</div>
+        <select id="intakeMethodSelect" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit">
+          <option value="contact_form">Contact Form</option>
+          <option value="phone">Phone Only</option>
+          <option value="email">Email Link</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
       <!-- Review Draft Email CTA -->
       <div id="draftCtaWrap" style="display:none">
         <button class="btn-draft" id="btnReviewDraft">Review Draft Email →</button>
@@ -692,7 +703,7 @@ ${pageText}`;
     function resetResultPanels() {
       ['coldPanel','outOfAreaPanel','flagChannel','flagContact',
        'recommendationCard','signalsCard','metaCard','emailsCard',
-       'namesCard','emailToSendCard','principalCard','pmCard','customObsCard','draftCtaWrap',
+       'namesCard','emailToSendCard','principalCard','pmCard','intakeMethodCard','customObsCard','draftCtaWrap',
        'manuallyQualifiedBadge'].forEach(id => hide(id));
     }
 
@@ -874,6 +885,15 @@ ${pageText}`;
       if (principalInput) principalInput.value = r.contact_name || '';
       show('principalCard');
       show('pmCard');
+
+      // Intake method — pre-populate from detected booking_channel
+      const _imSel = document.getElementById('intakeMethodSelect');
+      if (_imSel) {
+        const detected = (r.booking_channel || 'contact_form').toLowerCase();
+        const map = {'contact_form':'contact_form','phone':'phone','email':'email','whatsapp':'other','google_form':'contact_form','online_portal':'contact_form','unknown':'other'};
+        _imSel.value = map[detected] || 'other';
+      }
+      show('intakeMethodCard');
 
       // Custom observation + Draft CTA
       show('customObsCard');
@@ -1095,7 +1115,7 @@ ${pageText}`;
         practiceManagerName: (document.getElementById('pmInput') ? document.getElementById('pmInput').value.trim() : '') || '',
         contactName: (() => { const pm = document.getElementById('pmInput') ? document.getElementById('pmInput').value.trim() : ''; const pr = document.getElementById('principalInput') ? document.getElementById('principalInput').value.trim() : ''; return pm || pr || r.contact_name || ''; })(),
         email:       (document.getElementById('emailToSendInput') ? document.getElementById('emailToSendInput').value.trim() : selectedEmail) || '',
-        channel:     r.booking_channel || '',
+        channel:     (document.getElementById('intakeMethodSelect') ? document.getElementById('intakeMethodSelect').value : r.booking_channel) || '',
         dateSent:    '',
         fu1Date:     addDaysISO(3),
         fu2Date:     addDaysISO(7),
@@ -1268,7 +1288,8 @@ ${pageText}`;
       const greetingContact = buildGreetingName(contact);
       const clinic  = r.clinic_name  || 'the clinic';
       const city    = r.city_name    || r.city || '';
-      const channel = r.booking_channel || 'unknown';
+      const _imEl = document.getElementById('intakeMethodSelect');
+      const channel = _imEl ? _imEl.value : (r.booking_channel || 'unknown');
       const reviews = r.review_count != null ? String(r.review_count) : 'not available';
 
       const systemPrompt = `You are writing a warm, honest cold outreach email on behalf of Lawrence at Versa Digital HQ. Lawrence has just launched an automation business and is looking for his first dental clinic partner.
