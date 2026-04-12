@@ -304,6 +304,7 @@
     .status-filter-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 12px;border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
     .status-filter-btn:hover{border-color:var(--border-hover);color:var(--text-dim)}
     .status-filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+    .tab-count{font-size:11px;opacity:0.7;margin-left:2px}
 
     /* Pipeline — secondary filter bar */
     .secondary-filter-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
@@ -690,15 +691,14 @@
         </div>
       </div>
 
-      <!-- Status pills -->
+      <!-- Action tabs -->
       <div class="status-filter-bar" style="margin-bottom:16px">
-        <button class="status-filter-btn active" data-status="All">All</button>
-        <button class="status-filter-btn" data-status="Not Sent">Not Sent</button>
-        <button class="status-filter-btn" data-status="Sent">Sent</button>
-        <button class="status-filter-btn" data-status="Follow Up Due">Follow Up Due</button>
-        <button class="status-filter-btn" data-status="Replied">Replied</button>
-        <button class="status-filter-btn" data-status="Converted">Converted</button>
-        <button class="status-filter-btn" data-status="Do Not Contact">DNC</button>
+        <button class="status-filter-btn active" data-status="All">All <span class="tab-count" id="tcAll"></span></button>
+        <button class="status-filter-btn" data-status="Action Required">Action Required <span class="tab-count" id="tcAction"></span></button>
+        <button class="status-filter-btn" data-status="Awaiting Reply">Awaiting Reply <span class="tab-count" id="tcAwaiting"></span></button>
+        <button class="status-filter-btn" data-status="Replied">Replied <span class="tab-count" id="tcReplied"></span></button>
+        <button class="status-filter-btn" data-status="Converted">Converted <span class="tab-count" id="tcConverted"></span></button>
+        <button class="status-filter-btn" data-status="DNC">DNC <span class="tab-count" id="tcDNC"></span></button>
       </div>
 
       <!-- Collapsible filters panel -->
@@ -1412,11 +1412,48 @@
         if(sq&&!((l.clinicName||'').toLowerCase().includes(sq)||(l.contactName||'').toLowerCase().includes(sq))) return false;
         return true;
       };
-      const niLeads=leads.filter(l=>computeStatus(l)==='Not Interested'&&passesBaseFilters(l));
+      // Classify each lead into an action tab
+      const isActionRequired=l=>{
+        const s=computeStatus(l);
+        return s==='Follow Up Due'||s==='Re-Engage Overdue'||s==='Demo First Overdue'||s==='Not Sent';
+      };
+      const isAwaitingReply=l=>{
+        const s=computeStatus(l);
+        return s==='Sent'; // Sent = all current FUs handled, waiting for reply
+      };
+      const isReplied=l=>{
+        const s=computeStatus(l);
+        return s==='Replied'; // Replied but not Converted
+      };
+      const isConverted=l=>computeStatus(l)==='Converted';
+      const isDNC=l=>{ const s=computeStatus(l); return s==='Do Not Contact'||s==='Disqualified'; };
+      const isNI=l=>computeStatus(l)==='Not Interested';
+
+      // Compute tab counts (before any secondary filters, only base filters)
+      const baseLeads=leads.filter(l=>passesBaseFilters(l)&&!isNI(l));
+      const _tcAll=document.getElementById('tcAll');
+      const _tcAction=document.getElementById('tcAction');
+      const _tcAwaiting=document.getElementById('tcAwaiting');
+      const _tcReplied=document.getElementById('tcReplied');
+      const _tcConverted=document.getElementById('tcConverted');
+      const _tcDNC=document.getElementById('tcDNC');
+      if(_tcAll) _tcAll.textContent=baseLeads.length;
+      if(_tcAction) _tcAction.textContent=baseLeads.filter(isActionRequired).length;
+      if(_tcAwaiting) _tcAwaiting.textContent=baseLeads.filter(isAwaitingReply).length;
+      if(_tcReplied) _tcReplied.textContent=baseLeads.filter(isReplied).length;
+      if(_tcConverted) _tcConverted.textContent=baseLeads.filter(isConverted).length;
+      if(_tcDNC) _tcDNC.textContent=baseLeads.filter(isDNC).length;
+
+      const niLeads=leads.filter(l=>isNI(l)&&passesBaseFilters(l));
       let filtered=leads.filter(l=>{
-        if(computeStatus(l)==='Not Interested') return false;
-        const status=computeStatus(l);
-        if(pipelineFilter.status!=='All'){ if(pipelineFilter.status==='Follow Up Due'){ const fuDue=(l.fu1Date&&l.fu1Date<=td&&!l.fu1Sent)||(l.fu2Date&&l.fu2Date<=td&&!l.fu2Sent)||(l.fu3Date&&l.fu3Date<=td&&!l.fu3Sent); if(!fuDue||status==='Replied'||status==='Converted') return false; } else { if(status!==pipelineFilter.status) return false; } }
+        if(isNI(l)) return false;
+        if(pipelineFilter.status!=='All'){
+          if(pipelineFilter.status==='Action Required'&&!isActionRequired(l)) return false;
+          if(pipelineFilter.status==='Awaiting Reply'&&!isAwaitingReply(l)) return false;
+          if(pipelineFilter.status==='Replied'&&!isReplied(l)) return false;
+          if(pipelineFilter.status==='Converted'&&!isConverted(l)) return false;
+          if(pipelineFilter.status==='DNC'&&!isDNC(l)) return false;
+        }
         if(pipelineFilter.fuStage!=='All'){
           const fs=pipelineFilter.fuStage;
           if(fs==='Initial Not Sent'){ if(l.dateSent||l.fu1Sent||l.fu2Sent||l.fu3Sent) return false; }
