@@ -64,7 +64,7 @@
     /* Page header */
     .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
     .page-title{font-size:20px;font-weight:600}
-    .page-sub{font-size:16px;color:var(--muted);margin-top:6px;font-weight:300}
+    .page-sub{font-size:14px;color:var(--muted);margin-top:6px;font-weight:400}
 
     /* Card */
     .card{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,0.1);transition:border-color .2s}
@@ -253,16 +253,16 @@
     .nav-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:50%;background:#ef4444;color:#fff;font-size:12px;font-weight:600;margin-left:auto;line-height:1;text-align:center}
 
     /* Source badges */
-    .source-badge{font-size:14px;font-weight:500;padding:2px 7px;border-radius:6px;white-space:nowrap;flex-shrink:0;border:1px solid}
+    .source-badge{font-size:12px;font-weight:500;padding:2px 7px;border-radius:6px;white-space:nowrap;flex-shrink:0;border:1px solid}
     .source-qualifier{background:var(--accent-dim);color:var(--accent);border-color:rgba(168,85,247,0.15)}
     .source-manual{border:1px solid #888;color:#888;background:transparent}
 
     /* Mark as Sent button (Inbox) */
-    .btn-mark-sent{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:6px 14px;border-radius:6px;font-size:16px;font-family:inherit;font-weight:500;cursor:pointer;transition:background .12s,color .12s;white-space:nowrap;flex-shrink:0}
+    .btn-mark-sent{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:6px 12px;border-radius:6px;font-size:14px;font-family:inherit;font-weight:500;cursor:pointer;transition:background .12s,color .12s;white-space:nowrap;flex-shrink:0}
     .btn-mark-sent:hover{background:var(--accent);color:#fff}
 
     /* Date added label */
-    .date-added-label{font-size:16px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+    .date-added-label{font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 
     /* Empty state */
     .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:16px;line-height:1.6}
@@ -283,7 +283,7 @@
     .ni-section{margin-top:16px}
     .ni-section-header{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);cursor:pointer;user-select:none;color:var(--muted);font-size:16px;font-style:italic}
     .ni-section-header:hover{border-color:rgba(255,255,255,.12);color:var(--text)}
-    .ni-section-toggle{font-size:14px;opacity:.6}
+    .ni-section-toggle{font-size:12px;opacity:.6}
     .ni-section-body{margin-top:4px}
     .ni-badge{display:inline-block;font-size:14px;font-style:italic;padding:2px 9px;border-radius:12px;background:#222;color:#666;letter-spacing:.03em;margin-bottom:8px}
 
@@ -368,11 +368,11 @@
 
     /* Inline Reply Analyser (Pipeline expand) */
     .ra-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-    .ra-section-label{font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px}
+    .ra-section-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px}
     .ra-textarea{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;font-family:inherit;outline:none;resize:vertical;min-height:72px;line-height:1.55;transition:border-color .15s}
     .ra-textarea:focus{border-color:var(--accent)}
-    .btn-ra-analyse{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:16px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:8px}
-    .btn-ra-analyse:hover{opacity:.85}
+    .btn-ra-analyse{background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:6px 14px;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer;transition:background .15s;margin-top:8px}
+    .btn-ra-analyse:hover{background:var(--accent-dim)}
     .btn-ra-analyse:disabled{opacity:.4;cursor:not-allowed}
     .ra-api-prompt{margin-top:8px;padding:10px 12px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)}
     .ra-api-prompt-label{font-size:14px;color:var(--muted);margin-bottom:6px;display:block}
@@ -648,6 +648,7 @@
       <!-- Recent Activity — full width -->
       <div class="card" style="padding:20px;margin-bottom:24px">
         <div class="dash-section">Recent Activity</div>
+        <div style="display:flex;gap:12px;font-size:12px;color:var(--muted);margin-bottom:12px"><span style="display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#a855f7"></span>Sent</span><span style="display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#fbbf24"></span>Follow-up</span><span style="display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#f472b6"></span>Reply</span></div>
         <div id="dashActivityFeed"></div>
       </div>
 
@@ -667,7 +668,6 @@
     <section id="tab-inbox" class="tabPane">
       <div class="page-header">
         <div>
-          <div class="page-title">Inbox</div>
           <div class="page-sub">Unsent qualifier leads — mark as sent to move them to Pipeline.</div>
         </div>
       </div>
@@ -748,7 +748,7 @@
 
       <!-- Bulk actions -->
       <!-- Bulk selection bar — always visible -->
-      <div id="pipelineBulkBar" style="display:flex;align-items:center;gap:8px;padding:8px 0;margin-bottom:4px;flex-wrap:wrap">
+      <div id="pipelineBulkBar" style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:4px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px">
         <input type="checkbox" class="sel-check" id="pSelectAll" title="Select / deselect all filtered">
         <span id="pSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
         <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
@@ -1263,7 +1263,7 @@
           barChart.style.display=''; if(barLabels) barLabels.style.display=''; if(barEmpty) barEmpty.style.display='none';
           const maxVal=Math.max(...last8.map(k=>weekMap[k].sent),1);
           const chartH=150;
-          barChart.innerHTML=last8.map(k=>{ const w=weekMap[k]; const sH=Math.max(Math.round(w.sent/maxVal*chartH),w.sent>0?6:0); const rH=Math.max(Math.round(w.replies/maxVal*chartH),w.replies>0?6:0); return '<div class="bar-group"><div class="bar-stack"><div class="bar-col" style="height:'+sH+'px;background:#a855f7" title="Sent: '+w.sent+'"></div><div class="bar-col" style="height:'+rH+'px;background:#f472b6" title="Replies: '+w.replies+'"></div></div></div>'; }).join('');
+          barChart.innerHTML=last8.map(k=>{ const w=weekMap[k]; const sH=Math.max(Math.round(w.sent/maxVal*chartH),w.sent>0?6:0); const rH=Math.max(Math.round(w.replies/maxVal*chartH),w.replies>0?6:0); return '<div class="bar-group"><div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:4px">'+(w.sent||'')+'</div><div class="bar-stack"><div class="bar-col" style="height:'+sH+'px;background:#a855f7" title="Sent: '+w.sent+'"></div><div class="bar-col" style="height:'+rH+'px;background:#f472b6" title="Replies: '+w.replies+'"></div></div></div>'; }).join('');
           if(barLabels){
             const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             let _pm='';
@@ -1852,11 +1852,12 @@
       const badge=document.getElementById('inboxNavBadge');
       if(badge){ if(inboxLeads.length>0){ badge.textContent=inboxLeads.length; badge.style.display='inline-flex'; } else { badge.textContent=''; badge.style.display='none'; } }
       if(inboxLeads.length===0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#9993;</div><div>No unsent qualifier leads. Add clinics via the Qualifier tool.</div></div>'; return; }
+      container.innerHTML='<div style="display:flex;align-items:center;gap:10px;padding:6px 12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:500;border-bottom:1px solid var(--border)"><div style="flex:1">Lead</div><div>Source</div><div style="width:80px;text-align:right">Added</div><div style="width:100px;text-align:right">Action</div></div>';
       inboxLeads.forEach(l=>{
         const dateAdded=l.id?new Date(l.id).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
         const row=document.createElement('div'); row.className='lead-row';
         const main=document.createElement('div'); main.className='lead-row-main'; main.style.cursor='default';
-        main.innerHTML=`<span class="sdot sdot-pending"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${l.city?' · '+escapeHtml(l.city):''}</span></div><span class="source-badge source-qualifier">Qualifier</span><span class="date-added-label">${dateAdded}</span><button class="btn-mark-sent" data-id="${l.id}">Mark as Sent</button>`;
+        main.innerHTML=`<div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${l.city?' · '+escapeHtml(l.city):''}</span></div><span class="source-badge source-qualifier">Qualifier</span><span class="date-added-label">${dateAdded}</span><button class="btn-mark-sent" data-id="${l.id}">Mark as Sent</button>`;
         row.appendChild(main); container.appendChild(row);
       });
       container.querySelectorAll('.btn-mark-sent').forEach(btn=>{ btn.addEventListener('click',()=>markAsSentFromInbox(btn.dataset.id)); });
