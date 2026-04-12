@@ -160,7 +160,7 @@
     .funnel-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
     .funnel-row:last-child{margin-bottom:0}
     .funnel-row-label{width:80px;font-size:14px;color:var(--muted);flex-shrink:0}
-    .funnel-row-track{flex:1;height:8px;background:rgba(120,80,160,0.08);border-radius:4px;overflow:hidden}
+    .funnel-row-track{flex:1;height:10px;background:rgba(120,80,160,0.12);border-radius:5px;overflow:hidden}
     .funnel-row-fill{height:100%;border-radius:4px;transition:width .4s ease}
     .funnel-row-val{width:50px;text-align:right;font-size:14px;font-weight:600;color:var(--text);flex-shrink:0}
     .funnel-row-pct{width:40px;text-align:right;font-size:12px;color:var(--muted);flex-shrink:0}
@@ -563,13 +563,13 @@
       </div>
     </div>
 
-    <div class="sidebar-stats">
-      <div class="stat-item"><span class="stat-label">Total leads</span><span class="stat-value accent" id="statTotal">0</span></div>
-      <div class="stat-item"><span class="stat-label">Replied</span><span class="stat-value" style="color:var(--mauve)" id="statReplied">0</span></div>
-      <div class="stat-item"><span class="stat-label">Reply Rate</span><span class="stat-value" id="statReplyRate">--</span></div>
-      <span id="statInbox" style="display:none">0</span>
-      <span id="statPending" style="display:none">0</span>
-      <span id="statPendingNoReply" style="display:none">0</span>
+    <div style="display:none">
+      <span id="statTotal">0</span>
+      <span id="statReplied">0</span>
+      <span id="statReplyRate">--</span>
+      <span id="statInbox">0</span>
+      <span id="statPending">0</span>
+      <span id="statPendingNoReply">0</span>
     </div>
   </aside>
 
@@ -1161,8 +1161,12 @@
       const fu1c=dueToday.filter(d=>d.type==='FU1').length; if(fu1c) fuParts.push(fu1c+' FU1');
       const fu2c=dueToday.filter(d=>d.type==='FU2').length; if(fu2c) fuParts.push(fu2c+' FU2');
       const fu3c=dueToday.filter(d=>d.type==='FU3').length; if(fu3c) fuParts.push(fu3c+' FU3');
-      if(_s('dashStatFUDue')) _s('dashStatFUDue').textContent=dueToday.length+(overdueItems.length>0?'+'+overdueItems.length:'');
-      if(_s('dashStatFUDueSub')) _s('dashStatFUDueSub').textContent=fuParts.length?(fuParts.join(' · ')+(overdueItems.length?' + '+overdueItems.length+' overdue':'')):(overdueItems.length?overdueItems.length+' overdue':'All clear');
+      if(_s('dashStatFUDue')) _s('dashStatFUDue').textContent=dueToday.length;
+      if(_s('dashStatFUDueSub')){
+        let fuSub=fuParts.length?fuParts.join(' · '):'No FUs due';
+        if(overdueItems.length) fuSub+='<span style="color:#F59E0B"> · '+overdueItems.length+' overdue</span>';
+        _s('dashStatFUDueSub').innerHTML=fuSub;
+      }
       if(_s('dashStatNotSent')) _s('dashStatNotSent').textContent=notSentLeads;
 
       // --- Pipeline Funnel (progress bar rows) ---
@@ -1192,8 +1196,28 @@
           if(wk){ if(!weekMap[wk]) weekMap[wk]={sent:0,replies:0,start:getWeekStart(sendDate)}; weekMap[wk].sent++; }
           if(l.reply==='Y'){ const rwk=getWeekKey(l.dateSent); if(rwk){ if(!weekMap[rwk]) weekMap[rwk]={sent:0,replies:0,start:getWeekStart(l.dateSent)}; weekMap[rwk].replies++; } }
         });
-        const weekKeys=Object.keys(weekMap).sort();
-        const last8=weekKeys.slice(-8);
+        // Fill in continuous weeks from first to last, then take last 8
+        const rawKeys=Object.keys(weekMap).sort();
+        let allWeeks=[];
+        if(rawKeys.length>=2){
+          const first=weekMap[rawKeys[0]].start;
+          const last=weekMap[rawKeys[rawKeys.length-1]].start;
+          if(first&&last){
+            const cursor=new Date(first);
+            while(cursor<=last){
+              const jan1=new Date(cursor.getFullYear(),0,1);
+              const wn=Math.ceil(((cursor-jan1)/86400000+jan1.getDay()+1)/7);
+              const wk=cursor.getFullYear()+'-W'+String(wn).padStart(2,'0');
+              if(!weekMap[wk]) weekMap[wk]={sent:0,replies:0,start:new Date(cursor)};
+              allWeeks.push(wk);
+              cursor.setDate(cursor.getDate()+7);
+            }
+          }
+        }
+        if(allWeeks.length===0) allWeeks=rawKeys;
+        // Deduplicate and sort
+        allWeeks=[...new Set(allWeeks)].sort();
+        const last8=allWeeks.slice(-8);
         if(last8.length===0){
           barChart.style.display='none'; if(barLabels) barLabels.style.display='none'; if(barEmpty) barEmpty.style.display='block';
         } else {
