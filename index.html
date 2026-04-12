@@ -162,11 +162,11 @@
     .stat-card-value.red{color:var(--danger)}
 
     /* Funnel bar */
-    .funnel-bar{display:flex;align-items:center;gap:0;height:32px;border-radius:8px;overflow:hidden;margin-bottom:8px;background:rgba(120,80,160,0.06)}
-    .funnel-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;transition:width .4s ease;min-width:0;overflow:hidden;white-space:nowrap}
-    .funnel-legend{display:flex;gap:16px;flex-wrap:wrap}
-    .funnel-legend-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
-    .funnel-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .funnel-bar{display:flex;align-items:center;gap:0;height:44px;border-radius:10px;overflow:hidden;margin-bottom:14px;background:rgba(120,80,160,0.06)}
+    .funnel-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;transition:width .4s ease;min-width:0;overflow:hidden;white-space:nowrap}
+    .funnel-legend{display:flex;gap:24px;flex-wrap:wrap}
+    .funnel-legend-item{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--muted)}
+    .funnel-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
     .funnel-legend-val{font-weight:600;color:var(--text)}
 
     /* Bar chart */
@@ -650,13 +650,13 @@
                 <circle cx="21" cy="21" r="16" fill="none" stroke="#a855f7" stroke-width="5" stroke-dasharray="50 50.4" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutSent"/>
                 <circle cx="21" cy="21" r="16" fill="none" stroke="#22d3ee" stroke-width="5" stroke-dasharray="20 80.4" stroke-dashoffset="-50" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutNotSent"/>
                 <circle cx="21" cy="21" r="16" fill="none" stroke="#f472b6" stroke-width="5" stroke-dasharray="5 95.4" stroke-dashoffset="-70" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutReplied"/>
-                <circle cx="21" cy="21" r="16" fill="none" stroke="#c084fc" stroke-width="5" stroke-dasharray="0 100.4" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutConverted"/>
+                <circle cx="21" cy="21" r="16" fill="none" stroke="#34d399" stroke-width="5" stroke-dasharray="0 100.4" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 21 21)" id="donutConverted"/>
               </svg>
-              <div style="display:flex;flex-direction:column;gap:8px">
-                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#a855f7;flex-shrink:0"></span> Sent <span style="margin-left:auto;font-weight:600;color:var(--text)" id="donutSentVal">0</span></div>
-                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#22d3ee;flex-shrink:0"></span> Not Sent <span style="margin-left:auto;font-weight:600;color:var(--text)" id="donutNotSentVal">0</span></div>
-                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#f472b6;flex-shrink:0"></span> Replied <span style="margin-left:auto;font-weight:600;color:var(--text)" id="donutRepliedVal">0</span></div>
-                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#c084fc;flex-shrink:0"></span> Converted <span style="margin-left:auto;font-weight:600;color:var(--text)" id="donutConvertedVal">0</span></div>
+              <div style="display:flex;flex-direction:column;gap:12px;min-width:110px">
+                <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#a855f7;flex-shrink:0"></span> Sent <span style="margin-left:auto;font-weight:600;color:var(--text);font-size:16px" id="donutSentVal">0</span></div>
+                <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#22d3ee;flex-shrink:0"></span> Not Sent <span style="margin-left:auto;font-weight:600;color:var(--text);font-size:16px" id="donutNotSentVal">0</span></div>
+                <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#f472b6;flex-shrink:0"></span> Replied <span style="margin-left:auto;font-weight:600;color:var(--text);font-size:16px" id="donutRepliedVal">0</span></div>
+                <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#34d399;flex-shrink:0"></span> Converted <span style="margin-left:auto;font-weight:600;color:var(--text);font-size:16px" id="donutConvertedVal">0</span></div>
               </div>
             </div>
           </div>
@@ -1210,7 +1210,7 @@
           {label:'Total',count:totalLeads,color:'rgba(120,80,160,0.3)'},
           {label:'Sent',count:sentOnlyLeads>0?sentOnlyLeads:0,color:'#a855f7'},
           {label:'Replied',count:repliedLeads-convertedLeads>0?repliedLeads-convertedLeads:0,color:'#f472b6'},
-          {label:'Converted',count:convertedLeads,color:'#c084fc'}
+          {label:'Converted',count:convertedLeads,color:'#34d399'}
         ];
         // Funnel shows segments proportional to total
         const t=totalLeads||1;
@@ -1321,7 +1321,7 @@
           if(l.fu2SentOn) acts.push({text:'FU2 sent to <strong>'+name+'</strong>',date:l.fu2SentOn,color:'#22d3ee'});
           if(l.fu3SentOn) acts.push({text:'FU3 sent to <strong>'+name+'</strong>',date:l.fu3SentOn,color:'#fbbf24'});
           if(l.reEngageSentOn) acts.push({text:'Re-Engage sent to <strong>'+name+'</strong>',date:l.reEngageSentOn,color:'#fbbf24'});
-          if(l.demoFirstSentOn) acts.push({text:'Demo First sent to <strong>'+name+'</strong>',date:l.demoFirstSentOn,color:'#c084fc'});
+          if(l.demoFirstSentOn) acts.push({text:'Demo First sent to <strong>'+name+'</strong>',date:l.demoFirstSentOn,color:'#34d399'});
           if(l.reply==='Y') acts.push({text:'<strong>'+name+'</strong> replied',date:l.dateSent||'',color:'#f472b6'});
         });
         acts.sort((a,b)=>b.date.localeCompare(a.date));
@@ -1329,7 +1329,7 @@
         if(top8.length){
           actFeed.innerHTML=top8.map(a=>{
             const ago=_ago(a.date);
-            return '<div style="display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(120,80,160,0.06)"><div style="width:8px;height:8px;border-radius:50%;background:'+a.color+';flex-shrink:0"></div><span style="font-size:13px;flex:1">'+a.text+'</span>'+(ago?'<span style="font-size:11px;color:var(--muted);flex-shrink:0">'+ago+'</span>':'')+'</div>';
+            return '<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(120,80,160,0.08)"><div style="width:9px;height:9px;border-radius:50%;background:'+a.color+';flex-shrink:0"></div><span style="font-size:15px;flex:1">'+a.text+'</span>'+(ago?'<span style="font-size:13px;color:var(--muted);flex-shrink:0">'+ago+'</span>':'')+'</div>';
           }).join('');
         } else {
           actFeed.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No recent activity</div>';
