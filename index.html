@@ -251,7 +251,7 @@
     .flex{display:flex;gap:8px;align-items:center}
 
     /* Nav count badge */
-    .nav-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:50%;background:#ef4444;color:#fff;font-size:12px;font-weight:600;margin-left:auto;line-height:1;text-align:center}
+    .nav-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:600;margin-left:auto;line-height:1;text-align:center}
 
     /* Source badges */
     .source-badge{font-size:12px;font-weight:500;padding:2px 7px;border-radius:6px;white-space:nowrap;flex-shrink:0;border:1px solid}
@@ -463,7 +463,7 @@
     .li-dm-badge{display:inline-block;padding:4px 9px;font-size:14px;border-radius:6px;background:var(--elevated);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
     .li-undo{font-size:14px;color:#555;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;line-height:1}
     .li-undo:hover{color:#888}
-    .li-contact-input{width:100%;font-size:14px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--muted);padding:2px 0;font-family:inherit;outline:none}
+    .li-contact-input{width:100%;font-size:12px;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--muted);padding:2px 0;font-family:inherit;outline:none;height:24px}
     .li-contact-input:focus{border-bottom-color:var(--accent);color:var(--text)}
     .li-notes-link{font-size:14px;color:var(--muted);cursor:pointer;background:none;border:none;padding:0;text-decoration:underline;font-family:inherit}
     .li-notes-link:hover{color:#888}
@@ -545,7 +545,7 @@
     <div class="sidebar-brand">
       <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#d946ef);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0">L</div>
       <div class="sidebar-brand-name">Lawrence</div>
-      <div class="sidebar-brand-sub">Outreach Tracker</div>
+      <div class="sidebar-brand-sub" style="display:none">Outreach Tracker</div>
     </div>
 
     <nav class="sidebar-nav">
@@ -554,20 +554,20 @@
       <button class="nav-item tabBtn" data-tab="pipeline"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pipeline</button>
       <div class="sidebar-section-label">Actions</div>
       <button class="nav-item tabBtn" data-tab="followups"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Follow Ups <span class="nav-count-badge" id="followUpsNavBadge" style="display:none"></span></button>
-      <button class="nav-item tabBtn" data-tab="inbox"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Inbox <span class="nav-count-badge" id="inboxNavBadge" style="display:none"></span></button>
+      <button class="nav-item tabBtn" data-tab="inbox" style="display:none"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Inbox <span class="nav-count-badge" id="inboxNavBadge" style="display:none"></span></button>
       <button class="nav-item tabBtn" data-tab="email"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M9 9h6v6H9z"/></svg>Email</button>
       <button class="nav-item tabBtn" data-tab="linkedin"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</button>
     </nav>
 
     <div class="sidebar-actions">
       <div style="margin-bottom:4px;padding-bottom:6px;border-bottom:1px solid var(--border)">
-        <button class="sidebar-action-btn" id="btnConnectOutlook" style="font-size:12px;color:var(--muted)">&#9993; Connect Outlook</button>
+        <button class="sidebar-action-btn" id="btnConnectOutlook" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Connect Outlook</button>
         <div class="outlook-connected" id="outlookConnected">
           <span class="outlook-dot"></span>
           <div style="min-width:0"><div class="outlook-label">Outlook Connected</div><div class="outlook-email" id="outlookEmail"></div></div>
         </div>
       </div>
-      <button class="sidebar-action-btn" id="btnToolsToggle" onclick="document.getElementById('toolsDrawer').style.display=document.getElementById('toolsDrawer').style.display==='none'?'flex':'none';this.querySelector('.tools-arrow').textContent=document.getElementById('toolsDrawer').style.display==='none'?'▸':'▾'">&#9881; Tools <span class="tools-arrow" style="margin-left:auto;font-size:12px;opacity:0.5">▸</span></button>
+      <button class="sidebar-action-btn" id="btnToolsToggle" style="display:flex;align-items:center;gap:6px" onclick="document.getElementById('toolsDrawer').style.display=document.getElementById('toolsDrawer').style.display==='none'?'flex':'none';this.querySelector('.tools-arrow').textContent=document.getElementById('toolsDrawer').style.display==='none'?'▸':'▾'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Tools <span class="tools-arrow" style="margin-left:auto;font-size:12px;opacity:0.5">▸</span></button>
       <div id="toolsDrawer" style="display:none;flex-direction:column;gap:1px;padding-left:8px">
         <input id="csvFile" type="file" accept="text/csv" style="display:none">
         <button class="sidebar-action-btn" id="btnImport">↑ Import CSV</button>
@@ -684,8 +684,7 @@
       <!-- Header: title + search -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <div style="display:flex;align-items:center;gap:16px">
-          <div class="page-title">Pipeline</div>
-          <div id="pipelineCount" style="font-size:12px;color:var(--muted)"></div>
+          <div id="pipelineCount" style="font-size:13px;color:var(--muted)"></div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <input id="pipelineSearch" type="text" placeholder="Search clinics..." style="font-size:13px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;font-family:inherit;width:220px;outline:none">
@@ -697,13 +696,14 @@
       <!-- Action tabs -->
       <div class="status-filter-bar" style="margin-bottom:16px">
         <button class="status-filter-btn active" data-status="All">All <span class="tab-count" id="tcAll"></span></button>
+        <button class="status-filter-btn" data-status="Not Sent">Not Sent <span class="tab-count" id="tcNotSent"></span></button>
         <button class="status-filter-btn" data-status="Action Required">Action Required <span class="tab-count" id="tcAction"></span></button>
         <button class="status-filter-btn" data-status="Awaiting Reply">Awaiting Reply <span class="tab-count" id="tcAwaiting"></span></button>
         <button class="status-filter-btn" data-status="Replied">Replied <span class="tab-count" id="tcReplied"></span></button>
         <button class="status-filter-btn" data-status="Converted">Converted <span class="tab-count" id="tcConverted"></span></button>
         <button class="status-filter-btn" data-status="DNC">DNC <span class="tab-count" id="tcDNC"></span></button>
       </div>
-      <div style="display:flex;gap:12px;font-size:12px;color:var(--muted);margin-bottom:12px;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-sent" style="width:6px;height:6px"></span>Sent</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-fudue" style="width:6px;height:6px"></span>FU Due</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-replied" style="width:6px;height:6px"></span>Replied</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-notsent" style="width:6px;height:6px"></span>Not Sent</span></div>
+      <div style="margin-bottom:12px"><button onclick="const l=document.getElementById('dotLegend');l.style.display=l.style.display==='none'?'flex':'none'" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:12px;padding:2px 8px;border-radius:6px;cursor:pointer">?</button><div id="dotLegend" style="display:none;gap:12px;font-size:12px;color:var(--muted);margin-top:8px;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-sent" style="width:6px;height:6px"></span>Sent</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-fudue" style="width:6px;height:6px"></span>FU Due</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-replied" style="width:6px;height:6px"></span>Replied</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-notsent" style="width:6px;height:6px"></span>Not Sent</span></div></div>
 
       <!-- Collapsible filters panel -->
       <div id="pipelineFiltersPanel" style="display:none;margin-bottom:16px">
@@ -759,7 +759,8 @@
         <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSel25">Select 25</button>
         <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSel50">Select 50</button>
         <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSelClear">Clear</button>
-        <div style="margin-left:auto" id="bulkSendWrap" style="display:none">
+        <div style="margin-left:auto;display:none" id="bulkActionArea">
+          <span id="pSelCountAction" style="font-size:12px;color:var(--muted);margin-right:6px"></span>
           <button class="btn-bulk-send" id="btnBulkSendPipeline" style="font-size:12px;padding:5px 12px">Send via Outlook</button>
         </div>
       </div>
@@ -854,7 +855,7 @@
             <option value="Do Not Contact">Do Not Contact</option>
           </select>
         </div>
-        <label><input type="checkbox" id="liExcludeNoContact" checked> Exclude leads with no named contact</label>
+        <label style="text-transform:none;font-size:12px;font-weight:400;display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="liExcludeNoContact" checked> Exclude leads with no named contact</label>
         <div style="display:flex;align-items:center;gap:6px">
           <span style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Activity</span>
           <select id="liFilterActivity">
@@ -867,7 +868,7 @@
         </div>
       </div>
       <div class="li-summary" id="liSummary"></div>
-      <div class="li-notice">Verify each profile before sending a DM.</div>
+      <!-- notice removed; tip available via subtitle title attr -->
       <div style="overflow-x:auto">
         <table class="li-table">
           <thead>
@@ -876,7 +877,6 @@
               <th>Clinic Name</th>
               <th>City</th>
               <th>LinkedIn Profile</th>
-              <th>Status</th>
               <th>DM</th>
             </tr>
           </thead>
@@ -1437,6 +1437,7 @@
         const s=computeStatus(l);
         return s==='Replied'; // Replied but not Converted
       };
+      const isNotSent=l=>{ const s=computeStatus(l); return s==='Not Sent'; };
       const isConverted=l=>computeStatus(l)==='Converted';
       const isDNC=l=>{ const s=computeStatus(l); return s==='Do Not Contact'||s==='Disqualified'; };
       const isNI=l=>computeStatus(l)==='Not Interested';
@@ -1453,13 +1454,19 @@
       if(_tcAction) _tcAction.textContent=baseLeads.filter(isActionRequired).length;
       if(_tcAwaiting) _tcAwaiting.textContent=baseLeads.filter(isAwaitingReply).length;
       if(_tcReplied) _tcReplied.textContent=baseLeads.filter(isReplied).length;
-      if(_tcConverted) _tcConverted.textContent=baseLeads.filter(isConverted).length;
-      if(_tcDNC) _tcDNC.textContent=baseLeads.filter(isDNC).length;
+      const _cConv=baseLeads.filter(isConverted).length;
+      const _cDnc=baseLeads.filter(isDNC).length;
+      if(_tcConverted){ _tcConverted.textContent=_cConv; _tcConverted.parentElement.style.display=_cConv>0?'':'none'; }
+      if(_tcDNC){ _tcDNC.textContent=_cDnc; _tcDNC.parentElement.style.display=_cDnc>0?'':'none'; }
+      const _tcNotSent=document.getElementById('tcNotSent');
+      const _cNotSent=baseLeads.filter(isNotSent).length;
+      if(_tcNotSent){ _tcNotSent.textContent=_cNotSent; _tcNotSent.parentElement.style.display=_cNotSent>0?'':'none'; }
 
       const niLeads=leads.filter(l=>isNI(l)&&passesBaseFilters(l));
       let filtered=leads.filter(l=>{
         if(isNI(l)) return false;
         if(pipelineFilter.status!=='All'){
+          if(pipelineFilter.status==='Not Sent'&&!isNotSent(l)) return false;
           if(pipelineFilter.status==='Action Required'&&!isActionRequired(l)) return false;
           if(pipelineFilter.status==='Awaiting Reply'&&!isAwaitingReply(l)) return false;
           if(pipelineFilter.status==='Replied'&&!isReplied(l)) return false;
@@ -1509,7 +1516,7 @@
         const main=document.createElement('div'); main.className='lead-row-main';
         const _pCbChecked=selectedPipelineIds.has(String(l.id));
         if(_pCbChecked) main.classList.add('row-selected');
-        const contextChip=urgency?`<span class="fu-urgency ${urgency.dotClass}">${escapeHtml(urgency.label)}</span>`:status==='Replied'?'<span style="font-size:12px;color:var(--success);font-weight:500">Replied</span>':status==='Converted'?'<span style="font-size:12px;color:#34d399;font-weight:500">Converted</span>':status==='Not Sent'?'<span style="font-size:12px;color:var(--muted)">Not sent</span>':'';
+        const contextChip=urgency?`<span class="fu-urgency ${urgency.dotClass}">${escapeHtml(urgency.label)}</span>`:status==='Replied'?'<span style="font-size:12px;color:var(--success);font-weight:500">Replied</span>':status==='Converted'?'<span style="font-size:12px;color:#34d399;font-weight:500">Converted</span>':status==='Not Sent'?'<button class="btn-mark-sent" style="font-size:12px;padding:4px 10px" data-action="markSentInline" data-id="'+l.id+'">Mark Sent</button>':'';
         const cityDisplay=l.city&&l.city.toLowerCase()!=='unknown'?' · '+escapeHtml(l.city):'';
         main.innerHTML=`<input type="checkbox" class="sel-check" id="pcb-${l.id}" ${_pCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${cityDisplay}</span></div><div class="row-right">${contextChip}<button class="btn-view-lead" data-id="${l.id}">View</button></div>`;
         const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
@@ -1523,12 +1530,13 @@
         const scoreBadgeHtml=(l.score==='Hot')?'<span class="score-badge-hot">HOT LEAD</span>':(l.score==='Warm')?'<span class="score-badge-warm">WARM LEAD</span>':'';
         const _reBadge=(()=>{ if(l.reEngageSent) return '<button class="fu-btn fu-sent">&#10003; Re-Engage sent</button>'; if(!l.fu3Sent) return ''; const _rs=l.fu3SentOn?normDateStr(l.fu3SentOn):''; if(!_rs) return l.reEngageDate?`<button class="fu-btn">Re-Engage \u00b7 ${formatDateISOtoShortUK(l.reEngageDate)}</button>`:''; const _rd=Math.round((new Date(td)-new Date(_rs))/86400000); if(_rd>=7) return '<button class="fu-btn fu-overdue">Re-Engage Due</button>'; if(_rd>=3) return '<button class="fu-btn fu-due">Re-Engage Due</button>'; return l.reEngageDate?`<button class="fu-btn">Re-Engage \u00b7 ${formatDateISOtoShortUK(l.reEngageDate)}</button>`:''; })();
         const _dfBadge=(()=>{ if(l.demoFirstSent) return '<button class="fu-btn fu-sent">&#10003; Demo First sent</button>'; if(!l.reEngageSent) return ''; const _ds=l.reEngageSentOn?normDateStr(l.reEngageSentOn):''; if(!_ds) return ''; const _dd=Math.round((new Date(td)-new Date(_ds))/86400000); if(_dd>=14) return '<button class="fu-btn fu-overdue">Demo First Due</button>'; if(_dd>=7) return '<button class="fu-btn fu-due">Demo First Due</button>'; return `<button class="fu-btn">Demo First \u00b7 ${formatDateISOtoShortUK(addDays(_ds,7))}</button>`; })();
-        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div><div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button>${_reBadge}${_dfBadge}</div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
+        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}${l.address?'<div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">'+escapeHtml(l.address)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.reviewCount?'<div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">'+escapeHtml(l.reviewCount)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button>${_reBadge}${_dfBadge}</div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
         expand.innerHTML += onRecordHtml + logReplyHtml;
         const _viewBtn=main.querySelector('.btn-view-lead');
         if(_viewBtn) _viewBtn.addEventListener('click',e=>{ e.stopPropagation(); openLeadDetail(l.id); });
         const _pCb=main.querySelector(`#pcb-${l.id}`);
         if(_pCb){ _pCb.addEventListener('click',e=>e.stopPropagation()); _pCb.addEventListener('change',e=>{ if(e.target.checked) selectedPipelineIds.add(String(l.id)); else selectedPipelineIds.delete(String(l.id)); main.classList.toggle('row-selected',e.target.checked); updatePipelineSelectionBar(); }); }
+        const markSentInline=main.querySelector('[data-action="markSentInline"]'); if(markSentInline) markSentInline.addEventListener('click',e=>{ e.stopPropagation(); markAsSentFromInbox(markSentInline.dataset.id); });
         // Bind expand row buttons directly so they work after filter changes (when renderPipeline is called without attachButtons)
         expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
         const replyBtn=expand.querySelector('[data-action="toggleReply"]'); if(replyBtn) replyBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleReply(replyBtn.dataset.id); });
@@ -1567,7 +1575,7 @@
           const hasDraft=!!(l.draftSubject||l.draftBody);
           const dncBadgeHtml=l.doNotContact?'<span class="dnc-badge">DO NOT CONTACT</span>':'';
           const niBadgeHtml='<span class="ni-badge">NOT INTERESTED</span>';
-          expand.innerHTML=`${dncBadgeHtml}${niBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-actions"><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-draft-edit" id="btnDraftEdit-${l.id}">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div>`:''}`;
+          expand.innerHTML=`${dncBadgeHtml}${niBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-actions"><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
           main.addEventListener('click',()=>toggleExpand(l.id));
           const editBtn=expand.querySelector('[data-action="edit"]'); if(editBtn) editBtn.addEventListener('click',e=>{ e.stopPropagation(); openEdit(editBtn.dataset.id); });
           const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn) deleteBtn.addEventListener('click',e=>{ e.stopPropagation(); deleteLead(deleteBtn.dataset.id); });
@@ -1686,7 +1694,7 @@
     function updatePipelineSelectionBar(){
       const countEl=document.getElementById('pSelCount');
       const sa=document.getElementById('pSelectAll');
-      const sendWrap=document.getElementById('bulkSendWrap');
+      const sendWrap=document.getElementById('bulkActionArea');
       if(countEl) countEl.textContent=selectedPipelineIds.size+' selected';
       if(sendWrap) sendWrap.style.display=selectedPipelineIds.size>0?'':'none';
       if(sa){
@@ -1914,15 +1922,19 @@
         const card=document.createElement('div'); card.className='card'; card.style.padding='0 12px';
         const list=document.createElement('div'); list.className='leads-table';
         group.forEach(item=>{
-          const l=item.lead; const isQual=(l.source||'manual')==='qualifier';
-          const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
+          const l=item.lead;
           const badgeCls=item.overdue?'fu-due-badge-overdue':'fu-due-badge-today';
+          const _fuDateField=item.fuKey==='fu1'?l.fu1Date:item.fuKey==='fu2'?l.fu2Date:l.fu3Date;
+          const _fuDateStr=_fuDateField?formatDateISOtoShortUK(_fuDateField):'';
           const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
+          const _rowName=l.clinicName?escapeHtml(l.clinicName):l.contactName?escapeHtml(l.contactName):'<em style="color:var(--muted);font-weight:400">(no name)</em>';
+          const _rowSub=l.clinicName&&l.contactName?escapeHtml(l.contactName):(l.clinicName?'':escapeHtml(l.email||''));
           const row=document.createElement('div'); row.className='lead-row';
           const main=document.createElement('div'); main.className='fu-row-main';
           const _fuCbKey=`${l.id}-${item.fuKey}`; const _fuCbChecked=selectedFollowUpItems.has(_fuCbKey);
           if(_fuCbChecked) main.classList.add('row-selected');
-          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-${item.fuKey}" ${_fuCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge ${badgeCls}">${item.fuLabel} ${item.overdue?'Overdue':'Due'}</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent" data-id="${l.id}" data-fukey="${item.fuKey}">Mark FU Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="${item.fuKey.toUpperCase()}">Send FU Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const _primaryBtn=l.email?`<button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="${item.fuKey.toUpperCase()}">Send FU Email</button>`:`<button class="btn-fu-action btn-fu-mark-sent" data-id="${l.id}" data-fukey="${item.fuKey}">Mark FU Sent</button>`;
+          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-${item.fuKey}" ${_fuCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${_rowName}</span><span class="lead-sub">${_rowSub}</span></div><span class="fu-due-badge ${badgeCls}">${item.fuLabel} ${item.overdue?'Overdue':'Due'}${_fuDateStr?' \u00b7 '+_fuDateStr:''}</span><div class="fu-row-actions">${_primaryBtn}</div>`;
           const _fuCb=main.querySelector(`#fucb-${l.id}-${item.fuKey}`);
           if(_fuCb){ _fuCb.addEventListener('click',e=>e.stopPropagation()); _fuCb.addEventListener('change',e=>{ const _k=`${l.id}-${item.fuKey}`; if(e.target.checked) selectedFollowUpItems.set(_k,{lead:l,fuKey:item.fuKey,fuLabel:item.fuLabel}); else selectedFollowUpItems.delete(_k); main.classList.toggle('row-selected',e.target.checked); updateFollowUpsSelectionBar(); }); }
           const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
@@ -1933,9 +1945,7 @@
         });
         card.appendChild(list); container.appendChild(card);
         list.querySelectorAll('.btn-fu-mark-sent').forEach(btn=>btn.addEventListener('click',()=>markFUFromFollowUps(btn.dataset.id,btn.dataset.fukey)));
-        list.querySelectorAll('[data-action="fuReply"]').forEach(btn=>btn.addEventListener('click',()=>markRepliedFromFollowUps(btn.dataset.id)));
         list.querySelectorAll('.btn-fu-email').forEach(btn=>btn.addEventListener('click',()=>goToFUEmail(btn.dataset.id,btn.dataset.futype)));
-        list.querySelectorAll('[data-action="fuExpand"]').forEach(btn=>btn.addEventListener('click',()=>toggleFollowUpExpand(btn.dataset.id)));
         if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
       });
       // Re-Engage Due section
@@ -1944,13 +1954,15 @@
         const card=document.createElement('div'); card.className='card'; card.style.padding='0 12px';
         const list=document.createElement('div'); list.className='leads-table';
         reEngageItems.sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||'')).forEach(item=>{
-          const l=item.lead; const isQual=(l.source||'manual')==='qualifier';
-          const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
+          const l=item.lead;
+          const _rowName=l.clinicName?escapeHtml(l.clinicName):l.contactName?escapeHtml(l.contactName):'<em style="color:var(--muted);font-weight:400">(no name)</em>';
+          const _rowSub=l.clinicName&&l.contactName?escapeHtml(l.contactName):(l.clinicName?'':escapeHtml(l.email||''));
           const row=document.createElement('div'); row.className='lead-row';
           const main=document.createElement('div'); main.className='fu-row-main';
           const _reCbKey=`${l.id}-reEngage`; const _reCbChecked=selectedFollowUpItems.has(_reCbKey);
           if(_reCbChecked) main.classList.add('row-selected');
-          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-reEngage" ${_reCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge fu-due-badge-overdue">Re-Engage</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent re-engage-mark-sent" data-id="${l.id}">Mark Re-Engage Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Re-Engage">Send Re-Engage Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const _primaryBtn=l.email?`<button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Re-Engage">Send Re-Engage Email</button>`:`<button class="btn-fu-action btn-fu-mark-sent re-engage-mark-sent" data-id="${l.id}">Mark Re-Engage Sent</button>`;
+          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-reEngage" ${_reCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${_rowName}</span><span class="lead-sub">${_rowSub}</span></div><span class="fu-due-badge fu-due-badge-overdue">Re-Engage</span><div class="fu-row-actions">${_primaryBtn}</div>`;
           const _reCb=main.querySelector(`#fucb-${l.id}-reEngage`);
           if(_reCb){ _reCb.addEventListener('click',e=>e.stopPropagation()); _reCb.addEventListener('change',e=>{ if(e.target.checked) selectedFollowUpItems.set(_reCbKey,{lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); else selectedFollowUpItems.delete(_reCbKey); main.classList.toggle('row-selected',e.target.checked); updateFollowUpsSelectionBar(); }); }
           const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
@@ -1961,9 +1973,7 @@
         });
         card.appendChild(list); container.appendChild(card);
         list.querySelectorAll('.re-engage-mark-sent').forEach(btn=>btn.addEventListener('click',()=>markFUFromFollowUps(btn.dataset.id,'reEngage')));
-        list.querySelectorAll('[data-action="fuReply"]').forEach(btn=>btn.addEventListener('click',()=>markRepliedFromFollowUps(btn.dataset.id)));
         list.querySelectorAll('.btn-fu-email').forEach(btn=>btn.addEventListener('click',()=>goToFUEmail(btn.dataset.id,btn.dataset.futype)));
-        list.querySelectorAll('[data-action="fuExpand"]').forEach(btn=>btn.addEventListener('click',()=>toggleFollowUpExpand(btn.dataset.id)));
         if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
       }
       // Demo First Due section
@@ -1972,13 +1982,15 @@
         const card=document.createElement('div'); card.className='card'; card.style.padding='0 12px';
         const list=document.createElement('div'); list.className='leads-table';
         demoFirstItems.sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||'')).forEach(item=>{
-          const l=item.lead; const isQual=(l.source||'manual')==='qualifier';
-          const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
+          const l=item.lead;
+          const _rowName=l.clinicName?escapeHtml(l.clinicName):l.contactName?escapeHtml(l.contactName):'<em style="color:var(--muted);font-weight:400">(no name)</em>';
+          const _rowSub=l.clinicName&&l.contactName?escapeHtml(l.contactName):(l.clinicName?'':escapeHtml(l.email||''));
           const row=document.createElement('div'); row.className='lead-row';
           const main=document.createElement('div'); main.className='fu-row-main';
           const _dfCbKey=`${l.id}-demoFirst`; const _dfCbChecked=selectedFollowUpItems.has(_dfCbKey);
           if(_dfCbChecked) main.classList.add('row-selected');
-          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-demoFirst" ${_dfCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><span class="fu-due-badge fu-due-badge-overdue">Demo First</span><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="fu-row-actions"><button class="btn-fu-action btn-fu-mark-sent demo-first-mark-sent" data-id="${l.id}">Mark Demo First Sent</button><button class="btn-fu-action btn-fu-replied" data-id="${l.id}" data-action="fuReply">Mark Replied</button><button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Demo First">Send Demo First Email</button><button class="btn-fu-action" data-id="${l.id}" data-action="fuExpand">Expand</button></div>`;
+          const _primaryBtn=l.email?`<button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Demo First">Send Demo First Email</button>`:`<button class="btn-fu-action btn-fu-mark-sent demo-first-mark-sent" data-id="${l.id}">Mark Demo First Sent</button>`;
+          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-demoFirst" ${_dfCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${_rowName}</span><span class="lead-sub">${_rowSub}</span></div><span class="fu-due-badge fu-due-badge-overdue">Demo First</span><div class="fu-row-actions">${_primaryBtn}</div>`;
           const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
           const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
           expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div>`;
@@ -1988,9 +2000,7 @@
         });
         card.appendChild(list); container.appendChild(card);
         list.querySelectorAll('.demo-first-mark-sent').forEach(btn=>btn.addEventListener('click',()=>markFUFromFollowUps(btn.dataset.id,'demoFirst')));
-        list.querySelectorAll('[data-action="fuReply"]').forEach(btn=>btn.addEventListener('click',()=>markRepliedFromFollowUps(btn.dataset.id)));
         list.querySelectorAll('.btn-fu-email').forEach(btn=>btn.addEventListener('click',()=>goToFUEmail(btn.dataset.id,btn.dataset.futype)));
-        list.querySelectorAll('[data-action="fuExpand"]').forEach(btn=>btn.addEventListener('click',()=>toggleFollowUpExpand(btn.dataset.id)));
         if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
       }
       updateFollowUpsSelectionBar();
@@ -2009,6 +2019,7 @@
         if((l.dateAdded||'').slice(0,10)===td) qualified++;
       });
       const total=freshSends+followups+linkedinDMs+linkedinConns+qualified;
+      const _daBarF=document.querySelector('#tab-followups .daily-actions-bar'); if(_daBarF) _daBarF.style.display=total>0?'flex':'none';
       ['p','f'].forEach(s=>{
         const fs=document.getElementById('daFreshSends-'+s); if(fs) fs.textContent=freshSends;
         const fu=document.getElementById('daFollowups-'+s); if(fu) fu.textContent=followups;
@@ -2745,8 +2756,8 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         }[liStatus] || 'li-status-notsent';
 
         const websiteHtml = l.website
-          ? '<div style="margin-top:4px"><a href="' + escapeHtml(l.website) + '" target="_blank" rel="noopener" class="li-website-link">' + escapeHtml(l.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></div>'
-          : '<div style="margin-top:4px;font-size:12px;color:#444">No website</div>';
+          ? '<span style="margin-left:6px"><a href="' + escapeHtml(l.website) + '" target="_blank" rel="noopener" style="color:var(--accent);font-size:12px;text-decoration:none" title="' + escapeHtml(l.website) + '">&#8599;</a></span>'
+          : '';
 
         const isDual = !!(l.principalName && l.practiceManagerName);
         let profileCell, dmCell, contactCell, clinicCell;
@@ -2828,7 +2839,6 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
           '<td>' + clinicCell + '</td>' +
           '<td>' + escapeHtml(l.city || '—') + '</td>' +
           '<td>' + profileCell + '</td>' +
-          '<td><span class="li-status-badge ' + statusClass + '">' + escapeHtml(liStatus) + '</span></td>' +
           '<td>' + dmCell + '</td>';
         tbody.appendChild(tr);
       });
