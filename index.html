@@ -279,6 +279,43 @@
     .sdot-p-dnc{background:#8B0000}
     .sdot-p-notinterested{background:#444}
     .sdot-p-overdue{background:#E5484D;box-shadow:0 0 0 2px rgba(229,72,77,.18)}
+    .sdot-p-pilot{background:#2D7D46;box-shadow:0 0 0 2px rgba(45,125,70,.18)}
+    .sdot-p-discovery{background:#5E6AD2;box-shadow:0 0 0 2px rgba(94,106,210,.18)}
+
+    /* Performance Tab */
+    .perf-wrapper{padding:24px;max-width:1100px;margin:0 auto}
+    .perf-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .perf-header h1{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:36px;color:var(--text);margin:0 0 4px 0;letter-spacing:-0.01em}
+    .perf-header .perf-subtitle{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+    .perf-thresholds-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:Inter,sans-serif;border-radius:3px}
+    .perf-thresholds-btn:hover{color:#C9A84C;border-color:#C9A84C}
+    .perf-pillar{background:#111;padding:16px 20px;margin-bottom:8px;display:flex;align-items:center;gap:18px}
+    .perf-pillar.status-green{border-left:3px solid #2D7D46}
+    .perf-pillar.status-amber{border-left:3px solid #C9A84C}
+    .perf-pillar.status-red{border-left:3px solid #8B0000}
+    .perf-pillar-icon{flex:0 0 24px;text-align:center;font-size:16px}
+    .perf-pillar-icon.status-green{color:#2D7D46}
+    .perf-pillar-icon.status-amber{color:#C9A84C}
+    .perf-pillar-icon.status-red{color:#8B0000}
+    .perf-pillar-headline{flex:0 0 130px}
+    .perf-pillar-label{font-size:10px;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:4px}
+    .perf-pillar-number{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:var(--text);font-variant-numeric:tabular-nums;line-height:1}
+    .perf-pillar-meta{flex:1}
+    .perf-pillar-submetrics{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:0.04em}
+    .perf-pillar-submetrics .metric-value{color:var(--text)}
+    .perf-pillar-bar{height:3px;background:#1a1a1a;margin-top:8px;position:relative;overflow:hidden}
+    .perf-pillar-bar-fill{position:absolute;left:0;top:0;height:100%;transition:width 200ms ease-out}
+    .perf-pillar-bar-fill.status-green{background:#2D7D46}
+    .perf-pillar-bar-fill.status-amber{background:#C9A84C}
+    .perf-pillar-bar-fill.status-red{background:#8B0000}
+    .perf-notable{background:#111;padding:16px 20px;border-top:2px solid #5E6AD2;margin-top:14px}
+    .perf-notable-heading{font-size:10px;letter-spacing:0.15em;color:#C9A84C;text-transform:uppercase;font-weight:500;margin-bottom:10px}
+    .perf-notable-list{font-size:11px;color:var(--text);line-height:1.7;font-variant-numeric:tabular-nums}
+    .perf-notable-item{margin-bottom:4px}
+    .perf-notable-item .marker-warn{color:#C9A84C;margin-right:4px}
+    .perf-notable-item .marker-ok{color:#2D7D46;margin-right:4px}
+    .perf-empty{color:var(--muted);font-style:italic}
+    .perf-footer{font-size:11px;color:var(--muted);margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-variant-numeric:tabular-nums}
 
     /* Not Interested collapsed section */
     .ni-section{margin-top:16px}
@@ -551,6 +588,7 @@
     <nav class="sidebar-nav">
       <div class="sidebar-section-label">Overview</div>
       <button class="nav-item tabBtn" data-tab="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</button>
+      <button class="nav-item tabBtn" data-tab="performance"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Performance</button>
       <button class="nav-item tabBtn" data-tab="pipeline"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pipeline</button>
       <div class="sidebar-section-label">Actions</div>
       <button class="nav-item tabBtn" data-tab="followups"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Follow Ups <span class="nav-count-badge" id="followUpsNavBadge" style="display:none"></span></button>
@@ -665,6 +703,11 @@
       </div>
       <span id="dashStatNotSent" style="display:none">0</span>
       <span id="dashStatNotSentSub" style="display:none"></span>
+    </section>
+
+    <!-- Performance -->
+    <section id="tab-performance" class="tabPane" style="padding:24px 32px">
+      <div class="perf-wrapper" id="performanceContent"></div>
     </section>
 
     <!-- Inbox -->
@@ -1043,7 +1086,7 @@
         <div class="form-row"><div><label>City</label><input id="e_city" type="text"></div><div><label>Address</label><input id="e_address" type="text"></div></div>
         <div class="form-row"><div><label>Website</label><input id="e_website" type="text"></div><div><label>Named Contact</label><input id="e_contactName" type="text"></div></div>
         <div class="form-row"><div><label>Email</label><input id="e_email" type="email"></div><div class="w200"><label>Channel</label><select id="e_channel"><option>Email</option><option>Contact Form</option><option>DM</option></select></div><div class="w100"><label>Reviews</label><input id="e_reviewCount" type="text" placeholder="e.g. 47"></div></div>
-        <div class="form-row"><div class="w120"><label>Reply</label><select id="e_reply"><option value="N">No</option><option value="Y">Yes</option></select></div><div><label>Reply Type</label><select id="e_replyType"><option value="">(none)</option><option>Disqualified</option><option>Interested</option><option>Not Interested</option><option>Converted</option><option>Other</option></select></div></div>
+        <div class="form-row"><div class="w120"><label>Reply</label><select id="e_reply"><option value="N">No</option><option value="Y">Yes</option></select></div><div><label>Reply Type</label><select id="e_replyType"><option value="">(none)</option><option>Disqualified</option><option>Interested</option><option>Discovery Booked</option><option>Discovery Completed</option><option>Pilot Agreed</option><option>Pilot Started</option><option>Not Interested</option><option>Converted</option><option>Other</option></select></div></div>
         <div class="form-row"><div class="w200"><label>Source</label><select id="e_source"><option value="manual">Manual</option><option value="qualifier">Qualifier</option></select></div></div>
         <div style="margin-bottom:12px"><label>Notes</label><textarea id="e_notes"></textarea></div>
         <div class="flex">
@@ -1051,6 +1094,31 @@
           <button id="editCancel" type="button" class="btn btn-ghost">Cancel</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Performance Thresholds modal -->
+  <div id="perfThresholdsBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="perfThresholdsModal" class="modal" role="dialog" aria-modal="true" aria-label="Status Thresholds">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <h3 style="margin-bottom:0">Status Thresholds</h3>
+        <button onclick="closePerfThresholdsModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+      </div>
+      <div style="font-size:13px;line-height:1.7">
+        <div style="font-size:11px;letter-spacing:0.12em;color:#C9A84C;text-transform:uppercase;margin-top:4px;margin-bottom:8px;font-weight:600">Volume</div>
+        <div><span style="color:#2D7D46">&#9679;</span> ON TRACK: &ge;80 actions today AND &ge;1.5% reply rate (rolling 14-day)</div>
+        <div><span style="color:#C9A84C">&#9650;</span> AT RISK: 50-79 actions OR 1.0-1.5% reply rate</div>
+        <div><span style="color:#8B0000">&times;</span> OFF TRACK: &lt;50 actions OR &lt;1.0% reply rate</div>
+        <div style="font-size:11px;letter-spacing:0.12em;color:#C9A84C;text-transform:uppercase;margin-top:18px;margin-bottom:8px;font-weight:600">Pipeline</div>
+        <div><span style="color:#2D7D46">&#9679;</span> ON TRACK: &ge;1 discovery call completed this week</div>
+        <div><span style="color:#C9A84C">&#9650;</span> AT RISK: 0 calls but &ge;3 leads at "Discovery Booked"</div>
+        <div><span style="color:#8B0000">&times;</span> OFF TRACK: 0 calls AND &lt;3 in discovery</div>
+        <div style="font-size:11px;letter-spacing:0.12em;color:#C9A84C;text-transform:uppercase;margin-top:18px;margin-bottom:8px;font-weight:600">Outcome</div>
+        <div><span style="color:#2D7D46">&#9679;</span> ON TRACK: &ge;1 pilot agreed OR live</div>
+        <div><span style="color:#C9A84C">&#9650;</span> AT RISK: 0 pilots but &ge;3 in discovery</div>
+        <div><span style="color:#8B0000">&times;</span> OFF TRACK: 0 pilots AND &lt;3 in discovery</div>
+        <div style="margin-top:20px;color:var(--muted);font-size:11px">Outcome target: 1 pilot signed by 30 June 2026.</div>
+      </div>
     </div>
   </div>
 
@@ -1124,6 +1192,10 @@
     function isValidDateStr(s){ if(!s) return false; const d=new Date(s); return !isNaN(d.getTime()); }
     function addDays(dateStr,days){ if(!isValidDateStr(dateStr)) return ''; const d=new Date(dateStr); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
     function normDateStr(s){ if(!s) return ''; if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10); const m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/); if(m) return m[3]+'-'+m[2]+'-'+m[1]; return ''; }
+    function startOfWeekISO(){ const d=new Date(); d.setHours(0,0,0,0); const day=d.getDay(); const diff=day===0?-6:1-day; d.setDate(d.getDate()+diff); return d.toISOString().slice(0,10); }
+    function endOfWeekISO(){ const s=new Date(startOfWeekISO()); s.setDate(s.getDate()+6); return s.toISOString().slice(0,10); }
+    function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
+    function fmtDateShort(iso){ try{ return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }catch(e){ return iso; } }
     function formatDateISOtoUK(iso){ if(!iso) return ''; const m=iso.match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return iso; return `${m[3]}/${m[2]}/${m[1]}`; }
     function formatDateISOtoShortUK(iso){ if(!iso) return ''; const m=iso.match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return iso; return `${m[3]}/${m[2]}`; }
 
@@ -1134,7 +1206,7 @@
     function load(){
       const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
       if(!leads.length){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); if(bRaw){ const backups=JSON.parse(bRaw); if(backups.length&&(backups[0].data||[]).length){ const b=backups[0]; const ts=formatBackupTimestamp(b.timestamp); if(confirm('No leads found but a backup exists from '+ts+' with '+b.data.length+' leads. Restore it?')){ leads=b.data; localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); } } } }catch(e){} }
-      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(l.replyAnalysis===undefined) l.replyAnalysis=''; if(!l.channel) l.channel='Email'; }); renderAll();
+      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(l.replyAnalysis===undefined) l.replyAnalysis=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; }); renderAll();
     }
     function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); saveBackup(); renderAll(); }
 
@@ -1160,6 +1232,270 @@
     function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; save(); }
 
     function statusDotClass(l){ if((l.replyType||'').toLowerCase()==='disqualified') return 'sdot-disq'; if(l.reply==='Y') return 'sdot-replied'; const td=todayISO(); if((l.fu1Date===td&&!l.fu1Sent)||(l.fu2Date===td&&!l.fu2Sent)||(l.fu3Date===td&&!l.fu3Sent)) return 'sdot-due'; return 'sdot-pending'; }
+
+    // ===== PERFORMANCE TAB =====
+    function renderPerformance(){
+      const container=document.getElementById('performanceContent');
+      if(!container) return;
+      const td=todayISO();
+      const weekStart=startOfWeekISO();
+      const weekEnd=endOfWeekISO();
+      const volume=computeVolumeMetric(td,weekStart);
+      const pipeline=computePipelineMetric(weekStart,weekEnd);
+      const outcome=computeOutcomeMetric();
+      const anomalies=computeAnomalies(weekStart);
+      container.innerHTML=`
+        <div class="perf-header">
+          <div>
+            <h1>Performance</h1>
+            <div class="perf-subtitle">Are we on track? &mdash; week of ${fmtDateShort(weekStart)} to ${fmtDateShort(weekEnd)}</div>
+          </div>
+          <button class="perf-thresholds-btn" onclick="openPerfThresholdsModal()">View thresholds</button>
+        </div>
+        ${renderPillarRow('Volume',volume)}
+        ${renderPillarRow('Pipeline',pipeline)}
+        ${renderPillarRow('Outcome',outcome)}
+        <div class="perf-notable">
+          <div class="perf-notable-heading">&mdash; Notable this week</div>
+          <div class="perf-notable-list">${renderNotable(anomalies)}</div>
+        </div>
+        <div class="perf-footer">${renderPerfFooter()}</div>
+      `;
+    }
+
+    function renderPillarRow(label,m){
+      const icon=m.status==='green'?'\u25CF':m.status==='amber'?'\u25B2':'\u2715';
+      const barWidth=Math.min(100,Math.max(0,m.barPercent||0));
+      return `
+        <div class="perf-pillar status-${m.status}">
+          <div class="perf-pillar-icon status-${m.status}">${icon}</div>
+          <div class="perf-pillar-headline">
+            <div class="perf-pillar-label">${label}</div>
+            <div class="perf-pillar-number">${m.headline}</div>
+          </div>
+          <div class="perf-pillar-meta">
+            <div class="perf-pillar-submetrics">${m.submetrics}</div>
+            <div class="perf-pillar-bar"><div class="perf-pillar-bar-fill status-${m.status}" style="width:${barWidth}%"></div></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function computeVolumeMetric(td,weekStart){
+      let freshSends=0,followUps=0,linkedinDMs=0,linkedinConnections=0,leadsQualified=0;
+      leads.forEach(l=>{
+        if(l.initialSentDate===td) freshSends++;
+        if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td||l.demoFirstDate===td) followUps++;
+        if(l.linkedinDMDate===td) linkedinDMs++;
+        if(l.linkedinConnectionDate===td) linkedinConnections++;
+        if(l.dateAdded&&(l.dateAdded.slice(0,10)===td||l.dateAdded===td)) leadsQualified++;
+      });
+      const total=freshSends+followUps+linkedinDMs+linkedinConnections+leadsQualified;
+      const fourteenDaysAgo=addDays(td,-14);
+      let sentLast14=0,repliedLast14=0;
+      leads.forEach(l=>{
+        if(l.dateSent && normDateStr(l.dateSent)>=fourteenDaysAgo){
+          if(!l.doNotContact && (l.replyType||'')!=='Disqualified'){
+            sentLast14++;
+            if(l.reply==='Y') repliedLast14++;
+          }
+        }
+      });
+      const replyRate=sentLast14>0?(repliedLast14/sentLast14*100):0;
+      let fuDueToday=0;
+      leads.forEach(l=>{
+        if(l.reply==='Y'||l.doNotContact) return;
+        if(l.fu1Date===td&&!l.fu1Sent) fuDueToday++;
+        if(l.fu2Date===td&&!l.fu2Sent) fuDueToday++;
+        if(l.fu3Date===td&&!l.fu3Sent) fuDueToday++;
+      });
+      let status='red',label='OFF TRACK';
+      if(total>=80 && replyRate>=1.5){ status='green'; label='ON TRACK'; }
+      else if((total>=50&&total<80)||(replyRate>=1.0&&replyRate<1.5)){ status='amber'; label='AT RISK'; }
+      return {
+        status,
+        headline:`${total}/100`,
+        submetrics:`Reply rate <span class="metric-value">${replyRate.toFixed(1)}%</span> &middot; FU due <span class="metric-value">${fuDueToday}</span> &middot; Sent today <span class="metric-value">${freshSends}</span> &middot; ${label}`,
+        barPercent:total
+      };
+    }
+
+    function computePipelineMetric(weekStart,weekEnd){
+      let callsBookedThisWeek=0,callsCompletedThisWeek=0,inDiscovery=0;
+      leads.forEach(l=>{
+        if(l.discoveryCallBooked && l.discoveryCallBooked>=weekStart && l.discoveryCallBooked<=weekEnd) callsBookedThisWeek++;
+        if(l.discoveryCallCompleted && l.discoveryCallCompleted>=weekStart && l.discoveryCallCompleted<=weekEnd) callsCompletedThisWeek++;
+        if(l.replyType==='Discovery Booked'||l.replyType==='Discovery Completed') inDiscovery++;
+      });
+      let status='red',label='OFF TRACK';
+      if(callsCompletedThisWeek>=1){ status='green'; label='ON TRACK'; }
+      else if(callsCompletedThisWeek===0 && inDiscovery>=3){ status='amber'; label='AT RISK'; }
+      return {
+        status,
+        headline:`${callsCompletedThisWeek}/1`,
+        submetrics:`Calls booked <span class="metric-value">${callsBookedThisWeek}</span> &middot; Completed <span class="metric-value">${callsCompletedThisWeek}</span> &middot; In discovery <span class="metric-value">${inDiscovery}</span> &middot; ${label}`,
+        barPercent:callsCompletedThisWeek*100
+      };
+    }
+
+    function computeOutcomeMetric(){
+      const deadline='2026-06-30';
+      const td=todayISO();
+      const daysRemaining=Math.max(0,daysBetween(td,deadline));
+      const totalDays=daysBetween('2026-04-01',deadline);
+      const elapsedDays=totalDays-daysRemaining;
+      const elapsedPct=Math.round((elapsedDays/totalDays)*100);
+      let pilotsAgreed=0,pilotsLive=0,inDiscovery=0;
+      leads.forEach(l=>{
+        if(l.replyType==='Pilot Agreed'||l.replyType==='Pilot Started') pilotsAgreed++;
+        if(l.replyType==='Pilot Started') pilotsLive++;
+        if(l.replyType==='Discovery Booked'||l.replyType==='Discovery Completed') inDiscovery++;
+      });
+      let status='red',label='OFF TRACK';
+      if(pilotsAgreed>=1){ status='green'; label='ON TRACK'; }
+      else if(pilotsAgreed===0 && inDiscovery>=3){ status='amber'; label='AT RISK'; }
+      return {
+        status,
+        headline:`${pilotsAgreed}/1`,
+        submetrics:`Agreed <span class="metric-value">${pilotsAgreed}</span> &middot; Live <span class="metric-value">${pilotsLive}</span> &middot; <span class="metric-value">${daysRemaining}</span> days remaining &middot; ${label}`,
+        barPercent:pilotsAgreed*100
+      };
+    }
+
+    function computeAnomalies(weekStart){
+      const td=todayISO();
+      const anomalies=[];
+      const leadsWithSendDate=leads.filter(l=>l.dateSent && !l.doNotContact && (l.replyType||'')!=='Disqualified');
+      if(leadsWithSendDate.length<50){
+        return [{type:'empty',text:'Insufficient volume for week-over-week comparison. Continue outreach.'}];
+      }
+      const sevenDaysAgo=addDays(td,-7);
+      const fourteenDaysAgo=addDays(td,-14);
+      const cityReplyRates={};
+      leadsWithSendDate.forEach(l=>{
+        const city=l.city||'Unknown';
+        const sentDate=normDateStr(l.dateSent);
+        if(!cityReplyRates[city]) cityReplyRates[city]={thisWeekSent:0,thisWeekReplied:0,lastWeekSent:0,lastWeekReplied:0};
+        if(sentDate>=sevenDaysAgo){
+          cityReplyRates[city].thisWeekSent++;
+          if(l.reply==='Y') cityReplyRates[city].thisWeekReplied++;
+        } else if(sentDate>=fourteenDaysAgo){
+          cityReplyRates[city].lastWeekSent++;
+          if(l.reply==='Y') cityReplyRates[city].lastWeekReplied++;
+        }
+      });
+      Object.keys(cityReplyRates).forEach(city=>{
+        const c=cityReplyRates[city];
+        if(c.lastWeekSent>=10 && c.thisWeekSent>=5){
+          const lastRate=(c.lastWeekReplied/c.lastWeekSent)*100;
+          const thisRate=(c.thisWeekReplied/c.thisWeekSent)*100;
+          if(lastRate>0 && thisRate<lastRate*0.75){
+            anomalies.push({type:'warn',severity:3,text:`${city} reply rate dropped to ${thisRate.toFixed(1)}% from ${lastRate.toFixed(1)}% week-over-week`});
+          }
+        }
+      });
+      const fuTypes=[
+        {field:'fu1SentOn',label:'FU1'},
+        {field:'fu2SentOn',label:'FU2'},
+        {field:'fu3SentOn',label:'FU3'},
+        {field:'reEngageSentOn',label:'Re-Engage'},
+        {field:'demoFirstDate',label:'Demo First'}
+      ];
+      fuTypes.forEach(f=>{
+        let sentLast14=0,repliedLast14=0;
+        leadsWithSendDate.forEach(l=>{
+          const sent=l[f.field];
+          if(sent && normDateStr(sent)>=fourteenDaysAgo){
+            sentLast14++;
+            if(l.reply==='Y') repliedLast14++;
+          }
+        });
+        if(sentLast14>=10 && repliedLast14===0){
+          anomalies.push({type:'warn',severity:4,text:`${f.label} has zero replies in 14 days (${sentLast14} sent)`});
+        }
+      });
+      let staleDiscovery=0;
+      leadsWithSendDate.forEach(l=>{
+        if(l.discoveryCallBooked && !l.discoveryCallCompleted){
+          const daysSince=daysBetween(normDateStr(l.discoveryCallBooked),td);
+          if(daysSince>=7) staleDiscovery++;
+        }
+      });
+      if(staleDiscovery>0){
+        anomalies.push({type:'warn',severity:2,text:`${staleDiscovery} discovery call${staleDiscovery===1?'':'s'} booked but not completed within 7 days`});
+      }
+      leads.forEach(l=>{
+        if(l.pilotStarted && l.pilotEndDate && !l.pilotAgreed){
+          const daysLeft=daysBetween(td,l.pilotEndDate);
+          if(daysLeft<14 && daysLeft>=0){
+            anomalies.push({type:'warn',severity:1,text:`Pilot for ${l.clinicName||'unknown'} ends in ${daysLeft} days &mdash; no continuation decision yet`});
+          }
+        }
+      });
+      const totalSent=leadsWithSendDate.length;
+      const totalReplied=leadsWithSendDate.filter(l=>l.reply==='Y').length;
+      const globalRate=totalSent>0?(totalReplied/totalSent)*100:0;
+      Object.keys(cityReplyRates).forEach(city=>{
+        const c=cityReplyRates[city];
+        const cityTotalSent=c.thisWeekSent+c.lastWeekSent;
+        const cityTotalReplied=c.thisWeekReplied+c.lastWeekReplied;
+        if(cityTotalSent>=20 && globalRate>0){
+          const cityRate=(cityTotalReplied/cityTotalSent)*100;
+          if(cityRate>globalRate*2){
+            anomalies.push({type:'ok',severity:8,text:`${city} outperforming &middot; ${cityRate.toFixed(1)}% reply rate vs ${globalRate.toFixed(1)}% average`});
+          }
+        }
+      });
+      let thisWeekReplies=0,lastWeekReplies=0;
+      leadsWithSendDate.forEach(l=>{
+        if(l.reply==='Y' && l.dateSent){
+          const sentDate=normDateStr(l.dateSent);
+          if(sentDate>=sevenDaysAgo) thisWeekReplies++;
+          else if(sentDate>=fourteenDaysAgo) lastWeekReplies++;
+        }
+      });
+      if(lastWeekReplies>0 && thisWeekReplies>=lastWeekReplies*2){
+        anomalies.push({type:'ok',severity:7,text:`Reply count up to ${thisWeekReplies} from ${lastWeekReplies} last week`});
+      }
+      leads.forEach(l=>{
+        if(l.pilotAgreed && l.pilotAgreed>=sevenDaysAgo){
+          anomalies.push({type:'ok',severity:6,text:`Pilot agreed: ${l.clinicName||'unknown'}`});
+        }
+      });
+      anomalies.sort((a,b)=>a.severity-b.severity);
+      return anomalies.slice(0,5);
+    }
+
+    function renderNotable(anomalies){
+      if(!anomalies.length){
+        return '<div class="perf-empty">No notable changes this week. Outreach steady.</div>';
+      }
+      if(anomalies.length===1 && anomalies[0].type==='empty'){
+        return `<div class="perf-empty">${anomalies[0].text}</div>`;
+      }
+      return anomalies.map(a=>{
+        const marker=a.type==='warn'?'<span class="marker-warn">&mdash;</span>':'<span class="marker-ok">\u2713</span>';
+        return `<div class="perf-notable-item">${marker}${a.text}</div>`;
+      }).join('');
+    }
+
+    function renderPerfFooter(){
+      const td=todayISO();
+      const livePilots=leads.filter(l=>l.replyType==='Pilot Started');
+      if(!livePilots.length){
+        return 'No pilots live yet &mdash; your first one resets this dashboard.';
+      }
+      const next=livePilots.find(l=>l.pilotEndDate);
+      if(next){
+        const daysLeft=daysBetween(td,next.pilotEndDate);
+        return `${livePilots.length} pilot${livePilots.length===1?'':'s'} live, ${daysLeft} days remaining on next decision.`;
+      }
+      return `${livePilots.length} pilot${livePilots.length===1?'':'s'} live.`;
+    }
+
+    function openPerfThresholdsModal(){ const bd=document.getElementById('perfThresholdsBackdrop'); const md=document.getElementById('perfThresholdsModal'); if(!bd||!md) return; bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
+    function closePerfThresholdsModal(){ const bd=document.getElementById('perfThresholdsBackdrop'); const md=document.getElementById('perfThresholdsModal'); if(!bd||!md) return; md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
+    // ===== END PERFORMANCE TAB =====
 
     function renderDashboard(){
       const container=document.getElementById('dashboard'); container.innerHTML='';
@@ -1391,13 +1727,13 @@
 
     function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); save(); }
 
-    function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(lead.reply==='Y') return 'Replied'; if(_rt==='Disqualified') return 'Disqualified'; if(!lead.dateSent&&!lead.fu1Sent&&!lead.fu1Date) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; if(!lead.reEngageSent&&lead.fu3Sent&&lead.fu3SentOn){ const _d=Math.round((new Date(td)-new Date(normDateStr(lead.fu3SentOn)))/86400000); if(_d>=7) return 'Re-Engage Overdue'; } if(!lead.demoFirstSent&&lead.reEngageSent&&lead.reEngageSentOn){ const _d=Math.round((new Date(td)-new Date(normDateStr(lead.reEngageSentOn)))/86400000); if(_d>=14) return 'Demo First Overdue'; } return 'Sent'; }
+    function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(_rt==='Disqualified') return 'Disqualified'; if(_rt==='Pilot Started') return 'Pilot Started'; if(_rt==='Pilot Agreed') return 'Pilot Agreed'; if(_rt==='Discovery Completed') return 'Discovery Completed'; if(_rt==='Discovery Booked') return 'Discovery Booked'; if(lead.reply==='Y') return 'Replied'; if(!lead.dateSent&&!lead.fu1Sent&&!lead.fu1Date) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; if(!lead.reEngageSent&&lead.fu3Sent&&lead.fu3SentOn){ const _d=Math.round((new Date(td)-new Date(normDateStr(lead.fu3SentOn)))/86400000); if(_d>=7) return 'Re-Engage Overdue'; } if(!lead.demoFirstSent&&lead.reEngageSent&&lead.reEngageSentOn){ const _d=Math.round((new Date(td)-new Date(normDateStr(lead.reEngageSentOn)))/86400000); if(_d>=14) return 'Demo First Overdue'; } return 'Sent'; }
 
     function getNextFUDate(lead){ const fus=[{date:lead.fu1Date,sent:lead.fu1Sent},{date:lead.fu2Date,sent:lead.fu2Sent},{date:lead.fu3Date,sent:lead.fu3Sent}]; for(const fu of fus){ if(fu.date&&!fu.sent) return fu.date; } return null; }
 
     function computeFUUrgency(lead){ const td=todayISO(); const fus=[{date:lead.fu1Date,sent:lead.fu1Sent,label:'FU1'},{date:lead.fu2Date,sent:lead.fu2Sent,label:'FU2'},{date:lead.fu3Date,sent:lead.fu3Sent,label:'FU3'}]; for(const fu of fus){ if(!fu.date||fu.sent) continue; if(fu.date<td) return {label:fu.label+' Overdue',dotClass:'fu-urg-overdue'}; if(fu.date===td) return {label:fu.label+' Today',dotClass:'fu-urg-today'}; const days=Math.round((new Date(fu.date)-new Date(td))/86400000); if(days<=2) return {label:fu.label+' in '+days+(days===1?' day':' days'),dotClass:'fu-urg-soon'}; return null; } return null; }
 
-    function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Re-Engage Overdue':'sdot-p-overdue','Demo First Overdue':'sdot-p-overdue'}; return m[status]||'sdot-p-notsent'; }
+    function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Re-Engage Overdue':'sdot-p-overdue','Demo First Overdue':'sdot-p-overdue','Pilot Started':'sdot-p-pilot','Pilot Agreed':'sdot-p-pilot','Discovery Completed':'sdot-p-discovery','Discovery Booked':'sdot-p-discovery'}; return m[status]||'sdot-p-notsent'; }
 
     function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.ctaVariant!=='All') count++; if(pipelineFilter.subjectLine!=='All') count++; if(pipelineFilter.noLinkedin!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl){ countEl.textContent=count; countEl.style.display=count>0?'inline':'none'; } }
 
@@ -2030,7 +2366,7 @@
       });
     }
 
-    function renderAll(){ renderDashboard(); renderPipeline(); renderInbox(); renderFollowUps(); renderLinkedIn(); renderStats(); renderDailyActionsBar(); attachButtons(); }
+    function renderAll(){ renderDashboard(); renderPerformance(); renderPipeline(); renderInbox(); renderFollowUps(); renderLinkedIn(); renderStats(); renderDailyActionsBar(); attachButtons(); }
 
     function attachButtons(){
       document.getElementById('btnClear').onclick=()=>{ if(confirm('Clear all saved leads?')){ leads=[]; save(); } };
@@ -2056,7 +2392,7 @@
     function openAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); bd.classList.add('open'); pn.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
     function closeAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); pn.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
 
-    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim(); ensureFUDates(lead); save(); closeModal(); }
+    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim(); const _td=todayISO(); if(lead.replyType==='Discovery Booked' && !lead.discoveryCallBooked) lead.discoveryCallBooked=_td; if(lead.replyType==='Discovery Completed' && !lead.discoveryCallCompleted) lead.discoveryCallCompleted=_td; if(lead.replyType==='Pilot Agreed' && !lead.pilotAgreed) lead.pilotAgreed=_td; if(lead.replyType==='Pilot Started'){ if(!lead.pilotStarted) lead.pilotStarted=_td; if(!lead.pilotEndDate) lead.pilotEndDate=addDays(_td,60); } ensureFUDates(lead); save(); closeModal(); }
 
     function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
@@ -2105,7 +2441,7 @@
       const panes=document.querySelectorAll('.tabPane');
       panes.forEach(p=>{ if(p.id==='tab-'+name){ p.style.display='block'; p.classList.add('active'); } else { p.classList.remove('active'); p.style.display='none'; } });
       document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
-      const titles={dashboard:'Dashboard',inbox:'Inbox',pipeline:'Pipeline',followups:'Follow Ups',linkedin:'LinkedIn',email:'Email'};
+      const titles={dashboard:'Dashboard',performance:'Performance',inbox:'Inbox',pipeline:'Pipeline',followups:'Follow Ups',linkedin:'LinkedIn',email:'Email'};
       const mobileTitle=document.getElementById('mobileTitle'); if(mobileTitle) mobileTitle.textContent=titles[name]||name;
       const topbarTitle=document.getElementById('topbarTitle'); if(topbarTitle){ if(name==='dashboard'){ topbarTitle.innerHTML='Hi, <strong style="font-weight:600">Lawrence!</strong>'; } else { topbarTitle.textContent=titles[name]||name; } }
       if(name==='email') populateEmailLeadDropdown();
