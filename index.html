@@ -283,44 +283,44 @@
     .sdot-p-discovery{background:#5E6AD2;box-shadow:0 0 0 2px rgba(94,106,210,.18)}
 
     /* Performance Tab */
-    .perf-wrapper{padding:24px;max-width:1100px;margin:0 auto}
-    .perf-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-    .perf-header h1{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:36px;color:var(--text);margin:0 0 4px 0;letter-spacing:-0.01em}
-    .perf-header .perf-subtitle{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-    .perf-thresholds-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:Inter,sans-serif;border-radius:3px}
+    .perf-wrapper{padding:32px 40px;max-width:1400px;margin:0 auto}
+    .perf-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;padding-bottom:24px;border-bottom:1px solid var(--border);gap:24px}
+    .perf-header h1{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:56px;color:var(--text);margin:0 0 8px 0;letter-spacing:-0.02em;line-height:1}
+    .perf-header .perf-subtitle{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:0.02em}
+    .perf-thresholds-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:12px 20px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;font-family:Inter,sans-serif;border-radius:3px;white-space:nowrap;flex-shrink:0}
     .perf-thresholds-btn:hover{color:#C9A84C;border-color:#C9A84C}
-    .perf-pillar{background:#111;padding:16px 20px;margin-bottom:8px;display:flex;align-items:center;gap:18px}
-    .perf-pillar.status-green{border-left:3px solid #2D7D46}
-    .perf-pillar.status-amber{border-left:3px solid #C9A84C}
-    .perf-pillar.status-red{border-left:3px solid #8B0000}
-    .perf-pillar-icon{flex:0 0 24px;text-align:center;font-size:16px}
+    .perf-pillar{background:#111;padding:28px 32px;margin-bottom:14px;display:flex;align-items:center;gap:32px}
+    .perf-pillar.status-green{border-left:4px solid #2D7D46}
+    .perf-pillar.status-amber{border-left:4px solid #C9A84C}
+    .perf-pillar.status-red{border-left:4px solid #8B0000}
+    .perf-pillar-icon{flex:0 0 32px;text-align:center;font-size:24px}
     .perf-pillar-icon.status-green{color:#2D7D46}
     .perf-pillar-icon.status-amber{color:#C9A84C}
     .perf-pillar-icon.status-red{color:#8B0000}
-    .perf-pillar-headline{flex:0 0 130px}
-    .perf-pillar-label{font-size:10px;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:4px}
-    .perf-pillar-number{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:var(--text);font-variant-numeric:tabular-nums;line-height:1}
-    .perf-pillar-meta{flex:1}
-    .perf-pillar-submetrics{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:0.04em}
-    .perf-pillar-submetrics .metric-value{color:var(--text)}
-    .perf-pillar-unit{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);font-style:italic;margin-left:2px}
-    .perf-status-word{font-weight:600;letter-spacing:0.06em;font-size:10px;padding:2px 6px;border-radius:2px;white-space:nowrap}
-    .perf-status-word.status-green{color:#2D7D46;background:rgba(45,125,70,0.14)}
-    .perf-status-word.status-amber{color:#C9A84C;background:rgba(201,168,76,0.14)}
-    .perf-status-word.status-red{color:#E5484D;background:rgba(229,72,77,0.14)}
-    .perf-pillar-bar{height:3px;background:#1a1a1a;margin-top:8px;position:relative;overflow:hidden}
+    .perf-pillar-headline{flex:0 0 200px}
+    .perf-pillar-label{font-size:11px;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:10px}
+    .perf-pillar-number{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:400;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-0.01em}
+    .perf-pillar-meta{flex:1;min-width:0}
+    .perf-pillar-submetrics{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:0.02em;line-height:1.5}
+    .perf-pillar-submetrics .metric-value{color:var(--text);font-weight:500}
+    .perf-pillar-unit{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--muted);font-style:italic;margin-left:4px}
+    .perf-status-word{font-weight:600;letter-spacing:0.1em;font-size:11px;padding:4px 9px;border-radius:2px;white-space:nowrap;text-transform:uppercase}
+    .perf-status-word.status-green{color:#2D7D46;background:rgba(45,125,70,0.16)}
+    .perf-status-word.status-amber{color:#C9A84C;background:rgba(201,168,76,0.16)}
+    .perf-status-word.status-red{color:#E5484D;background:rgba(229,72,77,0.16)}
+    .perf-pillar-bar{height:4px;background:#1a1a1a;margin-top:14px;position:relative;overflow:hidden;border-radius:1px}
     .perf-pillar-bar-fill{position:absolute;left:0;top:0;height:100%;transition:width 200ms ease-out}
     .perf-pillar-bar-fill.status-green{background:#2D7D46}
     .perf-pillar-bar-fill.status-amber{background:#C9A84C}
     .perf-pillar-bar-fill.status-red{background:#8B0000}
-    .perf-notable{background:#111;padding:16px 20px;border-top:2px solid #5E6AD2;margin-top:14px}
-    .perf-notable-heading{font-size:10px;letter-spacing:0.15em;color:#C9A84C;text-transform:uppercase;font-weight:500;margin-bottom:10px}
-    .perf-notable-list{font-size:11px;color:var(--text);line-height:1.7;font-variant-numeric:tabular-nums}
-    .perf-notable-item{margin-bottom:4px}
-    .perf-notable-item .marker-warn{color:#C9A84C;margin-right:4px}
-    .perf-notable-item .marker-ok{color:#2D7D46;margin-right:4px}
-    .perf-empty{color:var(--muted);font-style:italic}
-    .perf-footer{font-size:11px;color:var(--muted);margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-variant-numeric:tabular-nums}
+    .perf-notable{background:#111;padding:24px 32px;border-top:3px solid #5E6AD2;margin-top:24px}
+    .perf-notable-heading{font-size:11px;letter-spacing:0.18em;color:#C9A84C;text-transform:uppercase;font-weight:600;margin-bottom:16px}
+    .perf-notable-list{font-size:14px;color:var(--text);line-height:1.8;font-variant-numeric:tabular-nums}
+    .perf-notable-item{margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+    .perf-notable-item .marker-warn{color:#C9A84C;font-size:12px;flex-shrink:0;line-height:1.6}
+    .perf-notable-item .marker-ok{color:#2D7D46;flex-shrink:0;line-height:1.6}
+    .perf-empty{color:var(--muted);font-style:italic;font-size:14px}
+    .perf-footer{font-size:13px;color:var(--muted);margin-top:24px;padding-top:20px;border-top:1px solid var(--border);font-variant-numeric:tabular-nums;letter-spacing:0.02em}
 
     /* Not Interested collapsed section */
     .ni-section{margin-top:16px}
@@ -593,7 +593,7 @@
     <nav class="sidebar-nav">
       <div class="sidebar-section-label">Overview</div>
       <button class="nav-item tabBtn" data-tab="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</button>
-      <button class="nav-item tabBtn" data-tab="performance"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Performance</button>
+      <button class="nav-item tabBtn" data-tab="performance"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17a9 9 0 0 1 18 0"/><path d="M12 17l5-5"/><circle cx="12" cy="17" r="1.2" fill="currentColor" stroke="none"/></svg>Performance</button>
       <button class="nav-item tabBtn" data-tab="pipeline"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pipeline</button>
       <div class="sidebar-section-label">Actions</div>
       <button class="nav-item tabBtn" data-tab="followups"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Follow Ups <span class="nav-count-badge" id="followUpsNavBadge" style="display:none"></span></button>
@@ -1481,7 +1481,7 @@
       }
       return anomalies.map(a=>{
         const marker=a.type==='warn'?'<span class="marker-warn">&#9657;</span>':'<span class="marker-ok">\u2713</span>';
-        return `<div class="perf-notable-item">${marker}${a.text}</div>`;
+        return `<div class="perf-notable-item">${marker}<span>${a.text}</span></div>`;
       }).join('');
     }
 
