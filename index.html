@@ -1148,7 +1148,7 @@
     function addLead(data){ const lead=Object.assign({id:Date.now(),dateAdded:new Date().toISOString()},data); if(!lead.source) lead.source='manual'; ensureFUDates(lead); leads.unshift(lead); save(); }
 
     function markFUSent(id,fu){ const lead=leads.find(l=>l.id==id); if(!lead) return;
-      if(fu==='fu1'){ if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; } else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),4); } }
+      if(fu==='fu1'){ if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; } else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),5); } }
       if(fu==='fu2'){ if(lead.fu2Sent){ lead.fu2Sent=false; delete lead.fu2SentOn; } else { lead.fu2Sent=true; lead.fu2SentOn=todayISO(); lead.fu3Date=addDays(todayISO(),7); } }
       if(fu==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); lead.reEngageDate=addDays(todayISO(),3); } }
       save(); }
@@ -1808,7 +1808,7 @@
             await sendGraphEmail(lead.email,subject,htmlBody);
           }
           if(fuKey==='initial'){ lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); }
-          else if(fuKey==='fu1'){ lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),4); }
+          else if(fuKey==='fu1'){ lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),5); }
           else if(fuKey==='fu2'){ lead.fu2Sent=true; lead.fu2SentOn=todayISO(); lead.fu3Date=addDays(todayISO(),7); }
           else if(fuKey==='fu3'){ lead.fu3Sent=true; lead.fu3SentOn=todayISO(); lead.reEngageDate=addDays(todayISO(),3); }
           else if(fuKey==='reEngage'){ lead.reEngageSent=true; lead.reEngageSentOn=todayISO(); }
@@ -1874,7 +1874,7 @@
       container.querySelectorAll('.btn-mark-sent').forEach(btn=>{ btn.addEventListener('click',()=>markAsSentFromInbox(btn.dataset.id)); });
     }
 
-    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),4);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();lead.reEngageDate=addDays(todayISO(),3);} if(fuKey==='reEngage'){lead.reEngageSent=true;lead.reEngageSentOn=todayISO();} if(fuKey==='demoFirst'){lead.demoFirstSent=true;lead.demoFirstDate=todayISO();} save(); }
+    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),5);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();lead.reEngageDate=addDays(todayISO(),3);} if(fuKey==='reEngage'){lead.reEngageSent=true;lead.reEngageSentOn=todayISO();} if(fuKey==='demoFirst'){lead.demoFirstSent=true;lead.demoFirstDate=todayISO();} save(); }
 
     function markRepliedFromFollowUps(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply='Y'; save(); }
 
