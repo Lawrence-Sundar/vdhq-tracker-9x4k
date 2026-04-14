@@ -303,6 +303,11 @@
     .perf-pillar-meta{flex:1}
     .perf-pillar-submetrics{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:0.04em}
     .perf-pillar-submetrics .metric-value{color:var(--text)}
+    .perf-pillar-unit{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);font-style:italic;margin-left:2px}
+    .perf-status-word{font-weight:600;letter-spacing:0.06em;font-size:10px;padding:2px 6px;border-radius:2px;white-space:nowrap}
+    .perf-status-word.status-green{color:#2D7D46;background:rgba(45,125,70,0.14)}
+    .perf-status-word.status-amber{color:#C9A84C;background:rgba(201,168,76,0.14)}
+    .perf-status-word.status-red{color:#E5484D;background:rgba(229,72,77,0.14)}
     .perf-pillar-bar{height:3px;background:#1a1a1a;margin-top:8px;position:relative;overflow:hidden}
     .perf-pillar-bar-fill{position:absolute;left:0;top:0;height:100%;transition:width 200ms ease-out}
     .perf-pillar-bar-fill.status-green{background:#2D7D46}
@@ -1102,7 +1107,7 @@
     <div id="perfThresholdsModal" class="modal" role="dialog" aria-modal="true" aria-label="Status Thresholds">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <h3 style="margin-bottom:0">Status Thresholds</h3>
-        <button onclick="closePerfThresholdsModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
+        <button type="button" aria-label="Close thresholds" onclick="closePerfThresholdsModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
       </div>
       <div style="font-size:13px;line-height:1.7">
         <div style="font-size:11px;letter-spacing:0.12em;color:#C9A84C;text-transform:uppercase;margin-top:4px;margin-bottom:8px;font-weight:600">Volume</div>
@@ -1248,15 +1253,15 @@
         <div class="perf-header">
           <div>
             <h1>Performance</h1>
-            <div class="perf-subtitle">Are we on track? &mdash; week of ${fmtDateShort(weekStart)} to ${fmtDateShort(weekEnd)}</div>
+            <div class="perf-subtitle">Are we on track? Week of ${fmtDateShort(weekStart)} to ${fmtDateShort(weekEnd)}</div>
           </div>
-          <button class="perf-thresholds-btn" onclick="openPerfThresholdsModal()">View thresholds</button>
+          <button type="button" class="perf-thresholds-btn" aria-label="View status thresholds" onclick="openPerfThresholdsModal()">View thresholds</button>
         </div>
         ${renderPillarRow('Volume',volume)}
         ${renderPillarRow('Pipeline',pipeline)}
         ${renderPillarRow('Outcome',outcome)}
         <div class="perf-notable">
-          <div class="perf-notable-heading">&mdash; Notable this week</div>
+          <div class="perf-notable-heading">Notable this week</div>
           <div class="perf-notable-list">${renderNotable(anomalies)}</div>
         </div>
         <div class="perf-footer">${renderPerfFooter()}</div>
@@ -1309,13 +1314,14 @@
         if(l.fu2Date===td&&!l.fu2Sent) fuDueToday++;
         if(l.fu3Date===td&&!l.fu3Sent) fuDueToday++;
       });
-      let status='red',label='OFF TRACK';
-      if(total>=80 && replyRate>=1.5){ status='green'; label='ON TRACK'; }
-      else if((total>=50&&total<80)||(replyRate>=1.0&&replyRate<1.5)){ status='amber'; label='AT RISK'; }
+      const actionsStatus=total>=80?'green':total>=50?'amber':'red';
+      const rateStatus=replyRate>=1.5?'green':replyRate>=1.0?'amber':'red';
+      const status=[actionsStatus,rateStatus].includes('red')?'red':[actionsStatus,rateStatus].includes('amber')?'amber':'green';
+      const label=status==='green'?'ON TRACK':status==='amber'?'AT RISK':'OFF TRACK';
       return {
         status,
         headline:`${total}/100`,
-        submetrics:`Reply rate <span class="metric-value">${replyRate.toFixed(1)}%</span> &middot; FU due <span class="metric-value">${fuDueToday}</span> &middot; Sent today <span class="metric-value">${freshSends}</span> &middot; ${label}`,
+        submetrics:`Reply rate <span class="metric-value">${replyRate.toFixed(1)}%</span> &middot; FU due <span class="metric-value">${fuDueToday}</span> &middot; Sent today <span class="metric-value">${freshSends}</span> &middot; <span class="perf-status-word status-${status}">${label}</span>`,
         barPercent:total
       };
     }
@@ -1332,8 +1338,8 @@
       else if(callsCompletedThisWeek===0 && inDiscovery>=3){ status='amber'; label='AT RISK'; }
       return {
         status,
-        headline:`${callsCompletedThisWeek}/1`,
-        submetrics:`Calls booked <span class="metric-value">${callsBookedThisWeek}</span> &middot; Completed <span class="metric-value">${callsCompletedThisWeek}</span> &middot; In discovery <span class="metric-value">${inDiscovery}</span> &middot; ${label}`,
+        headline:`${callsCompletedThisWeek}/1 <span class="perf-pillar-unit">call</span>`,
+        submetrics:`Calls booked <span class="metric-value">${callsBookedThisWeek}</span> &middot; Completed <span class="metric-value">${callsCompletedThisWeek}</span> &middot; In discovery <span class="metric-value">${inDiscovery}</span> &middot; <span class="perf-status-word status-${status}">${label}</span>`,
         barPercent:callsCompletedThisWeek*100
       };
     }
@@ -1356,8 +1362,8 @@
       else if(pilotsAgreed===0 && inDiscovery>=3){ status='amber'; label='AT RISK'; }
       return {
         status,
-        headline:`${pilotsAgreed}/1`,
-        submetrics:`Agreed <span class="metric-value">${pilotsAgreed}</span> &middot; Live <span class="metric-value">${pilotsLive}</span> &middot; <span class="metric-value">${daysRemaining}</span> days remaining &middot; ${label}`,
+        headline:`${pilotsAgreed}/1 <span class="perf-pillar-unit">pilot</span>`,
+        submetrics:`Agreed <span class="metric-value">${pilotsAgreed}</span> &middot; Live <span class="metric-value">${pilotsLive}</span> &middot; <span class="metric-value">${daysRemaining}</span> days remaining &middot; <span class="perf-status-word status-${status}">${label}</span>`,
         barPercent:pilotsAgreed*100
       };
     }
@@ -1428,7 +1434,7 @@
         if(l.pilotStarted && l.pilotEndDate && !l.pilotAgreed){
           const daysLeft=daysBetween(td,l.pilotEndDate);
           if(daysLeft<14 && daysLeft>=0){
-            anomalies.push({type:'warn',severity:1,text:`Pilot for ${l.clinicName||'unknown'} ends in ${daysLeft} days &mdash; no continuation decision yet`});
+            anomalies.push({type:'warn',severity:1,text:`Pilot for ${l.clinicName||'unknown'} ends in ${daysLeft} days, no continuation decision yet`});
           }
         }
       });
@@ -1474,7 +1480,7 @@
         return `<div class="perf-empty">${anomalies[0].text}</div>`;
       }
       return anomalies.map(a=>{
-        const marker=a.type==='warn'?'<span class="marker-warn">&mdash;</span>':'<span class="marker-ok">\u2713</span>';
+        const marker=a.type==='warn'?'<span class="marker-warn">&#9657;</span>':'<span class="marker-ok">\u2713</span>';
         return `<div class="perf-notable-item">${marker}${a.text}</div>`;
       }).join('');
     }
@@ -1483,7 +1489,7 @@
       const td=todayISO();
       const livePilots=leads.filter(l=>l.replyType==='Pilot Started');
       if(!livePilots.length){
-        return 'No pilots live yet &mdash; your first one resets this dashboard.';
+        return 'No pilots live yet. Your first one resets this dashboard.';
       }
       const next=livePilots.find(l=>l.pilotEndDate);
       if(next){
