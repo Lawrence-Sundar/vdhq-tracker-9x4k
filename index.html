@@ -751,8 +751,6 @@
         <button class="status-filter-btn" data-status="Converted">Converted <span class="tab-count" id="tcConverted"></span></button>
         <button class="status-filter-btn" data-status="DNC">DNC <span class="tab-count" id="tcDNC"></span></button>
       </div>
-      <div style="margin-bottom:12px"><button onclick="const l=document.getElementById('dotLegend');l.style.display=l.style.display==='none'?'flex':'none'" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:12px;padding:2px 8px;border-radius:6px;cursor:pointer">?</button><div id="dotLegend" style="display:none;gap:12px;font-size:12px;color:var(--muted);margin-top:8px;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-sent" style="width:6px;height:6px"></span>Sent</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-fudue" style="width:6px;height:6px"></span>FU Due</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-replied" style="width:6px;height:6px"></span>Replied</span><span style="display:flex;align-items:center;gap:4px"><span class="sdot sdot-p-notsent" style="width:6px;height:6px"></span>Not Sent</span></div></div>
-
       <!-- Collapsible filters panel -->
       <div id="pipelineFiltersPanel" style="display:none;margin-bottom:16px">
         <div class="card" style="padding:16px 20px">
@@ -771,7 +769,7 @@
             </div>
             <div class="filter-group">
               <span class="filter-inline-label">FU Stage</span>
-              <select id="pFilterFUStage"><option value="All">All</option><option value="Initial Not Sent">Initial Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Re-Engage Sent">Re-Engage Sent</option><option value="Demo First Sent">Demo First Sent</option><option value="Cover Variant Sent">Cover Variant Sent</option></select>
+              <select id="pFilterFUStage"><option value="All">All</option><option value="Initial Not Sent">Initial Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Cover Variant Sent">Cover Variant Sent</option></select>
             </div>
             <div class="filter-group">
               <span class="filter-inline-label">CTA</span>
@@ -797,22 +795,6 @@
       <span id="daQualified-p" style="display:none">0</span>
       <span id="daTotal-p" style="display:none">0</span>
 
-      <!-- Bulk actions -->
-      <!-- Bulk selection bar — always visible -->
-      <div id="pipelineBulkBar" style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:4px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px">
-        <input type="checkbox" class="sel-check" id="pSelectAll" title="Select / deselect all filtered">
-        <span id="pSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
-        <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSel10">Select 10</button>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSel25">Select 25</button>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSel50">Select 50</button>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnSelClear">Clear</button>
-        <div style="margin-left:auto;display:none" id="bulkActionArea">
-          <span id="pSelCountAction" style="font-size:12px;color:var(--muted);margin-right:6px"></span>
-          <button class="btn-bulk-send" id="btnBulkSendPipeline" style="font-size:12px;padding:5px 12px">Send via Outlook</button>
-        </div>
-      </div>
-
       <!-- Lead list -->
       <div class="card" style="padding:4px 16px">
         <div id="pipelineList" class="leads-table"></div>
@@ -831,6 +813,13 @@
           <button class="btn-send-outlook" id="btnSendAllDue" style="display:none">Send All Due Today</button>
         </div>
       </div>
+      <div id="fuDotLegend" style="display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-right:4px">Status</span>
+        <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-sent" style="width:6px;height:6px"></span>Sent</span>
+        <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-fudue" style="width:6px;height:6px"></span>FU Due</span>
+        <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-replied" style="width:6px;height:6px"></span>Replied</span>
+        <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-notsent" style="width:6px;height:6px"></span>Not Sent</span>
+      </div>
       <div class="daily-actions-bar">
         <span class="da-label">Today's Actions</span>
         <span class="da-stat"><span class="da-val" id="daFreshSends-f">0</span> Fresh Sends</span>
@@ -848,7 +837,7 @@
       <div class="secondary-filter-bar" style="margin-top:12px">
         <div class="filter-group">
           <span class="filter-inline-label">FU Type</span>
-          <select id="fuFilterType"><option value="All">All</option><option value="FU1 Due">FU1 Due</option><option value="FU2 Due">FU2 Due</option><option value="FU3 Due">FU3 Due</option><option value="Re-Engage Due">Re-Engage Due</option><option value="Demo First Due">Demo First Due</option></select>
+          <select id="fuFilterType"><option value="All">All</option><option value="FU1 Due">FU1 Due</option><option value="FU2 Due">FU2 Due</option><option value="FU3 Due">FU3 Due</option></select>
         </div>
         <div class="filter-group">
           <span class="filter-inline-label">City</span>
@@ -964,8 +953,6 @@
           <button class="toggle-btn" data-type="FU1">FU1</button>
           <button class="toggle-btn" data-type="FU2">FU2</button>
           <button class="toggle-btn" data-type="FU3">FU3</button>
-          <button class="toggle-btn" data-type="Re-Engage">Re-Engage</button>
-          <button class="toggle-btn" data-type="Demo First">Demo First</button>
         </div>
       </div>
 
@@ -1227,7 +1214,7 @@
     function markFUSent(id,fu){ const lead=leads.find(l=>l.id==id); if(!lead) return;
       if(fu==='fu1'){ if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; } else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),5); } }
       if(fu==='fu2'){ if(lead.fu2Sent){ lead.fu2Sent=false; delete lead.fu2SentOn; } else { lead.fu2Sent=true; lead.fu2SentOn=todayISO(); lead.fu3Date=addDays(todayISO(),7); } }
-      if(fu==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); lead.reEngageDate=addDays(todayISO(),3); } }
+      if(fu==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); } }
       save(); }
 
     function toggleReply(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply=(lead.reply==='Y')?'N':'Y'; save(); }
@@ -1290,7 +1277,7 @@
       let freshSends=0,followUps=0,linkedinDMs=0,linkedinConnections=0,leadsQualified=0;
       leads.forEach(l=>{
         if(l.initialSentDate===td) freshSends++;
-        if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td||l.demoFirstDate===td) followUps++;
+        if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td) followUps++;
         if(l.linkedinDMDate===td) linkedinDMs++;
         if(l.linkedinConnectionDate===td) linkedinConnections++;
         if(l.dateAdded&&(l.dateAdded.slice(0,10)===td||l.dateAdded===td)) leadsQualified++;
@@ -1403,9 +1390,7 @@
       const fuTypes=[
         {field:'fu1SentOn',label:'FU1'},
         {field:'fu2SentOn',label:'FU2'},
-        {field:'fu3SentOn',label:'FU3'},
-        {field:'reEngageSentOn',label:'Re-Engage'},
-        {field:'demoFirstDate',label:'Demo First'}
+        {field:'fu3SentOn',label:'FU3'}
       ];
       fuTypes.forEach(f=>{
         let sentLast14=0,repliedLast14=0;
@@ -1527,8 +1512,6 @@
         if(status==='Converted'||status==='Not Interested'||status==='Do Not Contact'||status==='Disqualified') return;
         const fus=[{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<td){ overdueItems.push({lead:l,type:fu.label,fu:fu.key,overdue:true}); break; } }
-        if(l.fu3Sent&&!l.reEngageSent){ if(l.reEngageDate){ const nd=normDateStr(l.reEngageDate); if(nd&&nd<td) overdueItems.push({lead:l,type:'Re-Engage',fu:'reEngage',overdue:true}); } else if(l.fu3SentOn){ const d=Math.round((new Date(td)-new Date(normDateStr(l.fu3SentOn)))/86400000); if(d>=3) overdueItems.push({lead:l,type:'Re-Engage',fu:'reEngage',overdue:true}); } }
-        if(l.reEngageSent&&!l.demoFirstSent&&l.reEngageSentOn){ const d=Math.round((new Date(td)-new Date(normDateStr(l.reEngageSentOn)))/86400000); if(d>=7) overdueItems.push({lead:l,type:'Demo First',fu:'demoFirst',overdue:true}); }
       });
 
       const replyRate=sentLeads>0?(repliedLeads/sentLeads*100).toFixed(1)+'%':'--';
@@ -1628,8 +1611,6 @@
           if(l.fu1SentOn) acts.push({action:'FU1 sent',name:name,date:l.fu1SentOn,color:'#a855f7'});
           if(l.fu2SentOn) acts.push({action:'FU2 sent',name:name,date:l.fu2SentOn,color:'#a855f7'});
           if(l.fu3SentOn) acts.push({action:'FU3 sent',name:name,date:l.fu3SentOn,color:'#fbbf24'});
-          if(l.reEngageSentOn) acts.push({action:'Re-Engage sent',name:name,date:l.reEngageSentOn,color:'#fbbf24'});
-          if(l.demoFirstSentOn) acts.push({action:'Demo First sent',name:name,date:l.demoFirstSentOn,color:'#34d399'});
           if(l.reply==='Y') acts.push({action:'replied',name:name,date:l.dateSent||'',color:'#f472b6'});
         });
         acts.sort((a,b)=>b.date.localeCompare(a.date));
@@ -1668,7 +1649,7 @@
         const l=item.lead; const row=document.createElement('div'); row.className='dash-row';
         const isOverdue=item.overdue;
         const fuKey=item.fu;
-        const isSent=fuKey==='reEngage'?l.reEngageSent:fuKey==='demoFirst'?l.demoFirstSent:l[fuKey+'Sent'];
+        const isSent=l[fuKey+'Sent'];
         row.innerHTML=`<span class="dash-fu-label${isOverdue?' dash-fu-label-overdue':''}">${isOverdue?'OVERDUE':'TODAY'}</span><span style="font-size:12px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--elevated);color:var(--text-dim)">${item.type}</span><div class="dash-row-info"><div class="dash-row-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</div><div class="dash-row-sub">${escapeHtml(l.contactName||'')}${l.email?' · '+escapeHtml(l.email):''}</div></div><button class="btn-dash-compose" data-id="${l.id}" data-futype="${item.type}">Compose</button><button class="fu-btn ${isSent?'fu-sent':''}" data-id="${l.id}" data-fu="${fuKey}">${isSent?'&#10003; Sent':'Mark Sent'}</button>`;
         const fuBtn=row.querySelector('.fu-btn[data-fu]'); if(fuBtn) fuBtn.addEventListener('click',()=>markFUSent(fuBtn.dataset.id,fuBtn.dataset.fu));
         const composeBtn=row.querySelector('.btn-dash-compose'); if(composeBtn) composeBtn.addEventListener('click',()=>goToFUEmail(composeBtn.dataset.id,composeBtn.dataset.futype));
@@ -1733,13 +1714,13 @@
 
     function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); save(); }
 
-    function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(_rt==='Disqualified') return 'Disqualified'; if(_rt==='Pilot Started') return 'Pilot Started'; if(_rt==='Pilot Agreed') return 'Pilot Agreed'; if(_rt==='Discovery Completed') return 'Discovery Completed'; if(_rt==='Discovery Booked') return 'Discovery Booked'; if(lead.reply==='Y') return 'Replied'; if(!lead.dateSent&&!lead.fu1Sent&&!lead.fu1Date) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; if(!lead.reEngageSent&&lead.fu3Sent&&lead.fu3SentOn){ const _d=Math.round((new Date(td)-new Date(normDateStr(lead.fu3SentOn)))/86400000); if(_d>=7) return 'Re-Engage Overdue'; } if(!lead.demoFirstSent&&lead.reEngageSent&&lead.reEngageSentOn){ const _d=Math.round((new Date(td)-new Date(normDateStr(lead.reEngageSentOn)))/86400000); if(_d>=14) return 'Demo First Overdue'; } return 'Sent'; }
+    function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(_rt==='Disqualified') return 'Disqualified'; if(_rt==='Pilot Started') return 'Pilot Started'; if(_rt==='Pilot Agreed') return 'Pilot Agreed'; if(_rt==='Discovery Completed') return 'Discovery Completed'; if(_rt==='Discovery Booked') return 'Discovery Booked'; if(lead.reply==='Y') return 'Replied'; if(!lead.dateSent&&!lead.fu1Sent&&!lead.fu1Date) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; return 'Sent'; }
 
     function getNextFUDate(lead){ const fus=[{date:lead.fu1Date,sent:lead.fu1Sent},{date:lead.fu2Date,sent:lead.fu2Sent},{date:lead.fu3Date,sent:lead.fu3Sent}]; for(const fu of fus){ if(fu.date&&!fu.sent) return fu.date; } return null; }
 
     function computeFUUrgency(lead){ const td=todayISO(); const fus=[{date:lead.fu1Date,sent:lead.fu1Sent,label:'FU1'},{date:lead.fu2Date,sent:lead.fu2Sent,label:'FU2'},{date:lead.fu3Date,sent:lead.fu3Sent,label:'FU3'}]; for(const fu of fus){ if(!fu.date||fu.sent) continue; if(fu.date<td) return {label:fu.label+' Overdue',dotClass:'fu-urg-overdue'}; if(fu.date===td) return {label:fu.label+' Today',dotClass:'fu-urg-today'}; const days=Math.round((new Date(fu.date)-new Date(td))/86400000); if(days<=2) return {label:fu.label+' in '+days+(days===1?' day':' days'),dotClass:'fu-urg-soon'}; return null; } return null; }
 
-    function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Re-Engage Overdue':'sdot-p-overdue','Demo First Overdue':'sdot-p-overdue','Pilot Started':'sdot-p-pilot','Pilot Agreed':'sdot-p-pilot','Discovery Completed':'sdot-p-discovery','Discovery Booked':'sdot-p-discovery'}; return m[status]||'sdot-p-notsent'; }
+    function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Pilot Started':'sdot-p-pilot','Pilot Agreed':'sdot-p-pilot','Discovery Completed':'sdot-p-discovery','Discovery Booked':'sdot-p-discovery'}; return m[status]||'sdot-p-notsent'; }
 
     function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.ctaVariant!=='All') count++; if(pipelineFilter.subjectLine!=='All') count++; if(pipelineFilter.noLinkedin!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl){ countEl.textContent=count; countEl.style.display=count>0?'inline':'none'; } }
 
@@ -1769,7 +1750,7 @@
       // Classify each lead into an action tab
       const isActionRequired=l=>{
         const s=computeStatus(l);
-        return s==='Follow Up Due'||s==='Re-Engage Overdue'||s==='Demo First Overdue'||s==='Not Sent';
+        return s==='Follow Up Due'||s==='Not Sent';
       };
       const isAwaitingReply=l=>{
         const s=computeStatus(l);
@@ -1820,10 +1801,8 @@
           if(fs==='Initial Not Sent'){ if(l.dateSent||l.fu1Sent||l.fu2Sent||l.fu3Sent) return false; }
           else if(fs==='FU1 Sent'){ if(!l.fu1Sent||l.fu2Sent) return false; }
           else if(fs==='FU2 Sent'){ if(!l.fu2Sent||l.fu3Sent) return false; }
-          else if(fs==='FU3 Sent'){ if(!l.fu3Sent||l.reEngageSent) return false; }
+          else if(fs==='FU3 Sent'){ if(!l.fu3Sent) return false; }
           else if(fs==='Full Sequence'){ if(!l.fu3Sent) return false; }
-          else if(fs==='Re-Engage Sent'){ if(!l.reEngageSent) return false; }
-          else if(fs==='Demo First Sent'){ if(!l.demoFirstSent) return false; }
           else if(fs==='Cover Variant Sent'){ if(!l.coverVariantSent) return false; }
         }
         if(pipelineFilter.ctaVariant!=='All'){
@@ -1856,11 +1835,9 @@
         const urgHtml=urgency?`<span class="fu-urgency ${urgency.dotClass}"><span class="fu-urg-dot"></span>${escapeHtml(urgency.label)}</span>`:'';
         const row=document.createElement('div'); row.className='lead-row';
         const main=document.createElement('div'); main.className='lead-row-main';
-        const _pCbChecked=selectedPipelineIds.has(String(l.id));
-        if(_pCbChecked) main.classList.add('row-selected');
         const contextChip=urgency?`<span class="fu-urgency ${urgency.dotClass}">${escapeHtml(urgency.label)}</span>`:status==='Replied'?'<span style="font-size:12px;color:var(--success);font-weight:500">Replied</span>':status==='Converted'?'<span style="font-size:12px;color:#34d399;font-weight:500">Converted</span>':status==='Not Sent'?'<button class="btn-mark-sent" style="font-size:12px;padding:4px 10px" data-action="markSentInline" data-id="'+l.id+'">Mark Sent</button>':'';
         const cityDisplay=l.city&&l.city.toLowerCase()!=='unknown'?' · '+escapeHtml(l.city):'';
-        main.innerHTML=`<input type="checkbox" class="sel-check" id="pcb-${l.id}" ${_pCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${cityDisplay}</span></div><div class="row-right">${contextChip}<button class="btn-view-lead" data-id="${l.id}">View</button></div>`;
+        main.innerHTML=`<span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${cityDisplay}</span></div><div class="row-right">${contextChip}<button class="btn-view-lead" data-id="${l.id}">View</button></div>`;
         const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
         const hasDraft=!!(l.draftSubject||l.draftBody);
         // Reply on record section (only if replyText saved)
@@ -1870,14 +1847,10 @@
         const logReplyHtml=`<div class="ra-section"><span class="ra-section-label">Log Reply</span><textarea class="ra-textarea" id="ra-txt-${l.id}" placeholder="Paste the reply you received..."></textarea><div class="ra-api-prompt" id="ra-apiprompt-${l.id}" style="display:none"><span class="ra-api-prompt-label">Enter your Anthropic API key to use this feature</span><input type="password" class="ra-api-input" id="ra-key-${l.id}" placeholder="sk-ant-..." autocomplete="off" spellcheck="false"><button class="btn-ra-savekey" id="ra-savekey-${l.id}">Save Key</button></div><button class="btn-ra-analyse" id="ra-btn-${l.id}">Analyse Reply</button><div class="ra-loading" id="ra-loading-${l.id}">Analysing reply...</div><div class="ra-error" id="ra-error-${l.id}"></div><div class="ra-results" id="ra-results-${l.id}"><div id="ra-badge-${l.id}" class="ra-badge"></div><div class="ra-result-row" style="margin-top:6px"><span class="ra-result-label">Meaning</span><div class="ra-result-text" id="ra-meaning-${l.id}"></div></div><div class="ra-result-row"><span class="ra-result-label">Next Action</span><div class="ra-result-text" id="ra-nextaction-${l.id}"></div></div><div class="ra-result-row"><span class="ra-result-label">Suggested Response</span><div class="ra-suggested-box" id="ra-suggested-${l.id}"></div><div class="ra-action-row"><button class="btn-ra-copy" id="ra-copybtn-${l.id}">Copy Response</button></div></div><div id="ra-watchout-${l.id}" style="display:none"></div></div><button class="btn-ra-save" id="ra-savebtn-${l.id}">Save Reply</button></div>`;
         const dncBadgeHtml=l.doNotContact?'<span class="dnc-badge">DO NOT CONTACT</span>':'';
         const scoreBadgeHtml=(l.score==='Hot')?'<span class="score-badge-hot">HOT LEAD</span>':(l.score==='Warm')?'<span class="score-badge-warm">WARM LEAD</span>':'';
-        const _reBadge=(()=>{ if(l.reEngageSent) return '<button class="fu-btn fu-sent">&#10003; Re-Engage sent</button>'; if(!l.fu3Sent) return ''; const _rs=l.fu3SentOn?normDateStr(l.fu3SentOn):''; if(!_rs) return l.reEngageDate?`<button class="fu-btn">Re-Engage \u00b7 ${formatDateISOtoShortUK(l.reEngageDate)}</button>`:''; const _rd=Math.round((new Date(td)-new Date(_rs))/86400000); if(_rd>=7) return '<button class="fu-btn fu-overdue">Re-Engage Due</button>'; if(_rd>=3) return '<button class="fu-btn fu-due">Re-Engage Due</button>'; return l.reEngageDate?`<button class="fu-btn">Re-Engage \u00b7 ${formatDateISOtoShortUK(l.reEngageDate)}</button>`:''; })();
-        const _dfBadge=(()=>{ if(l.demoFirstSent) return '<button class="fu-btn fu-sent">&#10003; Demo First sent</button>'; if(!l.reEngageSent) return ''; const _ds=l.reEngageSentOn?normDateStr(l.reEngageSentOn):''; if(!_ds) return ''; const _dd=Math.round((new Date(td)-new Date(_ds))/86400000); if(_dd>=14) return '<button class="fu-btn fu-overdue">Demo First Due</button>'; if(_dd>=7) return '<button class="fu-btn fu-due">Demo First Due</button>'; return `<button class="fu-btn">Demo First \u00b7 ${formatDateISOtoShortUK(addDays(_ds,7))}</button>`; })();
-        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}${l.address?'<div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">'+escapeHtml(l.address)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.reviewCount?'<div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">'+escapeHtml(l.reviewCount)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button>${_reBadge}${_dfBadge}</div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
+        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}${l.address?'<div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">'+escapeHtml(l.address)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.reviewCount?'<div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">'+escapeHtml(l.reviewCount)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
         expand.innerHTML += onRecordHtml + logReplyHtml;
         const _viewBtn=main.querySelector('.btn-view-lead');
         if(_viewBtn) _viewBtn.addEventListener('click',e=>{ e.stopPropagation(); openLeadDetail(l.id); });
-        const _pCb=main.querySelector(`#pcb-${l.id}`);
-        if(_pCb){ _pCb.addEventListener('click',e=>e.stopPropagation()); _pCb.addEventListener('change',e=>{ if(e.target.checked) selectedPipelineIds.add(String(l.id)); else selectedPipelineIds.delete(String(l.id)); main.classList.toggle('row-selected',e.target.checked); updatePipelineSelectionBar(); }); }
         const markSentInline=main.querySelector('[data-action="markSentInline"]'); if(markSentInline) markSentInline.addEventListener('click',e=>{ e.stopPropagation(); markAsSentFromInbox(markSentInline.dataset.id); });
         // Bind expand row buttons directly so they work after filter changes (when renderPipeline is called without attachButtons)
         expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
@@ -1932,7 +1905,6 @@
         niSection.appendChild(niHeader); niSection.appendChild(niBody); container.appendChild(niSection);
         // (expand restore removed — details now open in modal)
       }
-      updatePipelineSelectionBar();
     }
 
     // ── Inline Reply Analyser ────────────────────────────────────────────────
@@ -2023,35 +1995,6 @@
 
     // ── Multi-select bulk send ───────────────────────────────────────────────
 
-    function detectNextEmailType(lead){
-      if(!lead.dateSent){ return (lead.draftSubject&&lead.draftBody)?{fuKey:'initial',fuLabel:'Initial',subject:lead.draftSubject,body:lead.draftBody}:null; }
-      if(!lead.fu1Sent) return {fuKey:'fu1',fuLabel:'FU1'};
-      if(!lead.fu2Sent) return {fuKey:'fu2',fuLabel:'FU2'};
-      if(!lead.fu3Sent) return {fuKey:'fu3',fuLabel:'FU3'};
-      if(!lead.reEngageSent) return {fuKey:'reEngage',fuLabel:'Re-Engage'};
-      if(!lead.demoFirstSent) return {fuKey:'demoFirst',fuLabel:'Demo First'};
-      return null;
-    }
-
-    function updatePipelineSelectionBar(){
-      const countEl=document.getElementById('pSelCount');
-      const sa=document.getElementById('pSelectAll');
-      const sendWrap=document.getElementById('bulkActionArea');
-      if(countEl) countEl.textContent=selectedPipelineIds.size+' selected';
-      if(sendWrap) sendWrap.style.display=selectedPipelineIds.size>0?'':'none';
-      if(sa){
-        const eligible=_lastPipelineFiltered.filter(l=>computeStatus(l)!=='Not Interested');
-        sa.checked=eligible.length>0&&eligible.every(l=>selectedPipelineIds.has(String(l.id)));
-        sa.indeterminate=!sa.checked&&selectedPipelineIds.size>0;
-      }
-    }
-    function quickSelectPipeline(n){
-      selectedPipelineIds.clear();
-      const eligible=_lastPipelineFiltered.filter(l=>computeStatus(l)!=='Not Interested');
-      eligible.slice(0,n).forEach(l=>selectedPipelineIds.add(String(l.id)));
-      renderPipeline();
-    }
-
     function updateFollowUpsSelectionBar(){
       const bar=document.getElementById('followUpsBulkBar');
       const countEl=document.getElementById('fuSelCount');
@@ -2076,31 +2019,10 @@
         listEl.appendChild(row);
         if(!skip) sendableCount++;
       };
-      const getSubject=(lead,fuKey,fuLabel,emailType)=>{
-        if(fuKey==='initial') return emailType.subject;
-        if(fuLabel==='FU1'||fuLabel==='FU2'||fuLabel==='FU3') return '(inherited from thread)';
-        const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cl=lead.clinicName||'[Clinic Name]';
-        const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:null;
-        return tpl?(tpl.subject||'').replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):fuLabel+' follow-up';
-      };
-      if(_bulkSendSource==='pipeline'){
-        for(const leadId of selectedPipelineIds){
-          const lead=leads.find(l=>String(l.id)===String(leadId)); if(!lead) continue;
-          const emailType=detectNextEmailType(lead);
-          if(!emailType){ buildRow(lead,'','','',`bs-${leadId}-seq`,true,'Sequence complete'); continue; }
-          if(!lead.email){ buildRow(lead,'','','',`bs-${leadId}-noemail`,true,'No email on record'); continue; }
-          buildRow(lead,emailType.fuKey,emailType.fuLabel,getSubject(lead,emailType.fuKey,emailType.fuLabel,emailType),`bs-${lead.id}-${emailType.fuKey}`,false,'');
-        }
-      } else {
-        for(const [,item] of selectedFollowUpItems){
-          const l=item.lead;
-          if(!l.email){ buildRow(l,'','','',`bs-${l.id}-noemail`,true,'No email on record'); continue; }
-          const isFUItem=item.fuLabel==='FU1'||item.fuLabel==='FU2'||item.fuLabel==='FU3';
-          const tpl=item.fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:item.fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:null;
-          const cs=l.contactName||l.clinicName||'[Clinic Name]'; const cl=l.clinicName||'[Clinic Name]';
-          const subj=isFUItem?'(inherited from thread)':(tpl?(tpl.subject||'').replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):item.fuLabel+' follow-up');
-          buildRow(l,item.fuKey,item.fuLabel,subj,`bs-${l.id}-${item.fuKey}`,false,'');
-        }
+      for(const [,item] of selectedFollowUpItems){
+        const l=item.lead;
+        if(!l.email){ buildRow(l,'','','',`bs-${l.id}-noemail`,true,'No email on record'); continue; }
+        buildRow(l,item.fuKey,item.fuLabel,'(inherited from thread)',`bs-${l.id}-${item.fuKey}`,false,'');
       }
       if(!sendableCount&&!listEl.children.length){ alert('No sendable emails in selection.'); return; }
       const confirmBtn=document.getElementById('btnConfirmBulkSend');
@@ -2134,13 +2056,12 @@
         let subject, body;
         if(fuKey==='initial'){ subject=lead.draftSubject||''; body=lead.draftBody||''; }
         else{
-          const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cb=buildGreetingName(lead.contactName); const cl=lead.clinicName||'[Clinic Name]';
-          const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:fuLabel==='FU1'?_FU1_TPL:fuLabel==='FU2'?_FU2_TPL:fuLabel==='FU3'?_FU3_TPL:null;
+          const cb=buildGreetingName(lead.contactName); const cl=lead.clinicName||'[Clinic Name]';
+          const tpl=fuLabel==='FU1'?_FU1_TPL:fuLabel==='FU2'?_FU2_TPL:fuLabel==='FU3'?_FU3_TPL:null;
           if(!tpl){ failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': no template'); if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:12px">No template</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
-          const isFUSend=fuLabel==='FU1'||fuLabel==='FU2'||fuLabel==='FU3';
-          subject=isFUSend?'following up':(tpl.subject||'').replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl);
+          subject='following up';
           body=tpl.body.replace(/\[greeting\]/g,cb).replace(/\[name\]/g,cb).replace(/\[Contact\]/g,cb).replace(/\[Clinic Name\]/g,cl).replace(/\[City\]/g,lead.city||'[City]');
-          if(isFUSend) body=substituteDayOfInitial(body,lead);
+          body=substituteDayOfInitial(body,lead);
         }
         const htmlBody=renderBodyAsHtml(body);
         try{
@@ -2156,9 +2077,7 @@
           if(fuKey==='initial'){ lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); }
           else if(fuKey==='fu1'){ lead.fu1Sent=true; lead.fu1SentOn=todayISO(); lead.fu2Date=addDays(todayISO(),5); }
           else if(fuKey==='fu2'){ lead.fu2Sent=true; lead.fu2SentOn=todayISO(); lead.fu3Date=addDays(todayISO(),7); }
-          else if(fuKey==='fu3'){ lead.fu3Sent=true; lead.fu3SentOn=todayISO(); lead.reEngageDate=addDays(todayISO(),3); }
-          else if(fuKey==='reEngage'){ lead.reEngageSent=true; lead.reEngageSentOn=todayISO(); }
-          else if(fuKey==='demoFirst'){ lead.demoFirstSent=true; lead.demoFirstDate=todayISO(); }
+          else if(fuKey==='fu3'){ lead.fu3Sent=true; lead.fu3SentOn=todayISO(); }
           sent++; if(statusEl) statusEl.innerHTML='<span style="color:#4CAF7D;font-size:12px">&#10003; Sent</span>';
         } catch(e){
           failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': '+escapeHtml(e.message)); if(statusEl) statusEl.innerHTML=`<span style="color:#E5484D;font-size:12px" title="${escapeHtml(e.message)}">Failed</span>`;
@@ -2166,20 +2085,16 @@
         if(progressEl) progressEl.textContent=(sent+failed)+' / '+total;
         if(i<rows.length-1) await new Promise(r=>setTimeout(r,500));
       }
-      selectedPipelineIds.clear(); selectedFollowUpItems.clear(); save();
+      selectedFollowUpItems.clear(); save();
       if(progressEl){ let summary='Done \u2014 '+sent+' sent'+(failed?', '+failed+' failed':''); if(failedDetails.length) summary+='<br><span style="color:#E5484D;font-size:12px;line-height:1.8">'+failedDetails.map(d=>'&middot; '+d).join('<br>')+'</span>'; progressEl.innerHTML=summary; }
       if(confirmBtn){ confirmBtn.textContent='Close'; confirmBtn.disabled=false; confirmBtn.onclick=closeBulkSendModal; }
     }
 
     function bindBulkSend(){
-      const pSA=document.getElementById('pSelectAll');
-      if(pSA) pSA.addEventListener('change',e=>{ if(e.target.checked) _lastPipelineFiltered.filter(l=>computeStatus(l)!=='Not Interested').forEach(l=>selectedPipelineIds.add(String(l.id))); else selectedPipelineIds.clear(); renderPipeline(); });
       const fuSA=document.getElementById('fuSelectAll');
       if(fuSA) fuSA.addEventListener('change',e=>{ if(e.target.checked) _lastFollowUpAllItems.forEach(i=>selectedFollowUpItems.set(`${i.lead.id}-${i.fuKey}`,i)); else selectedFollowUpItems.clear(); renderFollowUps(); });
-      const btnP=document.getElementById('btnBulkSendPipeline');
-      if(btnP) btnP.addEventListener('click',()=>{ _bulkSendSource='pipeline'; openBulkSendModal(); });
       const btnFU=document.getElementById('btnBulkSendFU');
-      if(btnFU) btnFU.addEventListener('click',()=>{ _bulkSendSource='followups'; openBulkSendModal(); });
+      if(btnFU) btnFU.addEventListener('click',()=>{ openBulkSendModal(); });
       const closeBtn=document.getElementById('bulkSendClose');
       if(closeBtn) closeBtn.addEventListener('click',closeBulkSendModal);
       const bd=document.getElementById('bulkSendBackdrop');
@@ -2197,10 +2112,6 @@
       const noLinkedin=document.getElementById('pFilterNoLinkedin'); if(noLinkedin) noLinkedin.addEventListener('change',()=>{ pipelineFilter.noLinkedin=noLinkedin.value; renderPipeline(); });
       const resetBtn=document.getElementById('btnResetFilters'); if(resetBtn) resetBtn.addEventListener('click',resetPipelineFilters);
       const psearch=document.getElementById('pipelineSearch'); if(psearch) psearch.addEventListener('input',()=>renderPipeline());
-      const s10=document.getElementById('btnSel10'); if(s10) s10.addEventListener('click',()=>quickSelectPipeline(10));
-      const s25=document.getElementById('btnSel25'); if(s25) s25.addEventListener('click',()=>quickSelectPipeline(25));
-      const s50=document.getElementById('btnSel50'); if(s50) s50.addEventListener('click',()=>quickSelectPipeline(50));
-      const sClear=document.getElementById('btnSelClear'); if(sClear) sClear.addEventListener('click',()=>{ selectedPipelineIds.clear(); renderPipeline(); });
     }
 
     function renderInbox(){
@@ -2220,7 +2131,7 @@
       container.querySelectorAll('.btn-mark-sent').forEach(btn=>{ btn.addEventListener('click',()=>markAsSentFromInbox(btn.dataset.id)); });
     }
 
-    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),5);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();lead.reEngageDate=addDays(todayISO(),3);} if(fuKey==='reEngage'){lead.reEngageSent=true;lead.reEngageSentOn=todayISO();} if(fuKey==='demoFirst'){lead.demoFirstSent=true;lead.demoFirstDate=todayISO();} save(); }
+    function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(fuKey==='fu1'){lead.fu1Sent=true;lead.fu1SentOn=todayISO();lead.fu2Date=addDays(todayISO(),5);} if(fuKey==='fu2'){lead.fu2Sent=true;lead.fu2SentOn=todayISO();lead.fu3Date=addDays(todayISO(),7);} if(fuKey==='fu3'){lead.fu3Sent=true;lead.fu3SentOn=todayISO();} save(); }
 
     function markRepliedFromFollowUps(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply='Y'; save(); }
 
@@ -2238,8 +2149,6 @@
       const container=document.getElementById('followUpsList'); if(!container) return; container.innerHTML='';
       const td=todayISO();
       const items=[];
-      const reEngageItems=[];
-      const demoFirstItems=[];
       leads.forEach(l=>{
         if(l.doNotContact) return;
         if(fuFilter.city!=='All'&&l.city!==fuFilter.city) return;
@@ -2247,21 +2156,15 @@
         if(status==='Replied'||status==='Converted'||status==='Not Interested') return;
         const fus=[{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<=td&&(fuFilter.fuType==='All'||fuFilter.fuType===fu.label+' Due')) items.push({lead:l,fuKey:fu.key,fuLabel:fu.label,fuDate:nd,overdue:nd<td}); break; }
-        if(l.fu3Sent&&!l.reEngageSent&&(fuFilter.fuType==='All'||fuFilter.fuType==='Re-Engage Due')){ if(l.reEngageDate){ const nd=normDateStr(l.reEngageDate); if(nd&&nd<=td) reEngageItems.push({lead:l}); } else if(l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d&&Math.round((new Date(td)-new Date(fu3d))/86400000)>=3) reEngageItems.push({lead:l}); } }
-        if(l.reEngageSent&&!l.demoFirstSent&&(fuFilter.fuType==='All'||fuFilter.fuType==='Demo First Due')){ if(l.reEngageSentOn){ const reSentD=normDateStr(l.reEngageSentOn); if(reSentD&&Math.round((new Date(td)-new Date(reSentD))/86400000)>=7) demoFirstItems.push({lead:l}); } }
       });
-      const totalBadge=items.length+reEngageItems.length+demoFirstItems.length;
+      const totalBadge=items.length;
       const badge=document.getElementById('followUpsNavBadge');
       if(badge){ if(totalBadge>0){badge.textContent=totalBadge;badge.style.display='inline-flex';}else{badge.textContent='';badge.style.display='none';} }
       const fuShowingEl=document.getElementById('fuShowingCount'); if(fuShowingEl) fuShowingEl.textContent=totalBadge>0?'Showing '+totalBadge+' lead'+(totalBadge===1?'':'s'):'';
-      if(items.length===0&&reEngageItems.length===0&&demoFirstItems.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
+      if(items.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
       const overdue=items.filter(i=>i.overdue).sort((a,b)=>a.fuDate.localeCompare(b.fuDate));
       const dueToday=items.filter(i=>!i.overdue).sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||''));
-      _lastFollowUpAllItems=[
-        ...items.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel})),
-        ...reEngageItems.map(i=>({lead:i.lead,fuKey:'reEngage',fuLabel:'Re-Engage'})),
-        ...demoFirstItems.map(i=>({lead:i.lead,fuKey:'demoFirst',fuLabel:'Demo First'}))
-      ];
+      _lastFollowUpAllItems=items.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel}));
       [[overdue,'OVERDUE'],[dueToday,'DUE TODAY']].forEach(([group,sectionLabel])=>{
         if(!group.length) return;
         const labelEl=document.createElement('div'); labelEl.innerHTML=`<span class="fu-section-label">${sectionLabel}</span>`; container.appendChild(labelEl);
@@ -2294,61 +2197,6 @@
         list.querySelectorAll('.btn-fu-email').forEach(btn=>btn.addEventListener('click',()=>goToFUEmail(btn.dataset.id,btn.dataset.futype)));
         if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
       });
-      // Re-Engage Due section
-      if(reEngageItems.length){
-        const labelEl=document.createElement('div'); labelEl.innerHTML='<span class="fu-section-label">RE-ENGAGE DUE</span>'; container.appendChild(labelEl);
-        const card=document.createElement('div'); card.className='card'; card.style.padding='0 12px';
-        const list=document.createElement('div'); list.className='leads-table';
-        reEngageItems.sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||'')).forEach(item=>{
-          const l=item.lead;
-          const _rowName=l.clinicName?escapeHtml(l.clinicName):l.contactName?escapeHtml(l.contactName):'<em style="color:var(--muted);font-weight:400">(no name)</em>';
-          const _rowSub=l.clinicName&&l.contactName?escapeHtml(l.contactName):(l.clinicName?'':escapeHtml(l.email||''));
-          const row=document.createElement('div'); row.className='lead-row';
-          const main=document.createElement('div'); main.className='fu-row-main';
-          const _reCbKey=`${l.id}-reEngage`; const _reCbChecked=selectedFollowUpItems.has(_reCbKey);
-          if(_reCbChecked) main.classList.add('row-selected');
-          const _primaryBtn=l.email?`<button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Re-Engage">Send Re-Engage Email</button>`:`<button class="btn-fu-action btn-fu-mark-sent re-engage-mark-sent" data-id="${l.id}">Mark Re-Engage Sent</button>`;
-          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-reEngage" ${_reCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${_rowName}</span><span class="lead-sub">${_rowSub}</span></div><span class="fu-due-badge fu-due-badge-overdue">Re-Engage</span><div class="fu-row-actions">${_primaryBtn}</div>`;
-          const _reCb=main.querySelector(`#fucb-${l.id}-reEngage`);
-          if(_reCb){ _reCb.addEventListener('click',e=>e.stopPropagation()); _reCb.addEventListener('change',e=>{ if(e.target.checked) selectedFollowUpItems.set(_reCbKey,{lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); else selectedFollowUpItems.delete(_reCbKey); main.classList.toggle('row-selected',e.target.checked); updateFollowUpsSelectionBar(); }); }
-          const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
-          const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
-          expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 \u00b7 '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 \u00b7 '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 \u00b7 '+formatDateISOtoShortUK(l.fu3Date)}</button></div>`;
-          expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
-          row.appendChild(main); row.appendChild(expand); list.appendChild(row);
-        });
-        card.appendChild(list); container.appendChild(card);
-        list.querySelectorAll('.re-engage-mark-sent').forEach(btn=>btn.addEventListener('click',()=>markFUFromFollowUps(btn.dataset.id,'reEngage')));
-        list.querySelectorAll('.btn-fu-email').forEach(btn=>btn.addEventListener('click',()=>goToFUEmail(btn.dataset.id,btn.dataset.futype)));
-        if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
-      }
-      // Demo First Due section
-      if(demoFirstItems.length){
-        const labelEl=document.createElement('div'); labelEl.innerHTML='<span class="fu-section-label">DEMO FIRST DUE</span>'; container.appendChild(labelEl);
-        const card=document.createElement('div'); card.className='card'; card.style.padding='0 12px';
-        const list=document.createElement('div'); list.className='leads-table';
-        demoFirstItems.sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||'')).forEach(item=>{
-          const l=item.lead;
-          const _rowName=l.clinicName?escapeHtml(l.clinicName):l.contactName?escapeHtml(l.contactName):'<em style="color:var(--muted);font-weight:400">(no name)</em>';
-          const _rowSub=l.clinicName&&l.contactName?escapeHtml(l.contactName):(l.clinicName?'':escapeHtml(l.email||''));
-          const row=document.createElement('div'); row.className='lead-row';
-          const main=document.createElement('div'); main.className='fu-row-main';
-          const _dfCbKey=`${l.id}-demoFirst`; const _dfCbChecked=selectedFollowUpItems.has(_dfCbKey);
-          if(_dfCbChecked) main.classList.add('row-selected');
-          const _primaryBtn=l.email?`<button class="btn-fu-action btn-fu-email" data-id="${l.id}" data-futype="Demo First">Send Demo First Email</button>`:`<button class="btn-fu-action btn-fu-mark-sent demo-first-mark-sent" data-id="${l.id}">Mark Demo First Sent</button>`;
-          main.innerHTML=`<input type="checkbox" class="sel-check" id="fucb-${l.id}-demoFirst" ${_dfCbChecked?'checked':''}><span class="sdot ${statusDotClassPipeline(computeStatus(l))}"></span><div class="lead-row-info"><span class="lead-name">${_rowName}</span><span class="lead-sub">${_rowSub}</span></div><span class="fu-due-badge fu-due-badge-overdue">Demo First</span><div class="fu-row-actions">${_primaryBtn}</div>`;
-          const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='fuexpand-'+l.id; expand.style.display='none';
-          const fu1Due=l.fu1Date&&normDateStr(l.fu1Date)<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&normDateStr(l.fu2Date)<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&normDateStr(l.fu3Date)<=td&&!l.fu3Sent;
-          expand.innerHTML=`<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div><div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">${escapeHtml(l.website||'—')}</span></div><div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">${escapeHtml(l.address||'—')}</span></div><div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div><div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">${escapeHtml(l.reviewCount||'—')}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div>`;
-          expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
-          const _dfCb=main.querySelector(`#fucb-${l.id}-demoFirst`); if(_dfCb){ _dfCb.addEventListener('click',e=>e.stopPropagation()); _dfCb.addEventListener('change',e=>{ if(e.target.checked) selectedFollowUpItems.set(_dfCbKey,{lead:l,fuKey:'demoFirst',fuLabel:'Demo First'}); else selectedFollowUpItems.delete(_dfCbKey); main.classList.toggle('row-selected',e.target.checked); updateFollowUpsSelectionBar(); }); }
-          row.appendChild(main); row.appendChild(expand); list.appendChild(row);
-        });
-        card.appendChild(list); container.appendChild(card);
-        list.querySelectorAll('.demo-first-mark-sent').forEach(btn=>btn.addEventListener('click',()=>markFUFromFollowUps(btn.dataset.id,'demoFirst')));
-        list.querySelectorAll('.btn-fu-email').forEach(btn=>btn.addEventListener('click',()=>goToFUEmail(btn.dataset.id,btn.dataset.futype)));
-        if(expandedFollowUpId){ const el=document.getElementById('fuexpand-'+expandedFollowUpId); if(el) el.style.display='block'; }
-      }
       updateFollowUpsSelectionBar();
     }
 
@@ -2359,7 +2207,7 @@
       let freshSends=0, followups=0, linkedinDMs=0, linkedinConns=0, qualified=0;
       leads.forEach(l=>{
         if(l.initialSentDate===td) freshSends++;
-        if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td||l.reEngageSentOn===td) followups++;
+        if(l.fu1SentOn===td||l.fu2SentOn===td||l.fu3SentOn===td) followups++;
         if(l.linkedinDMDate===td||l.principalDMDate===td||l.pmDMDate===td) linkedinDMs++;
         if(l.linkedinConnectionDate===td||l.principalConnectionDate===td||l.pmConnectionDate===td) linkedinConns++;
         if((l.dateAdded||'').slice(0,10)===td) qualified++;
@@ -2499,23 +2347,12 @@
     const _FU2_TPL = { body: `Hi [greeting],\n\nDid you get a chance to look at the demo I sent over?\n\nLink here if not: <a href="https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb">Watch the 2-minute demo \u2192</a>\n\nHappy to answer any questions if the timing wasn't right.\n\nLawrence\nVersa Digital HQ` };
     const _FU3_TPL = { body: `Hi [greeting],\n\nLast note from me on this \u2014 if the timing isn't right, no problem at all. Happy to pick this up whenever it suits.\n\nLawrence\nVersa Digital HQ` };
 
-    const DEMO_FIRST_TEMPLATE = {
-      subject: '90 seconds',
-      body: `Hi [greeting],\n\nI realise you may be perfectly happy with how things work at [Clinic Name] right now.\n\nOne last thing - would you be open to seeing a 90-second demo of what we've built? No call, no commitment, just a link. If it's not relevant I'll stop emailing.\n\nversadigital.co/demo\n\nLawrence\nVersa Digital HQ`
-    };
-    const RE_ENGAGE_TEMPLATE = {
-      subject: 'wanted to make sure this reached you',
-      body: `Hi [greeting],\n\nReached out a few times recently - just wanted to make sure this landed.\n\nI'm Lawrence. I build intake automation for independent dental clinics and I'm offering two clinics a completely free build - no cost, just an honest review if it delivers.\n\nMind if I send over a quick audit showing how many enquiries [Clinic Name] is likely missing after hours?\n\nLawrence\nVersa Digital HQ`
-    };
-
     let expandedLeadId = null;
     let expandedFollowUpId = null;
     let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',ctaVariant:'All',subjectLine:'All',noLinkedin:'All'};
     let fuFilter = {fuType:'All', city:'All'};
 
-    let selectedPipelineIds = new Set();
     let selectedFollowUpItems = new Map(); // keyed '${id}-${fuKey}'
-    let _bulkSendSource = null;
     let _lastPipelineFiltered = [];
     let _lastFollowUpAllItems = [];
 
@@ -2562,8 +2399,6 @@
     function refreshEmailPreview(){
       const wrap=document.getElementById('emailPreviewWrap'); const placeholder=document.getElementById('emailPreviewPlaceholder');
       const {leadId,type}=emailState;
-      const isReEngage=type==='Re-Engage';
-      const isDemoFirst=type==='Demo First';
       const isFU=type==='FU1'||type==='FU2'||type==='FU3';
       if(!leadId||!type){ wrap.style.display='none'; placeholder.style.display='block'; return; }
       const lead=leads.find(l=>l.id==leadId); if(!lead){ wrap.style.display='none'; placeholder.style.display='block'; return; }
@@ -2579,21 +2414,10 @@
         const tipEl=document.getElementById('fu2DemoTip'); if(tipEl) tipEl.style.display='none';
         return;
       }
-      const tpl=isReEngage ? RE_ENGAGE_TEMPLATE : isDemoFirst ? DEMO_FIRST_TEMPLATE : isFU ? (type==='FU1'?_FU1_TPL:type==='FU2'?_FU2_TPL:_FU3_TPL) : null;
+      const tpl=isFU ? (type==='FU1'?_FU1_TPL:type==='FU2'?_FU2_TPL:_FU3_TPL) : null;
       if(!tpl){ wrap.style.display='none'; placeholder.style.display='block'; return; }
-      const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
       const contactForBody=buildGreetingName(lead.contactName);
-      const contactForSubject=lead.contactName||lead.clinicName||'[Clinic Name]';
-      let subjectLine;
-      if(isFU){
-        subjectLine='Subject: (inherited from thread)';
-      } else {
-        const subject=(tpl.subject||'')
-          .replace(/\[Contact name\]/g,contactForSubject)
-          .replace(/\[Contact\]/g,lead.contactName||'[Contact]')
-          .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]');
-        subjectLine='Subject: '+subject;
-      }
+      const subjectLine='Subject: (inherited from thread)';
       let body=tpl.body
         .replace(/\[greeting\]/g,contactForBody)
         .replace(/\[name\]/g,contactForBody)
@@ -2845,16 +2669,11 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       if(!lead.email){ alert('This lead has no email address. Add one via Edit before sending.'); return; }
       const selectedType = emailState.type;
       const isFU = ["FU1","FU2","FU3"].includes(selectedType);
-      const isReEngageSend = selectedType === 'Re-Engage';
-      const isDemoFirstSend = selectedType === 'Demo First';
-      const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
       const clinic = lead.clinicName || '[Clinic Name]';
-      const fuTpl = isReEngageSend ? RE_ENGAGE_TEMPLATE : isDemoFirstSend ? DEMO_FIRST_TEMPLATE : isFU ? (selectedType==='FU1'?_FU1_TPL:selectedType==='FU2'?_FU2_TPL:_FU3_TPL) : null;
+      const fuTpl = isFU ? (selectedType==='FU1'?_FU1_TPL:selectedType==='FU2'?_FU2_TPL:_FU3_TPL) : null;
       let subject;
       if(isFU){
         subject = 'following up';
-      } else if(fuTpl){
-        subject = (fuTpl.subject||'').replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
       } else {
         subject = document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,'');
       }
@@ -2867,7 +2686,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
           .replace(/\[Contact\]/g,cb)
           .replace(/\[Clinic Name\]/g,clinic)
           .replace(/\[City\]/g,lead.city||'[City]');
-        if(isFU) body = substituteDayOfInitial(body, lead);
+        body = substituteDayOfInitial(body, lead);
         htmlBody = renderBodyAsHtml(body);
       } else {
         const bodyEl = document.getElementById('emailBodyPreview');
@@ -2878,20 +2697,15 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       btn.textContent = 'Sending...'; btn.disabled = true;
       try{
         const isInitialSend = selectedType === 'Initial' && !lead.dateSent;
-        const isFollowUp = isFU || isReEngageSend || isDemoFirstSend;
-        if(isFollowUp && lead.threadMessageId){
+        if(isFU && lead.threadMessageId){
           await sendGraphReply(lead.threadMessageId, htmlBody, lead.email);
         } else {
-          if(isFollowUp && !lead.threadMessageId) console.warn('[sendViaOutlook] No threadMessageId for ' + lead.clinicName + ' — sending as fresh email');
+          if(isFU && !lead.threadMessageId) console.warn('[sendViaOutlook] No threadMessageId for ' + lead.clinicName + ' — sending as fresh email');
           const msgId = await sendGraphEmail(lead.email, subject, htmlBody);
           if(isInitialSend && msgId){ lead.threadMessageId = msgId; console.log('Saved threadMessageId on lead:', lead.clinicName, msgId); }
         }
         if(isFU){
           markFUFromFollowUps(lead.id, selectedType.toLowerCase());
-        } else if(isReEngageSend){
-          lead.reEngageSent = true; lead.reEngageSentOn = todayISO(); save();
-        } else if(isDemoFirstSend){
-          lead.demoFirstSent = true; lead.demoFirstDate = todayISO(); save();
         } else if(isInitialSend){
           lead.dateSent = todayISO(); lead.initialSentDate = todayISO(); ensureFUDates(lead); save();
         }
@@ -2912,10 +2726,6 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         if(status === 'Replied' || status === 'Converted' || status === 'Not Interested') return;
         const fus = [{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd = normDateStr(fu.date); if(nd && nd <= td){ items.push({lead:l,fuKey:fu.key,fuLabel:fu.label}); break; } }
-        // Re-Engage due: use scheduled reEngageDate if set, else fall back to 3+ days since fu3Date
-        if(l.fu3Sent && !l.reEngageSent){ if(l.reEngageDate){ const nd=normDateStr(l.reEngageDate); if(nd&&nd<=td) items.push({lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); } else if(l.fu3Date){ const fu3d=normDateStr(l.fu3Date); if(fu3d&&Math.round((new Date(td)-new Date(fu3d))/86400000)>=3) items.push({lead:l,fuKey:'reEngage',fuLabel:'Re-Engage'}); } }
-        // Demo First due: 7+ days since reEngageSentOn
-        if(l.reEngageSent && !l.demoFirstSent){ if(l.reEngageSentOn){ const reSentD=normDateStr(l.reEngageSentOn); if(reSentD&&Math.round((new Date(td)-new Date(reSentD))/86400000)>=7) items.push({lead:l,fuKey:'demoFirst',fuLabel:'Demo First'}); } }
       });
       return items;
     }
@@ -2930,10 +2740,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       listEl.innerHTML = '';
       withEmail.forEach(item=>{
         const l = item.lead;
-        const isFUItem = item.fuLabel==='FU1'||item.fuLabel==='FU2'||item.fuLabel==='FU3';
-        const tpl = item.fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : item.fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : null;
-        const contactForSubject = l.contactName || l.clinicName || '[Clinic Name]';
-        const subject = isFUItem ? '(inherited from thread)' : (tpl ? (tpl.subject||'').replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,l.clinicName||'[Clinic Name]') : item.fuLabel+' follow-up');
+        const subject = '(inherited from thread)';
         const row = document.createElement('div'); row.className = 'send-all-row';
         row.dataset.id = l.id; row.dataset.fukey = item.fuKey; row.dataset.fulabel = item.fuLabel;
         row.innerHTML = `<div class="send-all-status" id="sas-${l.id}-${item.fuKey}"></div><div class="send-all-info"><div class="send-all-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</div><div class="send-all-email-addr">${escapeHtml(l.email)}</div><div class="send-all-subject">${escapeHtml(subject)}</div></div><span class="fu-due-badge fu-due-badge-today">${item.fuLabel}</span>`;
@@ -3050,15 +2857,13 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         const lead = leads.find(l => l.id == id);
         if(!lead || !lead.email) continue;
         if(statusEl) statusEl.innerHTML = '<span style="color:#888;font-size:12px">Sending...</span>';
-        const tpl = fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : fuLabel==='FU1' ? _FU1_TPL : fuLabel==='FU2' ? _FU2_TPL : fuLabel==='FU3' ? _FU3_TPL : null;
+        const tpl = fuLabel==='FU1' ? _FU1_TPL : fuLabel==='FU2' ? _FU2_TPL : fuLabel==='FU3' ? _FU3_TPL : null;
         if(!tpl){ if(statusEl) statusEl.innerHTML = '<span style="color:#E5484D;font-size:12px">No template</span>'; failed++; continue; }
-        const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
         const contactForBody = buildGreetingName(lead.contactName);
         const clinic = lead.clinicName || '[Clinic Name]';
-        const isFUSend = fuLabel==='FU1'||fuLabel==='FU2'||fuLabel==='FU3';
-        const subject = isFUSend ? 'following up' : (tpl.subject||'').replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
+        const subject = 'following up';
         let body = tpl.body.replace(/\[greeting\]/g,contactForBody).replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic).replace(/\[City\]/g,lead.city||'[City]');
-        if(isFUSend) body = substituteDayOfInitial(body, lead);
+        body = substituteDayOfInitial(body, lead);
         const htmlBody = renderBodyAsHtml(body);
         try{
           if(lead.threadMessageId){
