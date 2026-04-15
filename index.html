@@ -845,10 +845,17 @@
         </div>
         <span id="fuShowingCount" style="margin-left:auto;font-size:12px;color:var(--muted)"></span>
       </div>
-      <div id="followUpsBulkBar" class="bulk-action-bar">
-        <input type="checkbox" class="sel-check" id="fuSelectAll" title="Select all">
+      <div id="followUpsBulkBar" style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:8px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+        <input type="checkbox" class="sel-check" id="fuSelectAll" title="Select / deselect all filtered">
         <span id="fuSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
-        <button class="btn-bulk-send" id="btnBulkSendFU">Send via Outlook</button>
+        <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel10">Select 10</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel25">Select 25</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel50">Select 50</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSelClear">Clear</button>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <button class="btn-bulk-send" id="btnBulkSendFU" style="font-size:12px;padding:5px 12px" disabled>Send via Outlook</button>
+        </div>
       </div>
       <div id="followUpsList"></div>
     </section>
@@ -1996,16 +2003,21 @@
     // ── Multi-select bulk send ───────────────────────────────────────────────
 
     function updateFollowUpsSelectionBar(){
-      const bar=document.getElementById('followUpsBulkBar');
       const countEl=document.getElementById('fuSelCount');
       const sa=document.getElementById('fuSelectAll');
+      const sendBtn=document.getElementById('btnBulkSendFU');
       if(countEl) countEl.textContent=selectedFollowUpItems.size+' selected';
-      if(bar) bar.style.display=selectedFollowUpItems.size>0?'flex':'none';
+      if(sendBtn) sendBtn.disabled=selectedFollowUpItems.size===0;
       if(sa){
         const all=_lastFollowUpAllItems;
         sa.checked=all.length>0&&all.every(i=>selectedFollowUpItems.has(`${i.lead.id}-${i.fuKey}`));
         sa.indeterminate=!sa.checked&&selectedFollowUpItems.size>0;
       }
+    }
+    function quickSelectFollowUps(n){
+      selectedFollowUpItems.clear();
+      _lastFollowUpAllItems.slice(0,n).forEach(i=>selectedFollowUpItems.set(`${i.lead.id}-${i.fuKey}`,i));
+      renderFollowUps();
     }
 
     function openBulkSendModal(){
@@ -2094,7 +2106,11 @@
       const fuSA=document.getElementById('fuSelectAll');
       if(fuSA) fuSA.addEventListener('change',e=>{ if(e.target.checked) _lastFollowUpAllItems.forEach(i=>selectedFollowUpItems.set(`${i.lead.id}-${i.fuKey}`,i)); else selectedFollowUpItems.clear(); renderFollowUps(); });
       const btnFU=document.getElementById('btnBulkSendFU');
-      if(btnFU) btnFU.addEventListener('click',()=>{ openBulkSendModal(); });
+      if(btnFU) btnFU.addEventListener('click',()=>{ if(selectedFollowUpItems.size>0) openBulkSendModal(); });
+      const fs10=document.getElementById('btnFuSel10'); if(fs10) fs10.addEventListener('click',()=>quickSelectFollowUps(10));
+      const fs25=document.getElementById('btnFuSel25'); if(fs25) fs25.addEventListener('click',()=>quickSelectFollowUps(25));
+      const fs50=document.getElementById('btnFuSel50'); if(fs50) fs50.addEventListener('click',()=>quickSelectFollowUps(50));
+      const fsClear=document.getElementById('btnFuSelClear'); if(fsClear) fsClear.addEventListener('click',()=>{ selectedFollowUpItems.clear(); renderFollowUps(); });
       const closeBtn=document.getElementById('bulkSendClose');
       if(closeBtn) closeBtn.addEventListener('click',closeBulkSendModal);
       const bd=document.getElementById('bulkSendBackdrop');
