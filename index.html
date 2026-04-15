@@ -2994,11 +2994,10 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         let profileCell, dmCell, contactCell, clinicCell;
 
         if (isDual) {
-          const bProfile = (person, url, notFound, id, personName, clinicName) => {
+          const bProfile = (person, url, notFound, id) => {
             if (notFound) return '<span class="li-not-found-badge">Not Found</span>';
             if (url) return '<div class="li-url-wrap"><a class="btn-li-view" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">View Profile</a><button class="li-edit-link" onclick="editLIUrl(' + id + ',\'' + person + '\')">Edit</button></div>';
-            const findAttr = 'onclick="findLinkedIn(' + JSON.stringify(personName||'') + ',' + JSON.stringify(clinicName||'') + ')"';
-            return '<div class="li-url-wrap"><button class="btn-li-find" ' + findAttr + '>Find</button><input class="li-url-input" id="li-url-' + person + '-' + id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLIUrl(' + id + ',\'' + person + '\')">Save</button><button class="btn-li-nofound" onclick="markLINotFound(' + id + ',\'' + person + '\')">No LinkedIn</button></div>';
+            return '<div class="li-url-wrap"><button class="btn-li-find" onclick="findLinkedIn(' + id + ',\'' + person + '\')">Find</button><input class="li-url-input" id="li-url-' + person + '-' + id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLIUrl(' + id + ',\'' + person + '\')">Save</button><button class="btn-li-nofound" onclick="markLINotFound(' + id + ',\'' + person + '\')">No LinkedIn</button></div>';
           };
           const bDm = (person, dmSent, dmDate, connSent, connDate, id) => {
             const dm = dmSent
@@ -3024,8 +3023,8 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
             '</div>';
           profileCell =
             '<div style="display:flex;flex-direction:column;gap:10px">' +
-            '<div><div class="li-person-label">Principal</div>' + bProfile('principal', l.principalLinkedinUrl, l.principalLinkedinNotFound, l.id, l.principalName, l.clinicName) + '</div>' +
-            '<div><div class="li-person-label">Practice Manager</div>' + bProfile('pm', l.pmLinkedinUrl, l.pmLinkedinNotFound, l.id, l.practiceManagerName, l.clinicName) + '</div>' +
+            '<div><div class="li-person-label">Principal</div>' + bProfile('principal', l.principalLinkedinUrl, l.principalLinkedinNotFound, l.id) + '</div>' +
+            '<div><div class="li-person-label">Practice Manager</div>' + bProfile('pm', l.pmLinkedinUrl, l.pmLinkedinNotFound, l.id) + '</div>' +
             '</div>';
           dmCell =
             '<div style="display:flex;flex-direction:column;gap:10px">' +
@@ -3040,8 +3039,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
           } else if(l.linkedinUrl){
             profileCell = '<div class="li-url-wrap"><a class="btn-li-view" href="' + escapeHtml(l.linkedinUrl) + '" target="_blank" rel="noopener">View Profile</a><button class="li-edit-link" onclick="editLinkedInUrl(' + l.id + ')">Edit</button></div>';
           } else {
-            const findAttr = 'onclick="findLinkedIn(' + JSON.stringify(l.contactName||'') + ',' + JSON.stringify(l.clinicName||'') + ')"';
-            profileCell = '<div class="li-url-wrap"><button class="btn-li-find" ' + findAttr + '>Find</button><input class="li-url-input" id="li-url-' + l.id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLinkedInUrl(' + l.id + ')">Save</button><button class="btn-li-nofound" onclick="markLinkedInNotFound(' + l.id + ')">No LinkedIn</button></div>';
+            profileCell = '<div class="li-url-wrap"><button class="btn-li-find" onclick="findLinkedIn(' + l.id + ',\'single\')">Find</button><input class="li-url-input" id="li-url-' + l.id + '" type="url" placeholder="Paste LinkedIn URL..."><button class="li-save-btn" onclick="saveLinkedInUrl(' + l.id + ')">Save</button><button class="btn-li-nofound" onclick="markLinkedInNotFound(' + l.id + ')">No LinkedIn</button></div>';
           }
           const copyBtn = '<button class="btn-li-copy" onclick="copyForGemini(' + l.id + ')">Copy</button>';
           if(l.linkedinNotFound){
@@ -3088,14 +3086,20 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       save();
     }
 
-    function findLinkedIn(name, clinic){
-      if(!name || !name.trim()){ alert('No contact name on file. Add a name before searching LinkedIn.'); return; }
-      const terms=[];
-      terms.push('"'+name.trim()+'"');
-      if(clinic && clinic.trim()) terms.push('"'+clinic.trim()+'"');
+    function findLinkedIn(id, person){
+      const lead = leads.find(l => l.id == id);
+      if(!lead){ alert('Lead not found.'); return; }
+      let name = '';
+      if(person === 'principal') name = lead.principalName || '';
+      else if(person === 'pm') name = lead.practiceManagerName || '';
+      else name = lead.contactName || lead.principalName || '';
+      if(!name.trim()){ alert('No contact name on file. Add a name before searching LinkedIn.'); return; }
+      const clinic = lead.clinicName || '';
+      const terms = ['"' + name.trim() + '"'];
+      if(clinic.trim()) terms.push('"' + clinic.trim() + '"');
       terms.push('site:linkedin.com/in/');
-      const url='https://www.google.com/search?q='+encodeURIComponent(terms.join(' '));
-      window.open(url,'_blank','noopener');
+      const url = 'https://www.google.com/search?q=' + encodeURIComponent(terms.join(' '));
+      window.open(url, '_blank', 'noopener');
     }
 
     function editLinkedInUrl(id){
