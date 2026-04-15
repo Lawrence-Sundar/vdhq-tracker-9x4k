@@ -2078,9 +2078,10 @@
       };
       const getSubject=(lead,fuKey,fuLabel,emailType)=>{
         if(fuKey==='initial') return emailType.subject;
+        if(fuLabel==='FU1'||fuLabel==='FU2'||fuLabel==='FU3') return '(inherited from thread)';
         const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cl=lead.clinicName||'[Clinic Name]';
-        const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:fuLabel==='FU1'?_FU1_TPL:fuLabel==='FU2'?_FU2_TPL:fuLabel==='FU3'?_FU3_TPL:null;
-        return tpl?tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):fuLabel+' follow-up';
+        const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:null;
+        return tpl?(tpl.subject||'').replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):fuLabel+' follow-up';
       };
       if(_bulkSendSource==='pipeline'){
         for(const leadId of selectedPipelineIds){
@@ -2094,9 +2095,10 @@
         for(const [,item] of selectedFollowUpItems){
           const l=item.lead;
           if(!l.email){ buildRow(l,'','','',`bs-${l.id}-noemail`,true,'No email on record'); continue; }
-          const tpl=item.fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:item.fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:item.fuLabel==='FU1'?_FU1_TPL:item.fuLabel==='FU2'?_FU2_TPL:item.fuLabel==='FU3'?_FU3_TPL:null;
+          const isFUItem=item.fuLabel==='FU1'||item.fuLabel==='FU2'||item.fuLabel==='FU3';
+          const tpl=item.fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:item.fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:null;
           const cs=l.contactName||l.clinicName||'[Clinic Name]'; const cl=l.clinicName||'[Clinic Name]';
-          const subj=tpl?tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):item.fuLabel+' follow-up';
+          const subj=isFUItem?'(inherited from thread)':(tpl?(tpl.subject||'').replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl):item.fuLabel+' follow-up');
           buildRow(l,item.fuKey,item.fuLabel,subj,`bs-${l.id}-${item.fuKey}`,false,'');
         }
       }
@@ -2135,10 +2137,12 @@
           const cs=lead.contactName||lead.clinicName||'[Clinic Name]'; const cb=buildGreetingName(lead.contactName); const cl=lead.clinicName||'[Clinic Name]';
           const tpl=fuLabel==='Re-Engage'?RE_ENGAGE_TEMPLATE:fuLabel==='Demo First'?DEMO_FIRST_TEMPLATE:fuLabel==='FU1'?_FU1_TPL:fuLabel==='FU2'?_FU2_TPL:fuLabel==='FU3'?_FU3_TPL:null;
           if(!tpl){ failed++; failedDetails.push(escapeHtml(lead.clinicName||'(no name)')+' \u2014 '+fuLabel+': no template'); if(statusEl) statusEl.innerHTML='<span style="color:#E5484D;font-size:12px">No template</span>'; if(progressEl) progressEl.textContent=(sent+failed)+' / '+total; continue; }
-          subject=tpl.subject.replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl);
+          const isFUSend=fuLabel==='FU1'||fuLabel==='FU2'||fuLabel==='FU3';
+          subject=isFUSend?'following up':(tpl.subject||'').replace(/\[Contact name\]/g,cs).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,cl);
           body=tpl.body.replace(/\[greeting\]/g,cb).replace(/\[name\]/g,cb).replace(/\[Contact\]/g,cb).replace(/\[Clinic Name\]/g,cl).replace(/\[City\]/g,lead.city||'[City]');
+          if(isFUSend) body=substituteDayOfInitial(body,lead);
         }
-        const htmlBody='<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">'+escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>')+'</div>';
+        const htmlBody=renderBodyAsHtml(body);
         try{
           if(fuKey==='initial'){
             const msgId=await sendGraphEmail(lead.email,subject,htmlBody);
@@ -2415,6 +2419,25 @@
       return s.split(/\s+/)[0]||'there';
     }
 
+    function substituteDayOfInitial(body, lead){
+      if(lead && lead.dateSent && isValidDateStr(lead.dateSent)){
+        const d=new Date(lead.dateSent+'T00:00:00');
+        const dayName=d.toLocaleDateString('en-GB',{weekday:'long'});
+        return body.replace(/\[day of initial\]/g, dayName);
+      }
+      return body
+        .replace(/Following up on my note from \[day of initial\]/g, 'Following up on my earlier note')
+        .replace(/\[day of initial\]/g, 'my earlier note');
+    }
+
+    function renderBodyAsHtml(body){
+      return '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">'
+        + escapeHtml(body).replace(/\n/g,'<br>')
+            .replace(/&lt;a href=&quot;(.+?)&quot;&gt;(.+?)&lt;\/a&gt;/g, '<a href="$1">$2</a>')
+            .replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>')
+        + '</div>';
+    }
+
     function bindUI(){
       document.getElementById('leadForm').addEventListener('submit',e=>{ e.preventDefault(); const data={clinicName:document.getElementById('clinicName').value.trim(),city:document.getElementById('city').value.trim(),address:document.getElementById('address').value.trim(),website:document.getElementById('website').value.trim(),contactName:document.getElementById('contactName').value.trim(),email:document.getElementById('email').value.trim(),channel:document.getElementById('channel').value,angle:document.getElementById('angle').value,dateSent:document.getElementById('dateSent').value||'',reply:document.getElementById('reply').value,replyType:document.getElementById('replyType').value.trim(),notes:document.getElementById('notes').value.trim(),reviewCount:document.getElementById('reviewCount').value.trim()}; addLead(data); e.target.reset(); closeAddLeadPanel(); });
 
@@ -2472,9 +2495,9 @@
 
     // ── Email Sequence Manager ──────────────────────────────────────────────
     // Initial emails are Qualifier-generated only — no templates here.
-    const _FU1_TPL = { subject: 'just checking in', body: `Hi [greeting],\n\nJust wanted to make sure my note about [Clinic Name]'s after-hours enquiries reached you - worth 10 minutes to see if it's relevant?\n\nLawrence\nVersa Digital HQ` };
-    const _FU2_TPL = { subject: 'free demo', body: `Hi [greeting],\n\nCurious what you think of this - put together a quick video walkthrough showing exactly how it works: https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb\n\nOr if you prefer to explore it yourself: versadigital.co/demo\n\nHappy to walk through on a call if useful.\n\nLawrence\nVersa Digital HQ` };
-    const _FU3_TPL = { subject: 'last note', body: `Hi [greeting],\n\nLast note from me. If the timing isn't right, no problem at all - happy to pick this up whenever suits.\n\nLawrence\nVersa Digital HQ` };
+    const _FU1_TPL = { body: `Hi [greeting],\n\nFollowing up on my note from [day of initial] \u2014 thought this might be easier than reading about it. Put together a quick two-minute walkthrough showing exactly how it works:\n\n<a href="https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb">Watch the 2-minute demo \u2192</a>\n(https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb)\n\nHappy to discuss if it's relevant.\n\nLawrence\nVersa Digital HQ` };
+    const _FU2_TPL = { body: `Hi [greeting],\n\nDid you get a chance to look at the demo I sent over?\n\nLink here if not: <a href="https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb">Watch the 2-minute demo \u2192</a>\n\nHappy to answer any questions if the timing wasn't right.\n\nLawrence\nVersa Digital HQ` };
+    const _FU3_TPL = { body: `Hi [greeting],\n\nLast note from me on this \u2014 if the timing isn't right, no problem at all. Happy to pick this up whenever it suits.\n\nLawrence\nVersa Digital HQ` };
 
     const DEMO_FIRST_TEMPLATE = {
       subject: '90 seconds',
@@ -2561,18 +2584,27 @@
       const contact=lead.contactName||'[Contact]'; const clinic=lead.clinicName||'[Clinic Name]';
       const contactForBody=buildGreetingName(lead.contactName);
       const contactForSubject=lead.contactName||lead.clinicName||'[Clinic Name]';
-      const subject=tpl.subject
-        .replace(/\[Contact name\]/g,contactForSubject)
-        .replace(/\[Contact\]/g,lead.contactName||'[Contact]')
-        .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]');
-      const body=tpl.body
+      let subjectLine;
+      if(isFU){
+        subjectLine='Subject: (inherited from thread)';
+      } else {
+        const subject=(tpl.subject||'')
+          .replace(/\[Contact name\]/g,contactForSubject)
+          .replace(/\[Contact\]/g,lead.contactName||'[Contact]')
+          .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]');
+        subjectLine='Subject: '+subject;
+      }
+      let body=tpl.body
         .replace(/\[greeting\]/g,contactForBody)
         .replace(/\[name\]/g,contactForBody)
         .replace(/\[Contact\]/g,contactForBody)
         .replace(/\[Clinic Name\]/g,lead.clinicName||'[Clinic Name]')
         .replace(/\[City\]/g,lead.city||'[City]');
-      document.getElementById('emailSubjectPreview').textContent='Subject: '+subject;
-      const bodyHtml=escapeHtml(body).replace('versadigital.co/demo','<a href="https://versadigital.co/demo" target="_blank" style="color:var(--accent)">versadigital.co/demo</a>');
+      if(isFU) body=substituteDayOfInitial(body,lead);
+      document.getElementById('emailSubjectPreview').textContent=subjectLine;
+      const bodyHtml=escapeHtml(body).replace(/\n/g,'<br>')
+        .replace(/&lt;a href=&quot;(.+?)&quot;&gt;(.+?)&lt;\/a&gt;/g, '<a href="$1" target="_blank" style="color:var(--accent)">$2</a>')
+        .replace('versadigital.co/demo','<a href="https://versadigital.co/demo" target="_blank" style="color:var(--accent)">versadigital.co/demo</a>');
       document.getElementById('emailBodyPreview').innerHTML=bodyHtml;
       const tipEl=document.getElementById('fu2DemoTip'); if(tipEl) tipEl.style.display=type==='FU2'?'block':'none';
       placeholder.style.display='none'; wrap.style.display='block';
@@ -2818,11 +2850,29 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
       const clinic = lead.clinicName || '[Clinic Name]';
       const fuTpl = isReEngageSend ? RE_ENGAGE_TEMPLATE : isDemoFirstSend ? DEMO_FIRST_TEMPLATE : isFU ? (selectedType==='FU1'?_FU1_TPL:selectedType==='FU2'?_FU2_TPL:_FU3_TPL) : null;
-      const subject = fuTpl
-        ? fuTpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic)
-        : document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,'');
-      const bodyEl = document.getElementById('emailBodyPreview');
-      const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + bodyEl.innerHTML.replace(/\n/g,'<br>') + '</div>';
+      let subject;
+      if(isFU){
+        subject = 'following up';
+      } else if(fuTpl){
+        subject = (fuTpl.subject||'').replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
+      } else {
+        subject = document.getElementById('emailSubjectPreview').textContent.replace(/^Subject: /,'');
+      }
+      let htmlBody;
+      if(fuTpl){
+        const cb = buildGreetingName(lead.contactName);
+        let body = fuTpl.body
+          .replace(/\[greeting\]/g,cb)
+          .replace(/\[name\]/g,cb)
+          .replace(/\[Contact\]/g,cb)
+          .replace(/\[Clinic Name\]/g,clinic)
+          .replace(/\[City\]/g,lead.city||'[City]');
+        if(isFU) body = substituteDayOfInitial(body, lead);
+        htmlBody = renderBodyAsHtml(body);
+      } else {
+        const bodyEl = document.getElementById('emailBodyPreview');
+        htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + bodyEl.innerHTML.replace(/\n/g,'<br>') + '</div>';
+      }
       const btn = document.getElementById('btnSendOutlook');
       const origText = btn.textContent;
       btn.textContent = 'Sending...'; btn.disabled = true;
@@ -2880,9 +2930,10 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       listEl.innerHTML = '';
       withEmail.forEach(item=>{
         const l = item.lead;
-        const tpl = item.fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : item.fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : item.fuLabel==='FU1' ? _FU1_TPL : item.fuLabel==='FU2' ? _FU2_TPL : item.fuLabel==='FU3' ? _FU3_TPL : null;
+        const isFUItem = item.fuLabel==='FU1'||item.fuLabel==='FU2'||item.fuLabel==='FU3';
+        const tpl = item.fuLabel==='Re-Engage' ? RE_ENGAGE_TEMPLATE : item.fuLabel==='Demo First' ? DEMO_FIRST_TEMPLATE : null;
         const contactForSubject = l.contactName || l.clinicName || '[Clinic Name]';
-        const subject = tpl ? tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,l.clinicName||'[Clinic Name]') : item.fuLabel+' follow-up';
+        const subject = isFUItem ? '(inherited from thread)' : (tpl ? (tpl.subject||'').replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,l.contactName||'[Contact]').replace(/\[Clinic Name\]/g,l.clinicName||'[Clinic Name]') : item.fuLabel+' follow-up');
         const row = document.createElement('div'); row.className = 'send-all-row';
         row.dataset.id = l.id; row.dataset.fukey = item.fuKey; row.dataset.fulabel = item.fuLabel;
         row.innerHTML = `<div class="send-all-status" id="sas-${l.id}-${item.fuKey}"></div><div class="send-all-info"><div class="send-all-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</div><div class="send-all-email-addr">${escapeHtml(l.email)}</div><div class="send-all-subject">${escapeHtml(subject)}</div></div><span class="fu-due-badge fu-due-badge-today">${item.fuLabel}</span>`;
@@ -3004,9 +3055,11 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         const contactForSubject = lead.contactName || lead.clinicName || '[Clinic Name]';
         const contactForBody = buildGreetingName(lead.contactName);
         const clinic = lead.clinicName || '[Clinic Name]';
-        const subject = tpl.subject.replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
-        const body = tpl.body.replace(/\[greeting\]/g,contactForBody).replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic).replace(/\[City\]/g,lead.city||'[City]');
-        const htmlBody = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65">' + escapeHtml(body).replace(/\n/g,'<br>').replace('versadigital.co/demo','<a href="https://versadigital.co/demo">versadigital.co/demo</a>') + '</div>';
+        const isFUSend = fuLabel==='FU1'||fuLabel==='FU2'||fuLabel==='FU3';
+        const subject = isFUSend ? 'following up' : (tpl.subject||'').replace(/\[Contact name\]/g,contactForSubject).replace(/\[Contact\]/g,lead.contactName||'[Contact]').replace(/\[Clinic Name\]/g,clinic);
+        let body = tpl.body.replace(/\[greeting\]/g,contactForBody).replace(/\[name\]/g,contactForBody).replace(/\[Contact\]/g,contactForBody).replace(/\[Clinic Name\]/g,clinic).replace(/\[City\]/g,lead.city||'[City]');
+        if(isFUSend) body = substituteDayOfInitial(body, lead);
+        const htmlBody = renderBodyAsHtml(body);
         try{
           if(lead.threadMessageId){
             await sendGraphReply(lead.threadMessageId, htmlBody, lead.email);
