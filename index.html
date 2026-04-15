@@ -2056,10 +2056,16 @@
       const confirmBtn=document.getElementById('btnConfirmBulkSend');
       const progressEl=document.getElementById('bulkSendProgress');
       if(!rows.length) return;
-      confirmBtn.disabled=true;
+      _bulkSendCancelled=false;
+      if(confirmBtn){
+        confirmBtn.textContent='Stop';
+        confirmBtn.disabled=false;
+        confirmBtn.onclick=()=>{ _bulkSendCancelled=true; confirmBtn.textContent='Stopping...'; confirmBtn.disabled=true; };
+      }
       if(progressEl){ progressEl.textContent='0 / '+rows.length; progressEl.style.display='block'; }
-      let sent=0, failed=0; const total=rows.length; const failedDetails=[];
+      let sent=0, failed=0, stopped=0; const total=rows.length; const failedDetails=[];
       for(let i=0;i<rows.length;i++){
+        if(_bulkSendCancelled){ stopped=total-(sent+failed); break; }
         const row=rows[i]; const id=row.dataset.id; const fuKey=row.dataset.fukey; const fuLabel=row.dataset.fulabel;
         const statusEl=document.getElementById(`bs-${id}-${fuKey}`);
         const lead=leads.find(l=>String(l.id)===String(id));
@@ -2098,8 +2104,14 @@
         if(i<rows.length-1) await new Promise(r=>setTimeout(r,500));
       }
       selectedFollowUpItems.clear(); save();
-      if(progressEl){ let summary='Done \u2014 '+sent+' sent'+(failed?', '+failed+' failed':''); if(failedDetails.length) summary+='<br><span style="color:#E5484D;font-size:12px;line-height:1.8">'+failedDetails.map(d=>'&middot; '+d).join('<br>')+'</span>'; progressEl.innerHTML=summary; }
+      if(progressEl){
+        const prefix=_bulkSendCancelled?'Stopped':'Done';
+        let summary=prefix+' \u2014 '+sent+' sent'+(failed?', '+failed+' failed':'')+(stopped?', '+stopped+' not attempted':'');
+        if(failedDetails.length) summary+='<br><span style="color:#E5484D;font-size:12px;line-height:1.8">'+failedDetails.map(d=>'&middot; '+d).join('<br>')+'</span>';
+        progressEl.innerHTML=summary;
+      }
       if(confirmBtn){ confirmBtn.textContent='Close'; confirmBtn.disabled=false; confirmBtn.onclick=closeBulkSendModal; }
+      _bulkSendCancelled=false;
     }
 
     function bindBulkSend(){
@@ -2371,6 +2383,7 @@
     let selectedFollowUpItems = new Map(); // keyed '${id}-${fuKey}'
     let _lastPipelineFiltered = [];
     let _lastFollowUpAllItems = [];
+    let _bulkSendCancelled = false;
 
     let emailState = { leadId:null, type:null };
 
