@@ -1882,7 +1882,7 @@
         bindExpandRA(l.id, expand);
         row.appendChild(main); row.appendChild(expand); container.appendChild(row);
       });
-      // (expand restore removed — details now open in modal, not inline)
+      if(expandedLeadId){ const _el=document.getElementById('expand-'+expandedLeadId); if(_el) _el.style.display='block'; }
 
       // ── Not Interested collapsed section ──────────────────────────────────
       if(niLeads.length>0){
@@ -1918,7 +1918,7 @@
           row.appendChild(main); row.appendChild(expand); niBody.appendChild(row);
         });
         niSection.appendChild(niHeader); niSection.appendChild(niBody); container.appendChild(niSection);
-        // (expand restore removed — details now open in modal)
+        if(expandedLeadId){ const _el=document.getElementById('expand-'+expandedLeadId); if(_el) _el.style.display='block'; }
       }
     }
 
