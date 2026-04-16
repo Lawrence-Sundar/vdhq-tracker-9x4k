@@ -1250,7 +1250,7 @@
 
     function toggleDNC(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(lead.doNotContact){ if(!confirm('Remove the Do Not Contact flag from this clinic?')) return; lead.doNotContact=false; } else { if(!confirm('Mark this clinic as Do Not Contact? This cannot be easily undone.')) return; lead.doNotContact=true; } save(); }
 
-    function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; save(); }
+    function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; if(expandedFollowUpId==id) expandedFollowUpId=null; selectedFollowUpItems.forEach((_,k)=>{ if(k.startsWith(id+'-')) selectedFollowUpItems.delete(k); }); if(emailState.leadId==id){ emailState.leadId=null; emailState.type=null; } save(); }
 
     function statusDotClass(l){ if((l.replyType||'').toLowerCase()==='disqualified') return 'sdot-disq'; if(l.reply==='Y') return 'sdot-replied'; const td=todayISO(); if((l.fu1Date===td&&!l.fu1Sent)||(l.fu2Date===td&&!l.fu2Sent)||(l.fu3Date===td&&!l.fu3Sent)) return 'sdot-due'; return 'sdot-pending'; }
 
@@ -2070,6 +2070,7 @@
     }
 
     function closeBulkSendModal(){
+      _bulkSendCancelled = true;
       const bd=document.getElementById('bulkSendBackdrop'); const md=document.getElementById('bulkSendModal');
       md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true');
     }
@@ -2216,7 +2217,8 @@
       const totalBadge=items.length;
       const badge=document.getElementById('followUpsNavBadge');
       if(badge){ if(totalBadge>0){badge.textContent=totalBadge;badge.style.display='inline-flex';}else{badge.textContent='';badge.style.display='none';} }
-      const fuShowingEl=document.getElementById('fuShowingCount'); if(fuShowingEl) fuShowingEl.textContent=totalBadge>0?'Showing '+totalBadge+' lead'+(totalBadge===1?'':'s'):'';
+      const _fuFilterActive=fuFilter.fuType!=='All'||fuFilter.city!=='All';
+      const fuShowingEl=document.getElementById('fuShowingCount'); if(fuShowingEl) fuShowingEl.textContent=totalBadge>0?'Showing '+totalBadge+' lead'+(totalBadge===1?'':'s')+(_fuFilterActive?' (filter active)':''):(_fuFilterActive?'No results (filter active)':'');
       if(items.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
       const overdue=items.filter(i=>i.overdue).sort((a,b)=>a.fuDate.localeCompare(b.fuDate));
       const dueToday=items.filter(i=>!i.overdue).sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||''));
@@ -2379,7 +2381,7 @@
       const mobileTitle=document.getElementById('mobileTitle'); if(mobileTitle) mobileTitle.textContent=titles[name]||name;
       const topbarTitle=document.getElementById('topbarTitle'); if(topbarTitle){ if(name==='dashboard'){ topbarTitle.innerHTML='Hi, <strong style="font-weight:600">Lawrence!</strong>'; } else { topbarTitle.textContent=titles[name]||name; } }
       if(name==='email') populateEmailLeadDropdown();
-      if(name==='linkedin'){ const _r=localStorage.getItem(STORAGE_KEY); if(_r){ leads=JSON.parse(_r); leads.forEach(l=>{ ensureFUDates(l); if(!l.source)l.source='manual'; if(l.doNotContact===undefined)l.doNotContact=false; if(!l.channel)l.channel='Email'; }); } renderLinkedIn(); }
+      if(name==='linkedin') renderLinkedIn();
       closeMobileSidebar();
     }
 
@@ -2419,7 +2421,7 @@
     function populateEmailLeadDropdown(){
       const sel=document.getElementById('emailLeadSelect'); const current=sel.value;
       sel.innerHTML='<option value="">— choose a lead —</option>';
-      leads.forEach(l=>{ const opt=document.createElement('option'); opt.value=l.id; opt.textContent=(l.clinicName||'(no name)')+(l.contactName?' - '+l.contactName:'')+(l.city?' ('+l.city+')':''); sel.appendChild(opt); });
+      leads.forEach(l=>{ if(l.doNotContact) return; const _ds=computeStatus(l); if(_ds==='Disqualified'||_ds==='Not Interested'||_ds==='Converted') return; const opt=document.createElement('option'); opt.value=l.id; opt.textContent=(l.clinicName||'(no name)')+(l.contactName?' - '+l.contactName:'')+(l.city?' ('+l.city+')':''); sel.appendChild(opt); });
       if(current&&leads.find(l=>l.id==current)) sel.value=current;
     }
 
@@ -2829,6 +2831,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
     }
 
     function closeSendAllModal(){
+      _bulkSendCancelled = true;
       const bd = document.getElementById('sendAllBackdrop'); const md = document.getElementById('sendAllModal');
       md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true');
     }
