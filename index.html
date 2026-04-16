@@ -1221,6 +1221,8 @@
     function restoreFromBackup(idx){ const bRaw=localStorage.getItem(BACKUP_KEY); if(!bRaw) return; const backups=JSON.parse(bRaw); const b=backups[idx]; if(!b) return; const ts=formatBackupTimestamp(b.timestamp); const count=(b.data||[]).length; if(!confirm('Restore '+count+' lead'+(count===1?'':'s')+' from '+ts+'? This will overwrite your current data.')) return; localStorage.setItem(STORAGE_KEY,JSON.stringify(b.data||[])); closeBackupModal(); location.reload(); }
 
     function ensureFUDates(lead){ try{ if(!lead.dateSent) return; if(!isValidDateStr(lead.dateSent)) return;
+      if(lead.fu1Sent&&!lead.fu1SentOn&&lead.fu1Date) lead.fu1SentOn=lead.fu1Date;
+      if(lead.fu2Sent&&!lead.fu2SentOn&&lead.fu2Date) lead.fu2SentOn=lead.fu2Date;
       if(!lead.fu1Date) lead.fu1Date=addDays(lead.dateSent,2);
       if(lead.fu1SentOn&&isValidDateStr(lead.fu1SentOn)) lead.fu2Date=addDays(lead.fu1SentOn,5);
       else if(!lead.fu2Date) lead.fu2Date=addDays(lead.dateSent,7);
