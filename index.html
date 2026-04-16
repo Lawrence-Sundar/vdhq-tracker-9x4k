@@ -2209,6 +2209,7 @@
       const items=[];
       leads.forEach(l=>{
         if(l.doNotContact) return;
+        if(l.fu1Sent&&l.fu2Sent&&l.fu3Sent) return;
         if(fuFilter.city!=='All'&&l.city!==fuFilter.city) return;
         const status=computeStatus(l);
         if(status==='Replied'||status==='Converted'||status==='Not Interested'||status==='Disqualified') return;
@@ -2795,6 +2796,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         if(l.doNotContact) return;
         const status = computeStatus(l);
         if(status === 'Replied' || status === 'Converted' || status === 'Not Interested' || status === 'Disqualified') return;
+        if(l.fu1Sent&&l.fu2Sent&&l.fu3Sent) return;
         const fus = [{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd = normDateStr(fu.date); if(nd && nd <= td){ items.push({lead:l,fuKey:fu.key,fuLabel:fu.label}); break; } }
       });
