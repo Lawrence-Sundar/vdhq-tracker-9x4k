@@ -759,7 +759,7 @@
         <button class="status-filter-btn" data-status="DNC">DNC <span class="tab-count" id="tcDNC"></span></button>
       </div>
       <!-- Collapsible filters panel -->
-      <div id="pipelineFiltersPanel" style="display:none;margin-bottom:16px">
+      <div id="pipelineFiltersPanel" style="margin-bottom:16px">
         <div class="card" style="padding:16px 20px">
           <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
             <div class="filter-group">
@@ -776,7 +776,7 @@
             </div>
             <div class="filter-group">
               <span class="filter-inline-label">FU Stage</span>
-              <select id="pFilterFUStage"><option value="All">All</option><option value="Initial Not Sent">Initial Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Cover Variant Sent">Cover Variant Sent</option></select>
+              <select id="pFilterFUStage"><option value="All">All</option><option value="Initial Not Sent">Initial Not Sent</option><option value="FU1 Sent">FU1 Sent</option><option value="FU2 Sent">FU2 Sent</option><option value="FU3 Sent">FU3 Sent</option><option value="Full Sequence">Full Sequence</option><option value="Cover Variant Sent">Cover Variant Sent</option><option value="Qualifier Unsent">Qualifier Unsent</option></select>
             </div>
             <div class="filter-group">
               <span class="filter-inline-label">CTA</span>
@@ -1835,6 +1835,7 @@
           else if(fs==='FU3 Sent'){ if(!l.fu3Sent) return false; }
           else if(fs==='Full Sequence'){ if(!(l.fu1Sent && l.fu2Sent && l.fu3Sent)) return false; }
           else if(fs==='Cover Variant Sent'){ if(!l.coverVariantSent) return false; }
+          else if(fs==='Qualifier Unsent'){ if((l.source||'manual')!=='qualifier'||l.dateSent) return false; }
         }
         if(pipelineFilter.ctaVariant!=='All'){
           const cv=(l.ctaVariant||'').toLowerCase();
