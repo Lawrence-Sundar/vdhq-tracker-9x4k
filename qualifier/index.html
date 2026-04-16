@@ -156,6 +156,8 @@
       <label>Anthropic API Key</label>
       <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
       <div class="muted small" style="margin-top:6px">Held in memory only - never stored or sent anywhere except the Anthropic API.</div>
+      <label style="margin-top:12px">Google Places API Key <span style="color:var(--muted);font-weight:400">(optional — enriches with review count + rating)</span></label>
+      <input type="password" id="googlePlacesKey" placeholder="AIza..." autocomplete="off" spellcheck="false">
     </div>
 
     <!-- URL Input -->
@@ -522,6 +524,8 @@
 
       if (!apiKey) { showError('Please enter your Anthropic API key.'); return; }
       if (!url)    { showError('Please enter a clinic website URL.'); return; }
+      const _gKey = (document.getElementById('googlePlacesKey') || {}).value || '';
+      if (_gKey) sessionStorage.setItem('google_places_key', _gKey);
 
       proceedWithAnalysis(url, apiKey);
     }
@@ -605,9 +609,12 @@
       const userPrompt = `Analyse the following webpage text from a dental clinic website and return a JSON object with EXACTLY these fields:
 
 - score: "Hot", "Warm", or "Cold"
+- score_confidence: "high" (clear signals, sufficient data to be sure) | "medium" (some signals but incomplete data) | "low" (ambiguous, insufficient page content)
 - score_reason: one sentence explaining the score
 - clinic_name: detected clinic name as a string, or null
-- contact_name: best contact name — priority: 1) practice manager or practice coordinator name if found, 2) "Dr [Surname]" if a principal dentist found and no practice manager/coordinator, 3) null if neither found
+- principal_name: the principal dentist, owner, or clinical director name if found (e.g. "Dr Sarah Leahy"). Look for titles like "Principal Dentist", "Clinical Director", "Owner", "Lead Dentist". Return null if not found. Do NOT put a practice manager here.
+- practice_manager_name: the practice manager or practice coordinator name if found. Look for titles like "Practice Manager", "Manager", "Practice Coordinator". Return null if not found. Do NOT put a dentist here.
+- contact_name: the single best contact for outreach — if practice_manager_name found, use that. Otherwise use principal_name. Otherwise null.
 - contact_name_confidence: "found" (named on page), "inferred" (role only, no name), or "not_found"
 - emails: array of all email addresses detected (empty array if none)
 - primary_email: the single best email for outreach, or null
@@ -618,6 +625,7 @@
 - city: "London" | "Manchester" | "Birmingham" | "Leeds" | "Bristol" | "Edinburgh" | "Glasgow" | "Other" | "unknown"
 - city_name: actual city or area name detected, or null
 - has_live_booking_portal: true if a live online booking widget or portal is detected, false otherwise
+- nhs_status: "private" | "nhs_heavy" | "mixed" | "unknown". Look for: "NHS patients", "NHS dentist", "NHS contract", "accepting NHS patients" = nhs_heavy. "Private only", "Private dental", no NHS mentions = private. Both mentioned = mixed. If nhs_heavy, add to disqualifiers.
 - disqualifiers: array of strings listing reasons this clinic is Cold (empty array if Hot or Warm)
 - detected_signals: array of strings describing positive signals (concise and factual)
 - hook_eligibility: object with exactly two fields:
@@ -671,6 +679,28 @@ ${pageText}`;
         window._lastResult = result;
         window._lastUrl    = url;
         window._apiKey     = apiKey;
+
+        // Enrich with Google Places data (non-blocking — proceed without if it fails)
+        try {
+          const _gKey = sessionStorage.getItem('google_places_key') || '';
+          if (_gKey && result.clinic_name) {
+            const _searchQ = encodeURIComponent(result.clinic_name + ' dentist ' + (result.city_name || result.city || ''));
+            const _placesUrl = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=' + _searchQ + '&key=' + _gKey;
+            const _pRes = await fetch('https://corsproxy.io/?' + encodeURIComponent(_placesUrl), {signal:AbortSignal.timeout(8000)});
+            if (_pRes.ok) {
+              const _pData = await _pRes.json();
+              if (_pData.results && _pData.results.length > 0) {
+                const _place = _pData.results[0];
+                if (_place.rating) result.google_rating = _place.rating;
+                if (_place.user_ratings_total) result.review_count = _place.user_ratings_total;
+                if (_place.formatted_address && !result.address) result.address = _place.formatted_address;
+                if (_place.opening_hours) result.has_opening_hours = true;
+                if (_place.business_status) result.business_status = _place.business_status;
+                console.log('[Places] Enriched: ' + result.clinic_name + ' — ' + (result.review_count || 0) + ' reviews, ' + (result.google_rating || '?') + ' rating');
+              } else { console.log('[Places] No results for: ' + result.clinic_name); }
+            }
+          }
+        } catch (e) { console.warn('[Places] Enrichment failed:', e.message); }
 
         setLoading(false);
 
@@ -740,7 +770,8 @@ ${pageText}`;
 
       // Score badge — always shown
       const badge = document.getElementById('scoreBadge');
-      badge.textContent = score;
+      const _conf = r.score_confidence || 'medium';
+      badge.textContent = score + (_conf !== 'high' ? ' (' + _conf + ' confidence)' : '');
       badge.className = 'score-badge';
       if (score === 'Hot')       badge.classList.add('score-hot');
       else if (score === 'Warm') badge.classList.add('score-warm');
@@ -845,14 +876,14 @@ ${pageText}`;
       metaGrid.innerHTML = '';
       [
         ['Clinic',          r.clinic_name || '—'],
-        ['Contact',         r.contact_name
-                              ? r.contact_name + ' (' + (r.contact_name_confidence || '') + ')'
-                              : 'Not found'],
+        ['Principal',       r.principal_name || 'Not found'],
+        ['Practice Manager',r.practice_manager_name || 'Not found'],
         ['City',            r.city_name || r.city || '—'],
         ['Booking channel', r.booking_channel
                               ? r.booking_channel + ' (' + (r.booking_channel_confidence || '') + ')'
                               : '—'],
-        ['Review count',    r.review_count != null ? String(r.review_count) : 'Not detected'],
+        ['Reviews',         r.review_count != null ? String(r.review_count) + (r.google_rating ? ' (' + r.google_rating + '★)' : '') : 'Not detected'],
+        ['NHS status',      r.nhs_status || 'unknown'],
         ['Live portal',     r.has_live_booking_portal ? 'Yes' : 'No'],
         ['Hook: obs+comp',  r.hook_eligibility?.observation_compliment ? '✓ Eligible' : '✗ Not eligible'],
       ].forEach(([label, val]) => {
@@ -906,9 +937,11 @@ ${pageText}`;
       if (emailToSendInput) emailToSendInput.value = selectedEmail || '';
       show('emailToSendCard');
 
-      // Editable contact fields — pre-populate Principal from scraped contact name; PM left blank
+      // Editable contact fields — pre-populate from separate API fields
       const principalInput = document.getElementById('principalInput');
-      if (principalInput) principalInput.value = r.contact_name || '';
+      if (principalInput) principalInput.value = r.principal_name || '';
+      const pmInput = document.getElementById('pmInput');
+      if (pmInput) pmInput.value = r.practice_manager_name || '';
       show('principalCard');
       show('pmCard');
 
@@ -1378,7 +1411,7 @@ FIELDS PROVIDED:
 - Clinic Name - reference in opening line and CTA
 - City - available if needed
 - Intake method - reference in opening observation
-- Custom Observation - if provided, use to make opening line more specific
+- Custom Observation - if provided, this MUST be the basis of the opening line. Do not ignore it. Weave the observation into the first sentence as a specific, researched hook about this clinic. This takes priority over any generic intake observation
 
 <examples>
 <example>
