@@ -1193,12 +1193,13 @@
     const RA_AMBER_TYPES = ['Soft No','Needs Nurturing','Gatekeeper','Wrong Person'];
     const raResults = {}; // keyed by lead id, stores analysis result for session
 
-    function todayISO(){ const d=new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
-    function isValidDateStr(s){ if(!s) return false; const d=new Date(s); return !isNaN(d.getTime()); }
-    function addDays(dateStr,days){ if(!isValidDateStr(dateStr)) return ''; const d=new Date(dateStr); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+    function _localISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+    function todayISO(){ return _localISO(new Date()); }
+    function isValidDateStr(s){ if(!s) return false; const d=new Date(s+'T00:00:00'); return !isNaN(d.getTime()); }
+    function addDays(dateStr,days){ if(!isValidDateStr(dateStr)) return ''; const d=new Date(dateStr+'T00:00:00'); d.setDate(d.getDate()+days); return _localISO(d); }
     function normDateStr(s){ if(!s) return ''; if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10); const m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/); if(m) return m[3]+'-'+m[2]+'-'+m[1]; return ''; }
-    function startOfWeekISO(){ const d=new Date(); d.setHours(0,0,0,0); const day=d.getDay(); const diff=day===0?-6:1-day; d.setDate(d.getDate()+diff); return d.toISOString().slice(0,10); }
-    function endOfWeekISO(){ const s=new Date(startOfWeekISO()); s.setDate(s.getDate()+6); return s.toISOString().slice(0,10); }
+    function startOfWeekISO(){ const d=new Date(); const day=d.getDay(); const diff=day===0?-6:1-day; d.setDate(d.getDate()+diff); return _localISO(d); }
+    function endOfWeekISO(){ const d=new Date(); const day=d.getDay(); const diff=day===0?0:7-day; d.setDate(d.getDate()+diff); return _localISO(d); }
     function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
     function fmtDateShort(iso){ try{ return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }catch(e){ return iso; } }
     function formatDateISOtoUK(iso){ if(!iso) return ''; const m=iso.match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return iso; return `${m[3]}/${m[2]}/${m[1]}`; }
