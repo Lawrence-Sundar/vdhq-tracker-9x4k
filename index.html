@@ -2285,12 +2285,37 @@
         const fus=[{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd=normDateStr(fu.date); if(nd&&nd<=td&&(fuFilter.fuType==='All'||fuFilter.fuType===fu.label+' Due')) items.push({lead:l,fuKey:fu.key,fuLabel:fu.label,fuDate:nd,overdue:nd<td}); break; }
       });
-      const totalBadge=items.length;
+      // Unsent initial emails (qualifier leads with no dateSent)
+      const unsent=leads.filter(l=>{
+        if(l.doNotContact) return false;
+        if(l.dateSent) return false;
+        if(!l.draftSubject||!l.draftBody) return false;
+        if(fuFilter.city!=='All'&&l.city!==fuFilter.city) return false;
+        const st=computeStatus(l); if(st==='Not Interested'||st==='Disqualified') return false;
+        return true;
+      });
+      const totalBadge=items.length+unsent.length;
       const badge=document.getElementById('followUpsNavBadge');
       if(badge){ if(totalBadge>0){badge.textContent=totalBadge;badge.style.display='inline-flex';}else{badge.textContent='';badge.style.display='none';} }
       const _fuFilterActive=fuFilter.fuType!=='All'||fuFilter.city!=='All';
       const fuShowingEl=document.getElementById('fuShowingCount'); if(fuShowingEl) fuShowingEl.textContent=totalBadge>0?'Showing '+totalBadge+' lead'+(totalBadge===1?'':'s')+(_fuFilterActive?' (filter active)':''):(_fuFilterActive?'No results (filter active)':'');
-      if(items.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
+      if(items.length===0&&unsent.length===0){ container.innerHTML='<div class="fu-empty-state"><div class="fu-empty-icon">&#10003;</div><div>You\'re all caught up. No follow ups due.</div></div>'; return; }
+      // Render unsent section
+      if(unsent.length){
+        const labelEl=document.createElement('div'); labelEl.innerHTML='<span class="fu-section-label" style="color:var(--accent)">INITIAL NOT SENT ('+unsent.length+')</span>'; container.appendChild(labelEl);
+        const card=document.createElement('div'); card.className='card'; card.style.padding='0 12px';
+        const list=document.createElement('div'); list.className='leads-table';
+        unsent.forEach(l=>{
+          const row=document.createElement('div'); row.className='lead-row';
+          const main=document.createElement('div'); main.className='fu-row-main';
+          const _rowName=l.clinicName?escapeHtml(l.clinicName):l.contactName?escapeHtml(l.contactName):'<em style="color:var(--muted);font-weight:400">(no name)</em>';
+          const _rowSub=l.clinicName&&l.contactName?escapeHtml(l.contactName):(l.clinicName?'':escapeHtml(l.email||''));
+          main.innerHTML='<span class="sdot sdot-p-notsent"></span><div class="lead-row-info"><span class="lead-name">'+_rowName+'</span><span class="lead-sub">'+_rowSub+'</span></div><span class="fu-due-badge" style="background:var(--accent-dim);color:var(--accent)">Initial</span><div class="fu-row-actions"><button class="btn-fu-action btn-fu-email" data-id="'+l.id+'" data-futype="Initial">Compose</button></div>';
+          const compBtn=main.querySelector('.btn-fu-email'); if(compBtn) compBtn.addEventListener('click',()=>goToFUEmail(l.id,'Initial'));
+          row.appendChild(main); list.appendChild(row);
+        });
+        card.appendChild(list); container.appendChild(card);
+      }
       const overdue=items.filter(i=>i.overdue).sort((a,b)=>a.fuDate.localeCompare(b.fuDate));
       const dueToday=items.filter(i=>!i.overdue).sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||''));
       _lastFollowUpAllItems=items.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel}));
