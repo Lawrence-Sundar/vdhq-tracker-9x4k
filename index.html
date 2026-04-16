@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500;600;700&display=swap" rel="stylesheet">
   <script defer src="https://alcdn.msauth.net/browser/2.38.2/js/msal-browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg:#0f0a15; --surface:rgba(45,30,60,0.5); --elevated:rgba(75,50,95,0.4);
@@ -1185,6 +1186,50 @@
   <script>
     const STORAGE_KEY = 'vdhq_tracker_v1';
     const BACKUP_KEY  = 'vdhq_backup_v1';
+    const SB_URL = 'https://jqfhbjyneqttzwpiqkrh.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxZmhianluZXF0dHp3cGlxa3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzY5MTgsImV4cCI6MjA5MTkxMjkxOH0.RSwUvpeYPTNXGvFZSm0da0LoKEIkexxB7NqNSDo776w';
+    const SB_TABLE = 'versa_leads';
+    let _sb = null;
+    function getSB(){ if(!_sb && window.supabase) _sb = window.supabase.createClient(SB_URL, SB_KEY); return _sb; }
+
+    // snake_case ↔ camelCase field map for Supabase
+    const SB_FIELD_MAP = {
+      id:'id', clinicName:'clinic_name', contactName:'contact_name', email:'email',
+      website:'website', address:'address', city:'city', channel:'channel', angle:'angle',
+      reviewCount:'review_count', notes:'notes', source:'source',
+      principalName:'principal_name', practiceManagerName:'practice_manager_name',
+      dateSent:'date_sent', initialSentDate:'initial_sent_date',
+      fu1Date:'fu1_date', fu1Sent:'fu1_sent', fu1SentOn:'fu1_sent_on',
+      fu2Date:'fu2_date', fu2DateOriginal:'fu2_date_original', fu2Sent:'fu2_sent', fu2SentOn:'fu2_sent_on',
+      fu3Date:'fu3_date', fu3DateOriginal:'fu3_date_original', fu3Sent:'fu3_sent', fu3SentOn:'fu3_sent_on',
+      fuDatesLocked:'fu_dates_locked',
+      reply:'reply', replyType:'reply_type', replyText:'reply_text', replyAnalysis:'reply_analysis',
+      doNotContact:'do_not_contact',
+      draftSubject:'draft_subject', draftBody:'draft_body', subjectLine:'subject_line',
+      threadMessageId:'thread_message_id',
+      linkedinUrl:'linkedin_url', linkedinDMSent:'linkedin_dm_sent', linkedinDMDate:'linkedin_dm_date',
+      linkedinConnectionSent:'linkedin_connection_sent', linkedinConnectionDate:'linkedin_connection_date',
+      linkedinNotFound:'linkedin_not_found', linkedinNotFoundDate:'linkedin_not_found_date',
+      linkedinContact:'linkedin_contact', linkedinNotes:'linkedin_notes',
+      discoveryCallBooked:'discovery_call_booked', discoveryCallCompleted:'discovery_call_completed',
+      pilotAgreed:'pilot_agreed', pilotStarted:'pilot_started', pilotEndDate:'pilot_end_date',
+      dateAdded:'date_added'
+    };
+    const SB_REVERSE_MAP = Object.fromEntries(Object.entries(SB_FIELD_MAP).map(([k,v])=>[v,k]));
+    const SB_DATE_FIELDS = new Set(['date_sent','initial_sent_date','fu1_date','fu1_sent_on','fu2_date','fu2_date_original','fu2_sent_on','fu3_date','fu3_date_original','fu3_sent_on','linkedin_dm_date','linkedin_connection_date','linkedin_not_found_date','discovery_call_booked','discovery_call_completed','pilot_agreed','pilot_started','pilot_end_date']);
+
+    function leadToSnake(lead){
+      const row={};
+      for(const [k,v] of Object.entries(lead)){ const sk=SB_FIELD_MAP[k]; if(!sk) continue; let val=v;
+        if(SB_DATE_FIELDS.has(sk)){ if(!val||val===''||val==='null') val=null; else if(typeof val==='string'&&val.includes('T')) val=val.slice(0,10); else if(typeof val==='string'){ const m=val.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if(m) val=m[3]+'-'+m[2]+'-'+m[1]; } }
+        if(sk==='reply_analysis'&&typeof val==='string'){ try{val=JSON.parse(val);}catch(e){val=null;} }
+        if(val===undefined) continue; row[sk]=val; }
+      return row;
+    }
+    function rowToLead(row){
+      const lead={}; for(const [k,v] of Object.entries(row)){ const ck=SB_REVERSE_MAP[k]||k; lead[ck]=v; } return lead;
+    }
+
     let leads = [];
 
     // ── Reply Analyser constants ─────────────────────────────────────────────
@@ -1210,12 +1255,34 @@
 
     function saveBackup(){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); const backups=bRaw?JSON.parse(bRaw):[]; const snapshot=localStorage.getItem(STORAGE_KEY); backups.unshift({timestamp:new Date().toISOString(),data:JSON.parse(snapshot||'[]')}); if(backups.length>5) backups.length=5; localStorage.setItem(BACKUP_KEY,JSON.stringify(backups)); }catch(e){ console.warn('[saveBackup]',e.message); } }
 
-    function load(){
-      const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
+    async function load(){
+      // Primary: Supabase
+      const sb=getSB();
+      if(sb){
+        try{
+          const {data,error}=await sb.from(SB_TABLE).select('*').order('id',{ascending:false});
+          if(!error&&data){ leads=data.map(rowToLead); console.log('[load] Supabase: '+leads.length+' leads'); }
+          else throw new Error(error?.message||'No data');
+        }catch(e){
+          console.warn('[load] Supabase failed, falling back to localStorage:',e.message);
+          const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
+        }
+      } else {
+        const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
+      }
       if(!leads.length){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); if(bRaw){ const backups=JSON.parse(bRaw); if(backups.length&&(backups[0].data||[]).length){ const b=backups[0]; const ts=formatBackupTimestamp(b.timestamp); if(confirm('No leads found but a backup exists from '+ts+' with '+b.data.length+' leads. Restore it?')){ leads=b.data; localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); } } } }catch(e){} }
       leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(l.replyAnalysis===undefined) l.replyAnalysis=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; }); renderAll();
     }
-    function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); saveBackup(); renderAll(); }
+    function save(){
+      // Dual-write: Supabase + localStorage
+      const sb=getSB();
+      if(sb){
+        const batch=leads.map(l=>leadToSnake(l));
+        const BSIZE=50;
+        for(let i=0;i<batch.length;i+=BSIZE){ sb.from(SB_TABLE).upsert(batch.slice(i,i+BSIZE),{onConflict:'id'}).then(({error})=>{ if(error) console.warn('[save] Supabase batch '+i+':',error.message); }); }
+      }
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); saveBackup(); renderAll();
+    }
 
     function openBackupModal(){ renderBackupList(); const bd=document.getElementById('backupBackdrop'); const md=document.getElementById('backupModal'); bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
     function closeBackupModal(){ const bd=document.getElementById('backupBackdrop'); const md=document.getElementById('backupModal'); md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
@@ -1252,7 +1319,7 @@
 
     function toggleDNC(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(lead.doNotContact){ if(!confirm('Remove the Do Not Contact flag from this clinic?')) return; lead.doNotContact=false; } else { if(!confirm('Mark this clinic as Do Not Contact? This cannot be easily undone.')) return; lead.doNotContact=true; } save(); }
 
-    function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; if(expandedFollowUpId==id) expandedFollowUpId=null; selectedFollowUpItems.forEach((_,k)=>{ if(k.startsWith(id+'-')) selectedFollowUpItems.delete(k); }); if(emailState.leadId==id){ emailState.leadId=null; emailState.type=null; } save(); }
+    function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; if(expandedFollowUpId==id) expandedFollowUpId=null; selectedFollowUpItems.forEach((_,k)=>{ if(k.startsWith(id+'-')) selectedFollowUpItems.delete(k); }); if(emailState.leadId==id){ emailState.leadId=null; emailState.type=null; } const sb=getSB(); if(sb) sb.from(SB_TABLE).delete().eq('id',id).then(({error})=>{ if(error) console.warn('[deleteLead] Supabase:',error.message); }); save(); }
 
     function statusDotClass(l){ if((l.replyType||'').toLowerCase()==='disqualified') return 'sdot-disq'; if(l.reply==='Y') return 'sdot-replied'; const td=todayISO(); if((l.fu1Date===td&&!l.fu1Sent)||(l.fu2Date===td&&!l.fu2Sent)||(l.fu3Date===td&&!l.fu3Sent)) return 'sdot-due'; return 'sdot-pending'; }
 
@@ -3256,8 +3323,8 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
     }
 
     // Init
-    bindUI(); bindEmailTab(); bindPipeline(); bindFollowUps(); bindLinkedIn(); bindBulkSend(); load();
-    setTimeout(()=>showTab('dashboard'),80);
+    bindUI(); bindEmailTab(); bindPipeline(); bindFollowUps(); bindLinkedIn(); bindBulkSend();
+    load().then(()=>setTimeout(()=>showTab('dashboard'),80));
     // MSAL loads async via defer — init after all resources ready
     function copyForGemini(id){
       const lead = leads.find(l => l.id == id);
@@ -3275,7 +3342,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       window._toastTimer = setTimeout(() => t.classList.remove('visible'), 2000);
     }
 
-    window.addEventListener('storage', e=>{ if(e.key===STORAGE_KEY) load(); });
+    window.addEventListener('storage', e=>{ if(e.key===STORAGE_KEY) load().catch(console.warn); });
     window.addEventListener('load', msalInit);
   </script>
   <div id="liCopyToast"></div>
