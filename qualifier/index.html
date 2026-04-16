@@ -162,12 +162,33 @@
 
     <!-- URL Input -->
     <div class="card">
-      <label>Clinic Website URL</label>
-      <div style="display:flex;gap:8px">
-        <input type="url" id="clinicUrl" placeholder="https://exampledentalclinic.co.uk" style="flex:1">
-        <button class="primary" id="btnAnalyse" onclick="runAnalysis()">Analyse</button>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <label style="margin-bottom:0">Clinic Website URL</label>
+        <button id="btnToggleBatch" onclick="toggleBatchMode()" style="background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:inherit">Switch to Batch Mode</button>
       </div>
-      <div class="muted small" style="margin-top:6px">Page is fetched via a CORS proxy, stripped to plain text, then analysed by Claude Haiku.</div>
+      <div id="singleUrlMode">
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input type="url" id="clinicUrl" placeholder="https://exampledentalclinic.co.uk" style="flex:1">
+          <button class="primary" id="btnAnalyse" onclick="runAnalysis()">Analyse</button>
+        </div>
+        <div class="muted small" style="margin-top:6px">Page is fetched via a CORS proxy, stripped to plain text, then analysed by Claude Haiku.</div>
+      </div>
+      <div id="batchUrlMode" style="display:none">
+        <textarea id="batchUrls" rows="6" placeholder="Paste one URL per line&#10;https://clinic1.co.uk&#10;https://clinic2.co.uk&#10;https://clinic3.co.uk" style="width:100%;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <button class="primary" id="btnBatchAnalyse" onclick="runBatchAnalysis()">Qualify All</button>
+          <span id="batchProgress" class="muted small"></span>
+        </div>
+        <div class="muted small" style="margin-top:6px">Each URL is qualified sequentially. ~5 seconds per clinic.</div>
+      </div>
+    </div>
+
+    <!-- Batch Results -->
+    <div id="batchResults" style="display:none">
+      <div class="card" style="padding:0">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px">Batch Results</div>
+        <div id="batchResultsList"></div>
+      </div>
     </div>
 
     <!-- Loading -->
@@ -737,6 +758,120 @@ ${pageText}`;
       }
       document.getElementById('pasteState').style.display = 'none';
       await runClaudeAnalysis(pastedText, url, apiKey);
+    }
+
+    // ── Batch Mode ──
+    let _batchMode = false;
+    function toggleBatchMode(){
+      _batchMode = !_batchMode;
+      document.getElementById('singleUrlMode').style.display = _batchMode ? 'none' : 'block';
+      document.getElementById('batchUrlMode').style.display = _batchMode ? 'block' : 'none';
+      document.getElementById('btnToggleBatch').textContent = _batchMode ? 'Switch to Single Mode' : 'Switch to Batch Mode';
+      if(!_batchMode){ document.getElementById('batchResults').style.display='none'; document.getElementById('batchProgress').textContent=''; }
+    }
+
+    async function runBatchAnalysis(){
+      const apiKey = (document.getElementById('apiKey').value || window._apiKey || '').trim();
+      if(!apiKey){ showError('Please enter your Anthropic API key.'); return; }
+      const _gKey = (document.getElementById('googlePlacesKey') || {}).value || '';
+      if(_gKey) sessionStorage.setItem('google_places_key', _gKey);
+      const raw = (document.getElementById('batchUrls').value || '').trim();
+      if(!raw){ showError('Paste at least one URL.'); return; }
+      const urls = raw.split('\n').map(u=>u.trim()).filter(u=>u&&(u.startsWith('http')||u.startsWith('www')));
+      if(!urls.length){ showError('No valid URLs found. One per line, starting with http.'); return; }
+
+      window._apiKey = apiKey;
+      const btn = document.getElementById('btnBatchAnalyse'); btn.disabled=true; btn.textContent='Running...';
+      const prog = document.getElementById('batchProgress');
+      const listEl = document.getElementById('batchResultsList'); listEl.innerHTML='';
+      document.getElementById('batchResults').style.display='block';
+      let completed=0, added=0;
+
+      for(const url of urls){
+        completed++;
+        prog.textContent = completed + '/' + urls.length + ' — ' + url.replace(/^https?:\/\//, '').slice(0,30) + '...';
+
+        // Duplicate check
+        const dup = checkDuplicate(url, '');
+        if(dup){ appendBatchRow(listEl, url, null, 'Duplicate — ' + (dup.clinicName||'already in tracker')); continue; }
+
+        try{
+          // Fetch page
+          let pageText = null;
+          try{
+            const p1=await fetch('https://corsproxy.io/?'+encodeURIComponent(url),{signal:AbortSignal.timeout(10000)});
+            if(p1.ok) pageText=await p1.text();
+          }catch(e){}
+          if(!pageText){
+            try{
+              const p2=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url),{signal:AbortSignal.timeout(8000)});
+              if(p2.ok){ const d=await p2.json(); pageText=d.contents; }
+            }catch(e){}
+          }
+          if(!pageText){ appendBatchRow(listEl, url, null, 'Page fetch failed'); continue; }
+
+          pageText = htmlToText(pageText);
+
+          // OOH check
+          const OOH_SIGNALS=['24/7','24 hour','out of hours','after hours cover','answering service','emergency cover','always available','round the clock'];
+          const _ptLower=pageText.toLowerCase();
+          const _isOOH=OOH_SIGNALS.some(s=>_ptLower.includes(s));
+
+          // Claude analysis
+          const systemPrompt = document.querySelector('script').textContent.match(/const systemPrompt = `([\s\S]*?)`;/);
+          const resp = await fetch('https://api.anthropic.com/v1/messages',{
+            method:'POST',
+            headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+            body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1200,system:document.querySelector('#batchSystemPrompt')?.textContent||'You are a sales qualifier for a UK dental clinic intake automation company. Analyse dental clinic websites and return structured JSON.',messages:[{role:'user',content:pageText.slice(0,12000)+'\n\nReturn a JSON object with: score, score_confidence, score_reason, clinic_name, review_count, city, booking_channel, has_live_booking_portal, nhs_status, principal_name, practice_manager_name, contact_name, emails, primary_email, address'}]})
+          });
+          const data = await resp.json();
+          let txt = (data.content && data.content[0] && data.content[0].text) || '';
+          txt = txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+          const result = JSON.parse(txt);
+
+          if(_isOOH) result.score = 'Cold';
+
+          // Places enrichment
+          try{
+            const gk=sessionStorage.getItem('google_places_key')||'';
+            if(gk&&result.clinic_name){
+              const sq=encodeURIComponent(result.clinic_name+' dentist '+(result.city||''));
+              const pr=await fetch('https://corsproxy.io/?'+encodeURIComponent('https://maps.googleapis.com/maps/api/place/textsearch/json?query='+sq+'&key='+gk),{signal:AbortSignal.timeout(6000)});
+              if(pr.ok){const pd=await pr.json();if(pd.results&&pd.results[0]){const pl=pd.results[0];if(pl.user_ratings_total)result.review_count=pl.user_ratings_total;if(pl.rating)result.google_rating=pl.rating;}}
+            }
+          }catch(e){}
+
+          appendBatchRow(listEl, url, result, null);
+          if(result.score!=='Cold') added++;
+        }catch(e){
+          appendBatchRow(listEl, url, null, 'Error: '+e.message);
+        }
+      }
+
+      prog.textContent = 'Done — ' + completed + ' processed, ' + added + ' qualifiable';
+      btn.disabled=false; btn.textContent='Qualify All';
+    }
+
+    function appendBatchRow(container, url, result, error){
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px';
+      if(error){
+        row.innerHTML='<span style="color:var(--muted);flex:1">'+escapeHtml(url.replace(/^https?:\/\//,'').slice(0,40))+'</span><span style="color:var(--danger);font-size:12px">'+escapeHtml(error)+'</span>';
+      } else {
+        const score=result.score||'?';
+        const conf=result.score_confidence||'';
+        const cls=score==='Hot'?'color:var(--success)':score==='Warm'?'color:var(--warn)':'color:var(--danger)';
+        const reviews=result.review_count!=null?result.review_count+(result.google_rating?' ('+result.google_rating+'★)':''):'—';
+        const nhs=result.nhs_status||'—';
+        row.innerHTML='<span style="font-weight:600;flex:1">'+escapeHtml(result.clinic_name||'(unknown)')+'</span><span style="'+cls+';font-weight:600;min-width:60px">'+score+(conf&&conf!=='high'?' <span style="font-weight:400;font-size:11px">'+conf+'</span>':'')+'</span><span style="min-width:70px;color:var(--muted)">'+reviews+'</span><span style="min-width:50px;color:var(--muted);font-size:12px">'+nhs+'</span><button style="font-size:12px;padding:3px 8px;background:var(--accent);color:#fff;border:none;border-radius:4px;cursor:pointer" onclick="openSingleFromBatch(\''+escapeHtml(url.replace(/'/g,"\\'"))+'\')">Open</button>';
+      }
+      container.appendChild(row);
+    }
+
+    function openSingleFromBatch(url){
+      toggleBatchMode();
+      document.getElementById('clinicUrl').value=url;
+      runAnalysis();
     }
 
     // ── Helpers ──
