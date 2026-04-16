@@ -1234,6 +1234,7 @@
     function addLead(data){ const lead=Object.assign({id:Date.now(),dateAdded:new Date().toISOString()},data); if(!lead.source) lead.source='manual'; ensureFUDates(lead); leads.unshift(lead); save(); }
 
     function markFUSent(id,fu){ const lead=leads.find(l=>l.id==id); if(!lead) return;
+      if(lead.doNotContact) return; const _ms=computeStatus(lead); if(_ms==='Replied'||_ms==='Converted'||_ms==='Not Interested'||_ms==='Disqualified') return;
       if(fu==='fu1'){
         if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; if(lead.fu2DateOriginal){ lead.fu2Date=lead.fu2DateOriginal; delete lead.fu2DateOriginal; } }
         else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); if(lead.fu2Date && !lead.fu2DateOriginal) lead.fu2DateOriginal=lead.fu2Date; lead.fu2Date=addDays(todayISO(),5); }
@@ -2167,7 +2168,7 @@
 
     function renderInbox(){
       const container=document.getElementById('inboxList'); if(!container) return; container.innerHTML='';
-      const inboxLeads=leads.filter(l=>l.source==='qualifier'&&!l.dateSent&&!l.doNotContact&&computeStatus(l)!=='Not Interested').sort((a,b)=>b.id-a.id);
+      const inboxLeads=leads.filter(l=>{const _s=computeStatus(l);return l.source==='qualifier'&&!l.dateSent&&!l.doNotContact&&_s!=='Not Interested'&&_s!=='Disqualified';}).sort((a,b)=>b.id-a.id);
       const badge=document.getElementById('inboxNavBadge');
       if(badge){ if(inboxLeads.length>0){ badge.textContent=inboxLeads.length; badge.style.display='inline-flex'; } else { badge.textContent=''; badge.style.display='none'; } }
       if(inboxLeads.length===0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#9993;</div><div>No unsent qualifier leads. Add clinics via the Qualifier tool.</div></div>'; return; }
@@ -2730,6 +2731,9 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       if(!outlookAccount){ alert('Connect Outlook first.'); return; }
       const lead = emailState.leadId ? leads.find(l => l.id == emailState.leadId) : null;
       if(!lead){ alert('No lead selected.'); return; }
+      if(lead.doNotContact){ alert('This lead is marked Do Not Contact. Cannot send.'); return; }
+      const _sendStatus = computeStatus(lead);
+      if(_sendStatus==='Replied'||_sendStatus==='Converted'||_sendStatus==='Not Interested'||_sendStatus==='Disqualified'){ alert('This lead is '+_sendStatus+'. Cannot send.'); return; }
       if(!lead.email){ alert('This lead has no email address. Add one via Edit before sending.'); return; }
       const selectedType = emailState.type;
       const isFU = ["FU1","FU2","FU3"].includes(selectedType);
@@ -2787,7 +2791,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       leads.forEach(l=>{
         if(l.doNotContact) return;
         const status = computeStatus(l);
-        if(status === 'Replied' || status === 'Converted' || status === 'Not Interested') return;
+        if(status === 'Replied' || status === 'Converted' || status === 'Not Interested' || status === 'Disqualified') return;
         const fus = [{key:'fu1',date:l.fu1Date,sent:l.fu1Sent,label:'FU1'},{key:'fu2',date:l.fu2Date,sent:l.fu2Sent,label:'FU2'},{key:'fu3',date:l.fu3Date,sent:l.fu3Sent,label:'FU3'}];
         for(const fu of fus){ if(!fu.date||fu.sent) continue; const nd = normDateStr(fu.date); if(nd && nd <= td){ items.push({lead:l,fuKey:fu.key,fuLabel:fu.label}); break; } }
       });
