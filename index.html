@@ -1220,7 +1220,14 @@
     function renderBackupList(){ const container=document.getElementById('backupList'); const bRaw=localStorage.getItem(BACKUP_KEY); const backups=bRaw?JSON.parse(bRaw):[]; if(!backups.length){ container.innerHTML='<div style="color:var(--muted);font-size:13px;padding:12px 0">No backups found.</div>'; return; } container.innerHTML=''; backups.forEach((b,i)=>{ const ts=formatBackupTimestamp(b.timestamp); const count=(b.data||[]).length; const row=document.createElement('div'); row.className='backup-row'; row.innerHTML=`<div><div class="backup-ts">${escapeHtml(ts)}</div><div class="backup-count">${count} lead${count===1?'':'s'}</div></div><button class="btn btn-ghost" style="flex-shrink:0" data-idx="${i}">Restore</button>`; row.querySelector('button').addEventListener('click',()=>restoreFromBackup(i)); container.appendChild(row); }); }
     function restoreFromBackup(idx){ const bRaw=localStorage.getItem(BACKUP_KEY); if(!bRaw) return; const backups=JSON.parse(bRaw); const b=backups[idx]; if(!b) return; const ts=formatBackupTimestamp(b.timestamp); const count=(b.data||[]).length; if(!confirm('Restore '+count+' lead'+(count===1?'':'s')+' from '+ts+'? This will overwrite your current data.')) return; localStorage.setItem(STORAGE_KEY,JSON.stringify(b.data||[])); closeBackupModal(); location.reload(); }
 
-    function ensureFUDates(lead){ try{ if(!lead.dateSent) return; if(!isValidDateStr(lead.dateSent)) return; lead.fu1Date=addDays(lead.dateSent,2); lead.fu2Date=addDays(lead.dateSent,7); lead.fu3Date=addDays(lead.dateSent,14); if(lead.fu1Sent===undefined) lead.fu1Sent=false; if(lead.fu2Sent===undefined) lead.fu2Sent=false; if(lead.fu3Sent===undefined) lead.fu3Sent=false; }catch(e){ console.warn('[ensureFUDates] skipped lead id='+lead.id+':',e.message); } }
+    function ensureFUDates(lead){ try{ if(!lead.dateSent) return; if(!isValidDateStr(lead.dateSent)) return;
+      if(!lead.fu1Date) lead.fu1Date=addDays(lead.dateSent,2);
+      if(lead.fu1SentOn&&isValidDateStr(lead.fu1SentOn)) lead.fu2Date=addDays(lead.fu1SentOn,5);
+      else if(!lead.fu2Date) lead.fu2Date=addDays(lead.dateSent,7);
+      if(lead.fu2SentOn&&isValidDateStr(lead.fu2SentOn)) lead.fu3Date=addDays(lead.fu2SentOn,7);
+      else if(!lead.fu3Date) lead.fu3Date=addDays(lead.dateSent,14);
+      if(lead.fu1Sent===undefined) lead.fu1Sent=false; if(lead.fu2Sent===undefined) lead.fu2Sent=false; if(lead.fu3Sent===undefined) lead.fu3Sent=false;
+    }catch(e){ console.warn('[ensureFUDates] skipped lead id='+lead.id+':',e.message); } }
 
     function addLead(data){ const lead=Object.assign({id:Date.now(),dateAdded:new Date().toISOString()},data); if(!lead.source) lead.source='manual'; ensureFUDates(lead); leads.unshift(lead); save(); }
 
