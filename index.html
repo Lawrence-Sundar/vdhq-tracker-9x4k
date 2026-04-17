@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260416sb';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260417initsel';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1148,7 +1148,16 @@
         <h3 style="margin-bottom:0">Send Initial Emails</h3>
         <button id="sendInitialClose" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px">&times;</button>
       </div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Review below then confirm. Emails send sequentially via your connected Outlook account.</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Review below, pick which to send, then confirm. Emails send sequentially via your connected Outlook account.</p>
+      <div id="sendInitialBulkBar" style="display:none;align-items:center;gap:8px;padding:8px 12px;margin-bottom:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+        <span id="sendInitialSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap;font-weight:500">0 selected</span>
+        <span style="color:var(--border);font-size:12px">|</span>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnInitSel10">Select 10</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnInitSel25">Select 25</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnInitSel50">Select 50</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnInitSelAll">Select All</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnInitSelClear">Clear</button>
+      </div>
       <div id="sendInitialList" style="margin-bottom:16px"></div>
       <div id="sendInitialProgress" style="display:none;font-size:12px;color:var(--muted);margin-bottom:12px;padding:8px 10px;background:var(--elevated);border-radius:6px;text-align:center"></div>
       <button class="btn btn-primary" id="btnConfirmSendInitial" style="width:100%">Send</button>
@@ -2467,6 +2476,11 @@
       document.getElementById('btnSendInitial').addEventListener('click', openSendInitialModal);
       document.getElementById('sendInitialClose').addEventListener('click', closeSendInitialModal);
       document.getElementById('sendInitialBackdrop').addEventListener('click', e=>{ if(e.target===document.getElementById('sendInitialBackdrop')) closeSendInitialModal(); });
+      document.getElementById('btnInitSel10').addEventListener('click', () => _setInitCheckboxes(10));
+      document.getElementById('btnInitSel25').addEventListener('click', () => _setInitCheckboxes(25));
+      document.getElementById('btnInitSel50').addEventListener('click', () => _setInitCheckboxes(50));
+      document.getElementById('btnInitSelAll').addEventListener('click', () => _setInitCheckboxes(Infinity));
+      document.getElementById('btnInitSelClear').addEventListener('click', () => _setInitCheckboxes(0));
       document.getElementById('btnSendAllDue').addEventListener('click', openSendAllModal);
       document.getElementById('sendAllClose').addEventListener('click', closeSendAllModal);
       document.getElementById('sendAllBackdrop').addEventListener('click', e=>{ if(e.target===document.getElementById('sendAllBackdrop')) closeSendAllModal(); });
@@ -2966,9 +2980,12 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       listEl.innerHTML = '';
       withDraftAndEmail.forEach(l => {
         const row = document.createElement('div'); row.className = 'send-all-row'; row.dataset.id = l.id;
-        row.innerHTML = `<div class="send-all-status" id="sis-${l.id}"></div><div class="send-all-info"><div class="send-all-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</div><div class="send-all-email-addr">${escapeHtml(l.email)}</div><div class="send-all-subject">${escapeHtml(l.draftSubject)}</div></div>`;
+        row.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:10px;border-bottom:1px solid var(--border)';
+        row.innerHTML = `<input type="checkbox" class="sel-check init-row-cb" id="initcb-${l.id}" checked style="margin-top:3px;flex-shrink:0"><div class="send-all-status" id="sis-${l.id}"></div><div class="send-all-info" style="flex:1;min-width:0"><div class="send-all-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</div><div class="send-all-email-addr">${escapeHtml(l.email)}</div><div class="send-all-subject">${escapeHtml(l.draftSubject)}</div></div>`;
         listEl.appendChild(row);
       });
+      // Wire row checkbox change to update bulk bar
+      listEl.querySelectorAll('.init-row-cb').forEach(cb => cb.addEventListener('change', updateSendInitialBulkBar));
       if(withDraftNoEmail.length || noDraft.length){
         const note = document.createElement('div');
         note.style.cssText = 'margin-top:10px;font-size:12px;color:#888;padding:8px 10px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)';
@@ -2978,17 +2995,43 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         note.innerHTML = parts.join('<br>');
         listEl.appendChild(note);
       }
-      const confirmBtn = document.getElementById('btnConfirmSendInitial');
+      // Show bulk bar (with all rows pre-selected) and update counter / Send button
+      const bar = document.getElementById('sendInitialBulkBar');
+      if(bar) bar.style.display = 'flex';
       const progressEl = document.getElementById('sendInitialProgress');
-      if(confirmBtn){ confirmBtn.disabled = false; confirmBtn.textContent = 'Send ' + withDraftAndEmail.length + ' Email' + (withDraftAndEmail.length===1?'':'s'); confirmBtn.onclick = runSendInitial; }
       if(progressEl) progressEl.style.display = 'none';
+      updateSendInitialBulkBar();
       const bd = document.getElementById('sendInitialBackdrop'); const md = document.getElementById('sendInitialModal');
       bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false');
     }
 
+    function updateSendInitialBulkBar(){
+      const checked = document.querySelectorAll('#sendInitialList .init-row-cb:checked').length;
+      const total = document.querySelectorAll('#sendInitialList .init-row-cb').length;
+      const cntEl = document.getElementById('sendInitialSelCount');
+      if(cntEl) cntEl.textContent = checked + ' selected (of ' + total + ')';
+      const confirmBtn = document.getElementById('btnConfirmSendInitial');
+      if(confirmBtn){
+        confirmBtn.disabled = checked === 0;
+        confirmBtn.textContent = checked === 0 ? 'Select at least one' : 'Send ' + checked + ' Email' + (checked === 1 ? '' : 's');
+        confirmBtn.onclick = runSendInitial;
+      }
+    }
+
+    function _setInitCheckboxes(n){
+      const cbs = document.querySelectorAll('#sendInitialList .init-row-cb');
+      // n === Infinity => all, n === 0 => clear, otherwise check first n
+      cbs.forEach((cb, i) => { cb.checked = i < n; });
+      updateSendInitialBulkBar();
+    }
+
     async function runSendInitial(){
       const listEl = document.getElementById('sendInitialList');
-      const rows = listEl.querySelectorAll('.send-all-row');
+      // Only process rows whose checkbox is ticked
+      const rows = Array.from(listEl.querySelectorAll('.send-all-row')).filter(r => {
+        const cb = r.querySelector('.init-row-cb');
+        return cb && cb.checked;
+      });
       const confirmBtn = document.getElementById('btnConfirmSendInitial');
       const progressEl = document.getElementById('sendInitialProgress');
       if(!rows.length) return;
