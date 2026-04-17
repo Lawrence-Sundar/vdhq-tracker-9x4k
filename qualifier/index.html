@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clinic Qualifier - Versa Digital HQ</title>
+  <script>var _V='20260417batch';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -761,6 +762,113 @@ ${pageText}`;
       await runClaudeAnalysis(pastedText, url, apiKey);
     }
 
+    // ── Shared helpers (used by both single and batch mode) ──
+
+    // Fetches page HTML via 3 CORS proxies, returns plain text. Throws on total failure.
+    async function _fetchPageMulti(url, onStage){
+      let html = null;
+      try {
+        if(onStage) onStage('proxy 1');
+        const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), { signal: AbortSignal.timeout(10000) });
+        if(r.ok){ const t = await r.text(); if(t && t.length > 50) html = t; }
+      } catch {}
+      if(!html){
+        try {
+          if(onStage) onStage('proxy 2');
+          const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), { signal: AbortSignal.timeout(8000) });
+          if(r.ok){ const d = await r.json(); if(d.contents && d.contents.length > 50) html = d.contents; }
+        } catch {}
+      }
+      if(!html){
+        try {
+          if(onStage) onStage('proxy 3');
+          const r = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url), { signal: AbortSignal.timeout(10000) });
+          if(r.ok){ const t = await r.text(); if(t && t.length > 50) html = t; }
+        } catch {}
+      }
+      if(!html) throw new Error('All proxies failed');
+      const pageText = htmlToText(html);
+      if(pageText.length < 80) throw new Error('Very little text extracted');
+      return pageText;
+    }
+
+    // Calls Claude to qualify a clinic + enriches with Google Places. Returns result object.
+    async function _qualifyClinicData(pageText, url, apiKey){
+      const OOH_SIGNALS = ['24/7','24 hour','out of hours','after hours cover','answering service','emergency cover','always available','round the clock'];
+      const _isOOH = OOH_SIGNALS.some(sig => pageText.toLowerCase().includes(sig));
+
+      const systemPrompt = `You are a sales qualifier for a UK dental clinic intake automation company called Versa Digital HQ. You analyse dental clinic websites and extract structured data to qualify them as outreach targets. When detecting the booking channel, look carefully for any of the following portal indicators in the page text: "Book Online", "Book Now", "Book Appointment", "Doctify", "Treatwell", "Dental Cloud", "Jane App", "dental portal", "online booking", "book with us". If any of these are present, set booking_channel to "online_portal" and has_live_booking_portal to true, even if the full portal URL is not visible. Set booking_channel_confidence to "inferred" in this case. Do not default to phone if portal indicators are present.`;
+
+      const userPrompt = `Analyse the following webpage text from a dental clinic website and return a JSON object with EXACTLY these fields:
+
+- score: "Hot", "Warm", or "Cold"
+- score_confidence: "high" | "medium" | "low"
+- score_reason: one sentence explaining the score
+- clinic_name: detected clinic name as a string, or null
+- principal_name: principal dentist / owner / clinical director, or null. Do NOT put a practice manager here.
+- practice_manager_name: practice manager / coordinator, or null. Do NOT put a dentist here.
+- contact_name: practice_manager_name if found, otherwise principal_name, otherwise null
+- contact_name_confidence: "found" | "inferred" | "not_found"
+- emails: array of all email addresses detected (empty array if none)
+- primary_email: the single best email, or null
+- booking_channel: "phone" | "whatsapp" | "contact_form" | "google_form" | "online_portal" | "unknown"
+- booking_channel_confidence: "confirmed" | "inferred" | "unknown"
+- review_count: number of Google reviews if mentioned, or null
+- address: full street address if detected, or null
+- city: "London" | "Manchester" | "Birmingham" | "Leeds" | "Bristol" | "Edinburgh" | "Glasgow" | "Other" | "unknown"
+- city_name: actual city/area name detected, or null
+- has_live_booking_portal: true if a live online booking widget or portal is detected, false otherwise
+- nhs_status: "private" | "nhs_heavy" | "mixed" | "unknown"
+- disqualifiers: array of strings (empty if Hot or Warm)
+- detected_signals: array of strings
+- hook_eligibility: object with two fields: observation_compliment (true ONLY if review_count not null), trigger_event (always false)
+
+Scoring: Hot = manual intake only, independent, 1-2 locations. Warm = mixed signals. Cold = live booking portal, NHS-heavy, or chain.
+
+Return ONLY a raw JSON object. No markdown, no code fences, no explanation.
+
+Webpage text:
+${pageText}`;
+
+      const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        signal: AbortSignal.timeout(45000),
+        headers: { 'Content-Type':'application/json', 'x-api-key': apiKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+        body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens: 1000, system: systemPrompt, messages:[{role:'user', content: userPrompt}] })
+      });
+      if(!apiRes.ok){
+        const errBody = await apiRes.json().catch(()=>({}));
+        throw new Error(errBody.error?.message || 'API HTTP ' + apiRes.status);
+      }
+      const apiData = await apiRes.json();
+      const rawText = (apiData.content?.[0]?.text || '').trim();
+      const clean = rawText.replace(/^```json?\s*/i,'').replace(/```\s*$/,'').trim();
+      const result = JSON.parse(clean);
+
+      if(_isOOH) result.score = 'Cold';
+
+      // Places enrichment (non-blocking)
+      try {
+        const gk = sessionStorage.getItem('google_places_key') || '';
+        if(gk && result.clinic_name){
+          const sq = encodeURIComponent(result.clinic_name + ' dentist ' + (result.city_name || result.city || ''));
+          const placesUrl = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=' + sq + '&key=' + gk;
+          const pr = await fetch('https://corsproxy.io/?' + encodeURIComponent(placesUrl), { signal: AbortSignal.timeout(8000) });
+          if(pr.ok){
+            const pd = await pr.json();
+            if(pd.results && pd.results[0]){
+              const pl = pd.results[0];
+              if(pl.rating) result.google_rating = pl.rating;
+              if(pl.user_ratings_total) result.review_count = pl.user_ratings_total;
+              if(pl.formatted_address && !result.address) result.address = pl.formatted_address;
+            }
+          }
+        }
+      } catch {}
+
+      return result;
+    }
+
     // ── Batch Mode ──
     let _batchMode = false;
     let _batchCancelled = false;
@@ -803,68 +911,36 @@ ${pageText}`;
       for(const url of urls){
         if(_batchCancelled){ console.log('[Batch] Cancelled by user at ' + completed + '/' + urls.length); break; }
         completed++;
-        prog.textContent = completed + '/' + urls.length + ' — ' + url.replace(/^https?:\/\//, '').slice(0,30) + '...';
+        const shortUrl = url.replace(/^https?:\/\//, '').slice(0,30);
+        prog.textContent = completed + '/' + urls.length + ' — ' + shortUrl + '...';
         console.log('[Batch] ' + completed + '/' + urls.length + ' starting: ' + url);
 
-        // Duplicate check
+        // Duplicate check (URL-only — same as single mode)
         const dup = checkDuplicate(url, '');
-        if(dup){ console.log('[Batch] ' + completed + ' duplicate'); appendBatchRow(listEl, url, null, 'Duplicate — ' + (dup.clinicName||'already in tracker')); continue; }
+        if(dup){
+          console.log('[Batch] ' + completed + ' duplicate');
+          appendBatchRow(listEl, url, null, 'Duplicate — ' + (dup.clinicName||'already in tracker'));
+          continue;
+        }
 
-        try{
-          // Fetch page
-          let pageText = null;
-          try{
-            console.log('[Batch] ' + completed + ' fetching via corsproxy.io');
-            const p1=await fetch('https://corsproxy.io/?'+encodeURIComponent(url),{signal:AbortSignal.timeout(10000)});
-            if(p1.ok) pageText=await p1.text();
-          }catch(e){ console.log('[Batch] ' + completed + ' corsproxy failed: ' + e.message); }
-          if(!pageText){
-            try{
-              console.log('[Batch] ' + completed + ' fetching via allorigins');
-              const p2=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url),{signal:AbortSignal.timeout(8000)});
-              if(p2.ok){ const d=await p2.json(); pageText=d.contents; }
-            }catch(e){ console.log('[Batch] ' + completed + ' allorigins failed: ' + e.message); }
-          }
-          if(!pageText){ console.log('[Batch] ' + completed + ' all proxies failed'); appendBatchRow(listEl, url, null, 'Page fetch failed'); continue; }
-
-          pageText = htmlToText(pageText);
-
-          // OOH check
-          const OOH_SIGNALS=['24/7','24 hour','out of hours','after hours cover','answering service','emergency cover','always available','round the clock'];
-          const _ptLower=pageText.toLowerCase();
-          const _isOOH=OOH_SIGNALS.some(s=>_ptLower.includes(s));
-
-          // Claude analysis (30s timeout)
-          console.log('[Batch] ' + completed + ' calling Claude API');
-          const resp = await fetch('https://api.anthropic.com/v1/messages',{
-            method:'POST',
-            signal:AbortSignal.timeout(30000),
-            headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-            body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1200,system:document.querySelector('#batchSystemPrompt')?.textContent||'You are a sales qualifier for a UK dental clinic intake automation company. Analyse dental clinic websites and return structured JSON.',messages:[{role:'user',content:pageText.slice(0,12000)+'\n\nReturn a JSON object with: score, score_confidence, score_reason, clinic_name, review_count, city, booking_channel, has_live_booking_portal, nhs_status, principal_name, practice_manager_name, contact_name, emails, primary_email, address'}]})
+        try {
+          // Same fetch logic as single mode (3-proxy chain)
+          const pageText = await _fetchPageMulti(url, (stage) => {
+            console.log('[Batch] ' + completed + ' ' + stage);
+            prog.textContent = completed + '/' + urls.length + ' — ' + shortUrl + ' (' + stage + ')';
           });
-          const data = await resp.json();
-          let txt = (data.content && data.content[0] && data.content[0].text) || '';
-          txt = txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
-          const result = JSON.parse(txt);
 
-          if(_isOOH) result.score = 'Cold';
-
-          // Places enrichment
-          try{
-            const gk=sessionStorage.getItem('google_places_key')||'';
-            if(gk&&result.clinic_name){
-              const sq=encodeURIComponent(result.clinic_name+' dentist '+(result.city||''));
-              const pr=await fetch('https://corsproxy.io/?'+encodeURIComponent('https://maps.googleapis.com/maps/api/place/textsearch/json?query='+sq+'&key='+gk),{signal:AbortSignal.timeout(6000)});
-              if(pr.ok){const pd=await pr.json();if(pd.results&&pd.results[0]){const pl=pd.results[0];if(pl.user_ratings_total)result.review_count=pl.user_ratings_total;if(pl.rating)result.google_rating=pl.rating;}}
-            }
-          }catch(e){}
+          // Same Claude + Places logic as single mode
+          console.log('[Batch] ' + completed + ' calling Claude API');
+          prog.textContent = completed + '/' + urls.length + ' — ' + shortUrl + ' (analysing)';
+          const result = await _qualifyClinicData(pageText, url, apiKey);
 
           console.log('[Batch] ' + completed + ' done: ' + (result.clinic_name||'(unknown)') + ' — ' + (result.score||'?'));
           appendBatchRow(listEl, url, result, null);
           if(result.score!=='Cold') added++;
-        }catch(e){
+        } catch(e) {
           console.log('[Batch] ' + completed + ' error: ' + e.message);
-          appendBatchRow(listEl, url, null, 'Error: '+e.message);
+          appendBatchRow(listEl, url, null, 'Error: ' + e.message);
         }
       }
 
