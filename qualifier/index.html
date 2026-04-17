@@ -177,6 +177,7 @@
         <textarea id="batchUrls" rows="6" placeholder="Paste one URL per line&#10;https://clinic1.co.uk&#10;https://clinic2.co.uk&#10;https://clinic3.co.uk" style="width:100%;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
           <button class="primary" id="btnBatchAnalyse" onclick="runBatchAnalysis()">Qualify All</button>
+          <button id="btnBatchCancel" onclick="cancelBatchAnalysis()" style="display:none;background:none;border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
           <span id="batchProgress" class="muted small"></span>
         </div>
         <div class="muted small" style="margin-top:6px">Each URL is qualified sequentially. ~5 seconds per clinic.</div>
@@ -762,6 +763,15 @@ ${pageText}`;
 
     // ── Batch Mode ──
     let _batchMode = false;
+    let _batchCancelled = false;
+    function _escapeHtml(s){
+      return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    function cancelBatchAnalysis(){
+      _batchCancelled = true;
+      const p = document.getElementById('batchProgress');
+      if(p) p.textContent = 'Cancelling after current URL...';
+    }
     function toggleBatchMode(){
       _batchMode = !_batchMode;
       document.getElementById('singleUrlMode').style.display = _batchMode ? 'none' : 'block';
@@ -781,34 +791,41 @@ ${pageText}`;
       if(!urls.length){ showError('No valid URLs found. One per line, starting with http.'); return; }
 
       window._apiKey = apiKey;
+      _batchCancelled = false;
       const btn = document.getElementById('btnBatchAnalyse'); btn.disabled=true; btn.textContent='Running...';
+      const cancelBtn = document.getElementById('btnBatchCancel'); if(cancelBtn) cancelBtn.style.display='inline-block';
       const prog = document.getElementById('batchProgress');
       const listEl = document.getElementById('batchResultsList'); listEl.innerHTML='';
       document.getElementById('batchResults').style.display='block';
       let completed=0, added=0;
+      console.log('[Batch] Starting batch of ' + urls.length + ' URLs');
 
       for(const url of urls){
+        if(_batchCancelled){ console.log('[Batch] Cancelled by user at ' + completed + '/' + urls.length); break; }
         completed++;
         prog.textContent = completed + '/' + urls.length + ' — ' + url.replace(/^https?:\/\//, '').slice(0,30) + '...';
+        console.log('[Batch] ' + completed + '/' + urls.length + ' starting: ' + url);
 
         // Duplicate check
         const dup = checkDuplicate(url, '');
-        if(dup){ appendBatchRow(listEl, url, null, 'Duplicate — ' + (dup.clinicName||'already in tracker')); continue; }
+        if(dup){ console.log('[Batch] ' + completed + ' duplicate'); appendBatchRow(listEl, url, null, 'Duplicate — ' + (dup.clinicName||'already in tracker')); continue; }
 
         try{
           // Fetch page
           let pageText = null;
           try{
+            console.log('[Batch] ' + completed + ' fetching via corsproxy.io');
             const p1=await fetch('https://corsproxy.io/?'+encodeURIComponent(url),{signal:AbortSignal.timeout(10000)});
             if(p1.ok) pageText=await p1.text();
-          }catch(e){}
+          }catch(e){ console.log('[Batch] ' + completed + ' corsproxy failed: ' + e.message); }
           if(!pageText){
             try{
+              console.log('[Batch] ' + completed + ' fetching via allorigins');
               const p2=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url),{signal:AbortSignal.timeout(8000)});
               if(p2.ok){ const d=await p2.json(); pageText=d.contents; }
-            }catch(e){}
+            }catch(e){ console.log('[Batch] ' + completed + ' allorigins failed: ' + e.message); }
           }
-          if(!pageText){ appendBatchRow(listEl, url, null, 'Page fetch failed'); continue; }
+          if(!pageText){ console.log('[Batch] ' + completed + ' all proxies failed'); appendBatchRow(listEl, url, null, 'Page fetch failed'); continue; }
 
           pageText = htmlToText(pageText);
 
@@ -817,10 +834,11 @@ ${pageText}`;
           const _ptLower=pageText.toLowerCase();
           const _isOOH=OOH_SIGNALS.some(s=>_ptLower.includes(s));
 
-          // Claude analysis
-          const systemPrompt = document.querySelector('script').textContent.match(/const systemPrompt = `([\s\S]*?)`;/);
+          // Claude analysis (30s timeout)
+          console.log('[Batch] ' + completed + ' calling Claude API');
           const resp = await fetch('https://api.anthropic.com/v1/messages',{
             method:'POST',
+            signal:AbortSignal.timeout(30000),
             headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
             body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1200,system:document.querySelector('#batchSystemPrompt')?.textContent||'You are a sales qualifier for a UK dental clinic intake automation company. Analyse dental clinic websites and return structured JSON.',messages:[{role:'user',content:pageText.slice(0,12000)+'\n\nReturn a JSON object with: score, score_confidence, score_reason, clinic_name, review_count, city, booking_channel, has_live_booking_portal, nhs_status, principal_name, practice_manager_name, contact_name, emails, primary_email, address'}]})
           });
@@ -841,29 +859,33 @@ ${pageText}`;
             }
           }catch(e){}
 
+          console.log('[Batch] ' + completed + ' done: ' + (result.clinic_name||'(unknown)') + ' — ' + (result.score||'?'));
           appendBatchRow(listEl, url, result, null);
           if(result.score!=='Cold') added++;
         }catch(e){
+          console.log('[Batch] ' + completed + ' error: ' + e.message);
           appendBatchRow(listEl, url, null, 'Error: '+e.message);
         }
       }
 
-      prog.textContent = 'Done — ' + completed + ' processed, ' + added + ' qualifiable';
+      prog.textContent = (_batchCancelled ? 'Cancelled — ' : 'Done — ') + completed + ' processed, ' + added + ' qualifiable';
       btn.disabled=false; btn.textContent='Qualify All';
+      if(cancelBtn) cancelBtn.style.display='none';
+      console.log('[Batch] Finished');
     }
 
     function appendBatchRow(container, url, result, error){
       const row=document.createElement('div');
       row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px';
       if(error){
-        row.innerHTML='<span style="color:var(--muted);flex:1">'+escapeHtml(url.replace(/^https?:\/\//,'').slice(0,40))+'</span><span style="color:var(--danger);font-size:12px">'+escapeHtml(error)+'</span>';
+        row.innerHTML='<span style="color:var(--muted);flex:1">'+_escapeHtml(url.replace(/^https?:\/\//,'').slice(0,40))+'</span><span style="color:var(--danger);font-size:12px">'+_escapeHtml(error)+'</span>';
       } else {
         const score=result.score||'?';
         const conf=result.score_confidence||'';
         const cls=score==='Hot'?'color:var(--success)':score==='Warm'?'color:var(--warn)':'color:var(--danger)';
         const reviews=result.review_count!=null?result.review_count+(result.google_rating?' ('+result.google_rating+'★)':''):'—';
         const nhs=result.nhs_status||'—';
-        row.innerHTML='<span style="font-weight:600;flex:1">'+escapeHtml(result.clinic_name||'(unknown)')+'</span><span style="'+cls+';font-weight:600;min-width:60px">'+score+(conf&&conf!=='high'?' <span style="font-weight:400;font-size:11px">'+conf+'</span>':'')+'</span><span style="min-width:70px;color:var(--muted)">'+reviews+'</span><span style="min-width:50px;color:var(--muted);font-size:12px">'+nhs+'</span><button style="font-size:12px;padding:3px 8px;background:var(--accent);color:#fff;border:none;border-radius:4px;cursor:pointer" onclick="openSingleFromBatch(\''+escapeHtml(url.replace(/'/g,"\\'"))+'\')">Open</button>';
+        row.innerHTML='<span style="font-weight:600;flex:1">'+_escapeHtml(result.clinic_name||'(unknown)')+'</span><span style="'+cls+';font-weight:600;min-width:60px">'+score+(conf&&conf!=='high'?' <span style="font-weight:400;font-size:11px">'+conf+'</span>':'')+'</span><span style="min-width:70px;color:var(--muted)">'+reviews+'</span><span style="min-width:50px;color:var(--muted);font-size:12px">'+nhs+'</span><button style="font-size:12px;padding:3px 8px;background:var(--accent);color:#fff;border:none;border-radius:4px;cursor:pointer" onclick="openSingleFromBatch(\''+_escapeHtml(url.replace(/'/g,"\\'"))+'\')">Open</button>';
       }
       container.appendChild(row);
     }
