@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260417batch';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260417batchopen';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -225,6 +225,11 @@
 
     <!-- Results -->
     <div id="results">
+
+      <!-- Back to batch list (shown only when opened from batch) -->
+      <div id="batchBackLink" style="display:none;margin-bottom:12px">
+        <button onclick="scrollToBatchList()" style="background:none;border:1px solid var(--border);color:var(--accent);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">← Back to batch list</button>
+      </div>
 
       <!-- Score — always visible when results shown -->
       <div class="card" id="scoreCard">
@@ -872,6 +877,7 @@ ${pageText}`;
     // ── Batch Mode ──
     let _batchMode = false;
     let _batchCancelled = false;
+    const _batchResultsCache = new Map(); // url -> result object
     function _escapeHtml(s){
       return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
@@ -900,6 +906,7 @@ ${pageText}`;
 
       window._apiKey = apiKey;
       _batchCancelled = false;
+      _batchResultsCache.clear();
       const btn = document.getElementById('btnBatchAnalyse'); btn.disabled=true; btn.textContent='Running...';
       const cancelBtn = document.getElementById('btnBatchCancel'); if(cancelBtn) cancelBtn.style.display='inline-block';
       const prog = document.getElementById('batchProgress');
@@ -956,6 +963,7 @@ ${pageText}`;
       if(error){
         row.innerHTML='<span style="color:var(--muted);flex:1">'+_escapeHtml(url.replace(/^https?:\/\//,'').slice(0,40))+'</span><span style="color:var(--danger);font-size:12px">'+_escapeHtml(error)+'</span>';
       } else {
+        _batchResultsCache.set(url, result);
         const score=result.score||'?';
         const conf=result.score_confidence||'';
         const cls=score==='Hot'?'color:var(--success)':score==='Warm'?'color:var(--warn)':'color:var(--danger)';
@@ -967,9 +975,39 @@ ${pageText}`;
     }
 
     function openSingleFromBatch(url){
-      toggleBatchMode();
-      document.getElementById('clinicUrl').value=url;
-      runAnalysis();
+      const cached = _batchResultsCache.get(url);
+      if(!cached){
+        // Fallback: no cached result (e.g. error row). Re-run from scratch.
+        if(_batchMode) toggleBatchMode();
+        document.getElementById('clinicUrl').value=url;
+        runAnalysis();
+        return;
+      }
+      // Reuse cached result — no API spend, batch list stays visible above.
+      document.getElementById('clinicUrl').value = url;
+      window._lastResult = cached;
+      window._lastUrl = url;
+      window._apiKey = (document.getElementById('apiKey').value || window._apiKey || '').trim();
+      // Reset any stale qualifier state from a previous Open
+      window._manuallyQualified = false;
+      window._oohDetected = false;
+      window._lastDraft = null;
+      window._lastHookVariant = null;
+      window._draftEdited = false;
+      window._editMode = false;
+      window._createdLeadId = null;
+      // Show the Back-to-batch link (only relevant when batch list is on screen)
+      const back = document.getElementById('batchBackLink');
+      if(back) back.style.display = 'block';
+      renderResults(cached, url);
+      // Scroll the single-mode results into view
+      const r = document.getElementById('results');
+      if(r) r.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function scrollToBatchList(){
+      const b = document.getElementById('batchResults');
+      if(b) b.scrollIntoView({behavior:'smooth', block:'start'});
     }
 
     // ── Helpers ──
@@ -1497,6 +1535,7 @@ ${pageText}`;
       window._oohDetected       = false;
       window._ctaVariant        = 'demo';
       selectedEmail = '';
+      const _bbl = document.getElementById('batchBackLink'); if (_bbl) _bbl.style.display = 'none';
 
       // Reset inputs
       document.getElementById('clinicUrl').value = '';
