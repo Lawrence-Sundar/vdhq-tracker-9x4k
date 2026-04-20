@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260417batchreset';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260420catchinstr';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -1469,8 +1469,9 @@ ${pageText}`;
         leads.push(lead);
         localStorage.setItem(TRACKER_KEY, JSON.stringify(leads));
         window._createdLeadId = lead.id;
-      } catch {
-        showError('Could not save to tracker storage.');
+      } catch (e) {
+        console.error('[confirmAddToTracker] Caught:', e);
+        showError('Could not save to tracker storage — ' + (e && e.message ? e.message : 'unknown error'));
         return;
       }
 
