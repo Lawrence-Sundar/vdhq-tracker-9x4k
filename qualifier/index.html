@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260422stateleak';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260422hithere';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -1029,6 +1029,8 @@ ${pageText}`;
     function buildGreetingName(s){
       s=(s||'').replace(/\s*\(.*?\)\s*/g,'').trim();
       if(!s||s.toLowerCase()==='not found') return 'there';
+      // Placeholder fallbacks like "the practice owner", "the team", "the manager" are not real names
+      if(/^the\b/i.test(s)) return 'there';
       const TITLES={'dr':'Dr','mr':'Mr','mrs':'Mrs','ms':'Ms','miss':'Miss'};
       const titleMatch=s.match(/^(Dr\.?|Mr\.?|Mrs\.?|Ms\.?|Miss\.?)\s+/i);
       if(titleMatch){
