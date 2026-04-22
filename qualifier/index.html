@@ -3,14 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Prevent browser caching so Open ↗ (and reload after deploy) always load the latest JS -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260422audit2';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260423batchport';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
     *{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,sans-serif}
     body{margin:0;background:linear-gradient(180deg,#050708 0%,var(--bg) 100%);color:#e6eef2;min-height:100vh}
-    .container{max-width:760px;margin:28px auto;padding:20px}
+    .container{max-width:760px;margin:28px auto;padding:20px;transition:max-width .2s}
+
+    /* Split-view mode: batch list on left, opened lead on right — activates on body.split-view */
+    @media(min-width:1100px) {
+      body.split-view .container { max-width: 1500px; display: grid; grid-template-columns: minmax(380px, 1fr) minmax(560px, 1.3fr); gap: 22px; align-items: start; }
+      body.split-view .container > * { grid-column: 1 / -1; }
+      body.split-view #batchResults { grid-column: 1; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; margin-bottom: 0; }
+      body.split-view #results { grid-column: 2; margin-top: 0; }
+    }
     header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
     h1{font-size:18px;margin:0}
     .muted{color:var(--muted)}
@@ -176,12 +188,13 @@
       </div>
       <div id="batchUrlMode" style="display:none">
         <textarea id="batchUrls" rows="6" placeholder="Paste one URL per line&#10;https://clinic1.co.uk&#10;https://clinic2.co.uk&#10;https://clinic3.co.uk" style="width:100%;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
-        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
           <button class="primary" id="btnBatchAnalyse" onclick="runBatchAnalysis()">Qualify All</button>
           <button id="btnBatchCancel" onclick="cancelBatchAnalysis()" style="display:none;background:none;border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
+          <button class="copy-btn" id="btnClearStorage" title="Free localStorage quota — removes old batch caches and tracker snapshot rotation. Does NOT touch your tracker leads.">Clear storage</button>
           <span id="batchProgress" class="muted small"></span>
         </div>
-        <div class="muted small" style="margin-top:6px">Each URL is qualified sequentially. ~5 seconds per clinic.</div>
+        <div class="muted small" style="margin-top:6px">Up to 3 URLs qualified in parallel. ~10–15 seconds per clinic.</div>
       </div>
     </div>
 
@@ -226,9 +239,12 @@
     <!-- Results -->
     <div id="results">
 
-      <!-- Back to batch list (shown only when opened from batch) -->
-      <div id="batchBackLink" style="display:none;margin-bottom:12px">
-        <button onclick="scrollToBatchList()" style="background:none;border:1px solid var(--border);color:var(--accent);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">← Back to batch list</button>
+      <!-- Inline batch-mode nav bar — first child of #results so it's only visible when a lead
+           is opened from batch mode, and NOT a direct grid child of .container (would otherwise
+           push #results below the batch list in split-view). Legacy id retained for compat. -->
+      <div id="batchBackLink" style="display:none;background:rgba(125,211,252,0.08);border:1px solid var(--accent);padding:10px 14px;margin-bottom:14px;font-size:13px;line-height:1.5;color:#e6eef2;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="copy-btn" id="btnBackToBatch" style="font-size:12px">← Back to Batch</button>
+        <span style="color:var(--muted);font-size:12px">Processing a lead. Confirm to tracker below, then click Back to Batch to return.</span>
       </div>
 
       <!-- Score — always visible when results shown -->
@@ -574,7 +590,7 @@
     }
 
     // ── HTML → plain text ──
-    function htmlToText(html) {
+    function htmlToText(html, maxLen) {
       html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
       html = html.replace(/<style[\s\S]*?<\/style>/gi, '');
       html = html.replace(/<nav[\s\S]*?<\/nav>/gi, '');
@@ -583,7 +599,95 @@
       const div = document.createElement('div');
       div.innerHTML = html;
       const text = (div.textContent || div.innerText || '');
-      return text.replace(/\s+/g, ' ').trim().slice(0, 12000);
+      return text.replace(/\s+/g, ' ').trim().slice(0, maxLen || 12000);
+    }
+
+    // ── Email extraction from raw HTML (before strip) — catches mailto: + JSON-LD + data-attrs ──
+    const EMAIL_PLATFORM_BLACKLIST = new Set([
+      'wordpress.com','wordpress.org','wpengine.com','cloudflare.com','godaddy.com',
+      'sentry.io','sentry-next.wixpress.com','wix.com','wixsite.com','squarespace.com',
+      'shopify.com','mailchimp.com','mailchi.mp','hubspot.com','intercom.io','gmail.com',
+      'googlemail.com','example.com','example.org','test.com','domain.com','yourdomain.com',
+      'sentry.wixpress.com','example.co.uk','sentry.prod.wixpress.com'
+    ]);
+    const EMAIL_TLD_BLACKLIST = new Set([
+      'jpg','jpeg','png','gif','svg','webp','bmp','ico','tiff',
+      'css','js','json','xml','html','htm','php','asp','aspx',
+      'woff','woff2','ttf','eot','otf',
+      'pdf','doc','docx','xls','xlsx','ppt','pptx','zip','mp3','mp4','webm','mov','avi'
+    ]);
+    function extractEmailsFromHTML(rawHTML) {
+      if (!rawHTML || typeof rawHTML !== 'string') return [];
+      const found = new Set();
+      const mailtoRe = /mailto:([^"'\s?>&#]+)/gi;
+      let m; while ((m = mailtoRe.exec(rawHTML)) !== null) { const a = m[1].trim().toLowerCase(); if (a.includes('@')) found.add(a); }
+      const plainRe = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,24}\b/g;
+      let p; while ((p = plainRe.exec(rawHTML)) !== null) { found.add(p[0].trim().toLowerCase()); }
+      const STRICT_RE = /^[a-z0-9._%+-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,8}$/;
+      const out = [];
+      for (const raw of found) {
+        const clean = raw.replace(/[.,;:)\]}>]+$/, '');
+        if (!STRICT_RE.test(clean)) continue;
+        const domain = clean.split('@')[1] || '';
+        if (EMAIL_PLATFORM_BLACKLIST.has(domain)) continue;
+        const tld = domain.split('.').pop();
+        if (EMAIL_TLD_BLACKLIST.has(tld)) continue;
+        out.push(clean);
+      }
+      return out;
+    }
+
+    // ── Secondary-page discovery (team / about / contact / branches) ──
+    const SECONDARY_PATH_RE = /\/(?:contact(?:-us)?|get-in-touch|team|our-team|meet-the-team|meet|our-people|people|staff|about[a-z-]*|branches?|offices?|locations?)(?:\/|$|#|\?)/i;
+    function findSecondaryPages(rawHTML, baseURL) {
+      if (!rawHTML || !baseURL) return [];
+      const normHost = (u) => { try { return new URL(u).hostname.replace(/^www\./, '').toLowerCase(); } catch { return ''; } };
+      const baseHost = normHost(baseURL);
+      if (!baseHost) return [];
+      const hrefRe = /<a\s[^>]*?href\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi;
+      const seen = new Set();
+      const candidates = [];
+      let h;
+      while ((h = hrefRe.exec(rawHTML)) !== null) {
+        const raw = (h[1] || h[2] || h[3] || '').trim();
+        if (!raw || raw.startsWith('#') || raw.startsWith('javascript:') || raw.startsWith('mailto:') || raw.startsWith('tel:')) continue;
+        let abs; try { abs = new URL(raw, baseURL).href; } catch { continue; }
+        let urlObj; try { urlObj = new URL(abs); } catch { continue; }
+        if (normHost(abs) !== baseHost) continue;
+        if (!SECONDARY_PATH_RE.test(urlObj.pathname)) continue;
+        if (urlObj.href === baseURL) continue;
+        const key = urlObj.hostname.replace(/^www\./, '') + urlObj.pathname;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const path = urlObj.pathname.toLowerCase();
+        let pri = 99;
+        if (/\/(contact|get-in-touch)/.test(path))             pri = 0;
+        else if (/\/(team|our-team|meet)/.test(path))          pri = 1;
+        else if (/\/(branches?|offices?|locations?)/.test(path)) pri = 2;
+        else if (/\/(people|our-people|staff)/.test(path))     pri = 3;
+        else if (/\/about/.test(path))                         pri = 4;
+        candidates.push({ url: urlObj.href.split('#')[0].split('?')[0], pri });
+      }
+      candidates.sort((a, b) => a.pri - b.pri);
+      return candidates.slice(0, 3).map(c => c.url);
+    }
+
+    // ── 3-proxy fetch chain, returns raw HTML ──
+    async function fetchHtmlWithProxies(url, { firstTimeout = 10000, retryTimeout = 8000 } = {}) {
+      try { const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), { signal: AbortSignal.timeout(firstTimeout) }); if (r.ok) { const t = await r.text(); if (t && t.length > 50) return t; } } catch (e) { console.debug('[fetch p1]', url, e && e.message); }
+      try { const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), { signal: AbortSignal.timeout(retryTimeout) }); if (r.ok) { const d = await r.json(); if (d.contents && d.contents.length > 50) return d.contents; } } catch (e) { console.debug('[fetch p2]', url, e && e.message); }
+      try { const r = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url), { signal: AbortSignal.timeout(firstTimeout) }); if (r.ok) { const t = await r.text(); if (t && t.length > 50) return t; } } catch (e) { console.debug('[fetch p3]', url, e && e.message); }
+      return null;
+    }
+
+    // ── URL hash + normalisation helpers (for batch cache keying and dup-filter) ──
+    function urlHashFNV(s) {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+      return h.toString(16).padStart(8, '0');
+    }
+    function normBatchUrl(u) {
+      try { const x = new URL(u); return (x.origin + x.pathname).replace(/\/$/, '').replace(/^https?:\/\/(www\.)?/, 'https://'); } catch { return (u || '').toLowerCase().trim(); }
     }
 
     // ── Entry point ──
@@ -817,36 +921,64 @@ ${pageText}`;
 
     // ── Shared helpers (used by both single and batch mode) ──
 
-    // Fetches page HTML via 3 CORS proxies, returns plain text. Throws on total failure.
+    // Fetches page HTML via 3-proxy chain + auto-discovers + fetches up to 3 secondary pages
+    // (team/about/contact/branches) for deeper data mining. Extracts emails via regex on raw HTML
+    // (before strip — catches mailto: + JSON-LD that htmlToText destroys). Classifies errors
+    // (Cloudflare captcha / SPA / thin) so batch-mode rows show specific labels.
+    // Returns { pageText, regexEmails, fetchedPages }. Throws on total failure.
     async function _fetchPageMulti(url, onStage){
-      let html = null;
-      try {
-        if(onStage) onStage('proxy 1');
-        const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), { signal: AbortSignal.timeout(10000) });
-        if(r.ok){ const t = await r.text(); if(t && t.length > 50) html = t; }
-      } catch (e) { console.debug('[fetch proxy 1]', e && e.message); }
-      if(!html){
-        try {
-          if(onStage) onStage('proxy 2');
-          const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), { signal: AbortSignal.timeout(8000) });
-          if(r.ok){ const d = await r.json(); if(d.contents && d.contents.length > 50) html = d.contents; }
-        } catch (e) { console.debug('[fetch proxy 2]', e && e.message); }
+      if(onStage) onStage('homepage');
+      const hpHtml = await fetchHtmlWithProxies(url, { firstTimeout: 10000, retryTimeout: 8000 });
+      if(!hpHtml) throw new Error('All proxies failed');
+      const htmlLower = hpHtml.toLowerCase();
+      const hpText = htmlToText(hpHtml);
+      if (hpText.length < 30) {
+        const isCaptcha = /sgcaptcha|cf-challenge|cf-browser-verification|cloudflare/.test(htmlLower);
+        const isSPA = /<div[^>]+id=["'](root|app|__next)["']|class=["']no-js["']|__next_data__|__nuxt__/.test(htmlLower);
+        if (isCaptcha)  throw new Error('Blocked by Cloudflare/captcha (site requires a real browser)');
+        if (isSPA)      throw new Error('JavaScript-only site (SPA) — proxy sees empty shell');
+        throw new Error('Very little text extracted from homepage (' + hpText.length + ' chars)');
       }
-      if(!html){
-        try {
-          if(onStage) onStage('proxy 3');
-          const r = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url), { signal: AbortSignal.timeout(10000) });
-          if(r.ok){ const t = await r.text(); if(t && t.length > 50) html = t; }
-        } catch (e) { console.debug('[fetch proxy 3]', e && e.message); }
+      const regexEmails = [];
+      regexEmails.push(...extractEmailsFromHTML(hpHtml));
+      const fetchedPages = [{ url, source: 'homepage', emails: regexEmails.length }];
+
+      // Discover + fetch up to 3 secondary pages (team / about / contact / branches)
+      const secondaryUrls = findSecondaryPages(hpHtml, url);
+      let combinedText = hpText;
+      if (secondaryUrls.length) {
+        if(onStage) onStage(secondaryUrls.length + ' internal pages');
+        const secResults = await Promise.allSettled(
+          secondaryUrls.map(u => fetchHtmlWithProxies(u, { firstTimeout: 8000, retryTimeout: 6000 }))
+        );
+        secResults.forEach((res, i) => {
+          const secUrl = secondaryUrls[i];
+          if (res.status !== 'fulfilled' || !res.value) {
+            fetchedPages.push({ url: secUrl, source: 'secondary', emails: 0, failed: true });
+            return;
+          }
+          const secHtml = res.value;
+          const secEmails = extractEmailsFromHTML(secHtml);
+          regexEmails.push(...secEmails);
+          const secText = htmlToText(secHtml, 4000);
+          if (secText.length >= 40) {
+            let label;
+            try { label = new URL(secUrl).pathname; } catch { label = secUrl; }
+            combinedText += '\n\n--- Page: ' + label + ' ---\n\n' + secText;
+          }
+          fetchedPages.push({ url: secUrl, source: 'secondary', emails: secEmails.length });
+        });
       }
-      if(!html) throw new Error('All proxies failed');
-      const pageText = htmlToText(html);
-      if(pageText.length < 80) throw new Error('Very little text extracted');
-      return pageText;
+      return { pageText: combinedText, regexEmails: Array.from(new Set(regexEmails)), fetchedPages };
     }
 
     // Calls Claude to qualify a clinic + enriches with Google Places. Returns result object.
-    async function _qualifyClinicData(pageText, url, apiKey){
+    // Accepts either a raw pageText string (legacy) OR a { pageText, regexEmails } shape from _fetchPageMulti.
+    // When the shape form is used, regexEmails are merged into result.emails after Claude returns.
+    async function _qualifyClinicData(pageTextOrFetchResult, url, apiKey){
+      const _isObj = pageTextOrFetchResult && typeof pageTextOrFetchResult === 'object' && 'pageText' in pageTextOrFetchResult;
+      const pageText = _isObj ? pageTextOrFetchResult.pageText : pageTextOrFetchResult;
+      const regexEmails = _isObj ? (pageTextOrFetchResult.regexEmails || []) : [];
       const OOH_SIGNALS = ['24/7','24 hour','out of hours','after hours cover','answering service','emergency cover','always available','round the clock'];
       const _isOOH = OOH_SIGNALS.some(sig => pageText.toLowerCase().includes(sig));
 
@@ -887,7 +1019,7 @@ ${pageText}`;
         method: 'POST',
         signal: AbortSignal.timeout(45000),
         headers: { 'Content-Type':'application/json', 'x-api-key': apiKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-        body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens: 1000, system: systemPrompt, messages:[{role:'user', content: userPrompt}] })
+        body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens: 1000, temperature: 0, system: systemPrompt, messages:[{role:'user', content: userPrompt}] })
       });
       if(!apiRes.ok){
         const errBody = await apiRes.json().catch(()=>({}));
@@ -899,6 +1031,13 @@ ${pageText}`;
       const result = JSON.parse(clean);
 
       if(_isOOH) result.score = 'Cold';
+
+      // Merge regex-extracted emails (homepage + secondary pages) into Claude's emails[].
+      // Catches mailto: links + JSON-LD addresses that vanish during htmlToText strip.
+      if (regexEmails.length) {
+        const claudeEmails = Array.isArray(result.emails) ? result.emails.map(e => String(e).toLowerCase()) : [];
+        result.emails = Array.from(new Set([...claudeEmails, ...regexEmails]));
+      }
 
       // Places enrichment (non-blocking)
       try {
@@ -922,136 +1061,445 @@ ${pageText}`;
       return result;
     }
 
-    // ── Batch Mode ──
+    // ── Batch Mode — cache helpers (localStorage, shared across same-origin tabs, TTL 24h) ──
+    const BATCH_CACHE_KEY    = 'vdhq_batch_cache_v1';
+    const BATCH_PROGRESS_KEY = 'vdhq_batch_progress_v1';
+    const BATCH_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+    function readBatchCache() {
+      try {
+        const raw = localStorage.getItem(BATCH_CACHE_KEY);
+        if (!raw) return {};
+        const obj = JSON.parse(raw);
+        const now = Date.now();
+        let pruned = false;
+        for (const k of Object.keys(obj)) {
+          if (!obj[k] || !obj[k].qualifiedAt || (now - obj[k].qualifiedAt) > BATCH_CACHE_TTL_MS) { delete obj[k]; pruned = true; }
+        }
+        if (pruned) localStorage.setItem(BATCH_CACHE_KEY, JSON.stringify(obj));
+        return obj;
+      } catch { return {}; }
+    }
+    let _quotaWarned = false;
+    function writeBatchCacheEntry(hash, entry) {
+      try {
+        const cache = readBatchCache();
+        cache[hash] = { ...entry, qualifiedAt: Date.now() };
+        localStorage.setItem(BATCH_CACHE_KEY, JSON.stringify(cache));
+      } catch (e) {
+        if (!_quotaWarned) { console.warn('[cache] localStorage full — results in RAM, Open uses in-memory state'); _quotaWarned = true; }
+      }
+    }
+    function readBatchCacheEntry(hash) { return readBatchCache()[hash] || null; }
+    function clearBatchCache() { try { localStorage.removeItem(BATCH_CACHE_KEY); } catch {} }
+    function findInMemoryEntry(hash) {
+      try {
+        if (!_batchState || !_batchState.results) return null;
+        for (const url of Object.keys(_batchState.results)) {
+          const rec = _batchState.results[url];
+          if (rec && rec.urlHash === hash && rec.entry) return rec.entry;
+        }
+      } catch {}
+      return null;
+    }
+    function readBatchProgress() { try { return JSON.parse(localStorage.getItem(BATCH_PROGRESS_KEY) || 'null'); } catch { return null; } }
+    function writeBatchProgress(p) { try { localStorage.setItem(BATCH_PROGRESS_KEY, JSON.stringify(p)); } catch {} }
+    function clearBatchProgress() { try { localStorage.removeItem(BATCH_PROGRESS_KEY); } catch {} }
+
+    // Pre-batch duplicate filter — one Supabase query for all URLs, normalised match
+    async function preflightBatchDupCheck(urls) {
+      const dupMap = {};
+      try {
+        const sb = getSB();
+        if (sb) {
+          const { data, error } = await sb.from(SB_TABLE).select('clinic_name,website').limit(5000);
+          if (error) { console.warn('[dup preflight]', error.message); return dupMap; }
+          const rows = data || [];
+          const byNorm = {};
+          for (const r of rows) {
+            const n = normBatchUrl(r.website || '');
+            if (n) byNorm[n] = { clinicName: r.clinic_name || '', website: r.website || '' };
+          }
+          for (const u of urls) { const n = normBatchUrl(u); if (byNorm[n]) dupMap[u] = byNorm[n]; }
+        }
+      } catch (e) { console.warn('[dup preflight]', e && e.message); }
+      return dupMap;
+    }
+
+    // ── Batch state (in-memory — authoritative when localStorage is full) ──
     let _batchMode = false;
     let _batchCancelled = false;
-    const _batchResultsCache = new Map(); // url -> result object
-    function _escapeHtml(s){
-      return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    let _batchState = { running: false, urls: [], dupMap: {}, results: {}, filter: 'all' };
+    function _escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
-    function cancelBatchAnalysis(){
+    function cancelBatchAnalysis() {
       _batchCancelled = true;
       const p = document.getElementById('batchProgress');
-      if(p) p.textContent = 'Cancelling after current URL...';
+      if (p) p.textContent = 'Cancelling after in-flight URLs...';
     }
-    function toggleBatchMode(){
+    function toggleBatchMode() {
       _batchMode = !_batchMode;
       document.getElementById('singleUrlMode').style.display = _batchMode ? 'none' : 'block';
       document.getElementById('batchUrlMode').style.display = _batchMode ? 'block' : 'none';
       document.getElementById('btnToggleBatch').textContent = _batchMode ? 'Switch to Single Mode' : 'Switch to Batch Mode';
-      if(!_batchMode){ document.getElementById('batchResults').style.display='none'; document.getElementById('batchProgress').textContent=''; }
+      if (!_batchMode) { document.getElementById('batchResults').style.display = 'none'; document.getElementById('batchProgress').textContent = ''; }
     }
 
-    async function runBatchAnalysis(){
+    async function runBatchAnalysis() {
+      if (_batchState.running) return;
       const apiKey = (document.getElementById('apiKey').value || window._apiKey || '').trim();
-      if(!apiKey){ showError('Please enter your Anthropic API key.'); return; }
+      if (!apiKey) { showError('Please enter your Anthropic API key.'); return; }
       const _gKey = (document.getElementById('googlePlacesKey') || {}).value || '';
-      if(_gKey) sessionStorage.setItem('google_places_key', _gKey);
+      if (_gKey) sessionStorage.setItem('google_places_key', _gKey);
       const raw = (document.getElementById('batchUrls').value || '').trim();
-      if(!raw){ showError('Paste at least one URL.'); return; }
-      const urls = raw.split('\n').map(u=>u.trim()).filter(u=>u&&(u.startsWith('http')||u.startsWith('www')));
-      if(!urls.length){ showError('No valid URLs found. One per line, starting with http.'); return; }
+      if (!raw) { showError('Paste at least one URL.'); return; }
+      const urls = Array.from(new Set(raw.split('\n').map(u => u.trim()).filter(u => u && /^https?:\/\//.test(u))));
+      if (!urls.length) { showError('No valid URLs found. One per line, starting with http:// or https://.'); return; }
 
       window._apiKey = apiKey;
       _batchCancelled = false;
-      _batchResultsCache.clear();
-      const btn = document.getElementById('btnBatchAnalyse'); btn.disabled=true; btn.textContent='Running...';
-      const cancelBtn = document.getElementById('btnBatchCancel'); if(cancelBtn) cancelBtn.style.display='inline-block';
+      _batchState = { running: true, urls, dupMap: {}, results: {}, filter: 'all' };
+      // Proactive cleanup — prevents quota pile-up across runs. Tracker leads (vdhq_tracker_v1)
+      // are NEVER touched; snapshots are auto-rotated backups regenerated on the tracker's next save.
+      clearBatchCache();
+      clearBatchProgress();
+      try { for (let i = 1; i <= 10; i++) localStorage.removeItem('vdhq_tracker_v1_snap_' + i); } catch {}
+
+      const btn = document.getElementById('btnBatchAnalyse'); btn.disabled = true; btn.textContent = 'Running...';
+      const cancelBtn = document.getElementById('btnBatchCancel'); if (cancelBtn) cancelBtn.style.display = 'inline-block';
       const prog = document.getElementById('batchProgress');
-      const listEl = document.getElementById('batchResultsList'); listEl.innerHTML='';
-      document.getElementById('batchResults').style.display='block';
-      let completed=0, added=0;
-      console.log('[Batch] Starting batch of ' + urls.length + ' URLs');
+      document.getElementById('batchResults').style.display = 'block';
+      renderBatchTable();
 
-      for(const url of urls){
-        if(_batchCancelled){ console.log('[Batch] Cancelled by user at ' + completed + '/' + urls.length); break; }
-        completed++;
-        const shortUrl = url.replace(/^https?:\/\//, '').slice(0,30);
-        prog.textContent = completed + '/' + urls.length + ' — ' + shortUrl + '...';
-        console.log('[Batch] ' + completed + '/' + urls.length + ' starting: ' + url);
+      prog.textContent = 'Checking tracker for duplicates...';
+      const dupMap = await preflightBatchDupCheck(urls);
+      _batchState.dupMap = dupMap;
+      const fresh = urls.filter(u => !dupMap[u]);
+      const dupCount = urls.length - fresh.length;
+      writeBatchProgress({ queued: [...fresh], completed: [], inProgress: [], startedAt: Date.now(), totalDups: dupCount, totalUrls: urls.length });
+      for (const u of urls) { if (dupMap[u]) _batchState.results[u] = { urlHash: urlHashFNV(u), dup: dupMap[u] }; }
+      renderBatchTable();
 
-        // Duplicate check (URL-only — same as single mode)
-        const dup = await checkDuplicate(url, '');
-        if(dup){
-          console.log('[Batch] ' + completed + ' duplicate');
-          appendBatchRow(listEl, url, null, 'Duplicate — ' + (dup.clinicName||'already in tracker'));
-          continue;
-        }
+      let done = dupCount;
+      const total = urls.length;
+      const updateProg = (stageMsg) => { prog.textContent = done + '/' + total + ' processed' + (dupCount ? ' (' + dupCount + ' dup)' : '') + (stageMsg ? ' — ' + stageMsg : ''); };
+      updateProg();
 
+      const POOL_SIZE = 3;
+      const queue = [...fresh];
+      const active = new Set();
+
+      const startNext = async () => {
+        if (_batchCancelled || !queue.length) return;
+        const url = queue.shift();
+        active.add(url);
+        const cp = readBatchProgress() || {};
+        cp.inProgress = Array.from(active); cp.queued = [...queue];
+        writeBatchProgress(cp);
+        const hash = urlHashFNV(url);
+        const shortUrl = url.replace(/^https?:\/\//, '').slice(0, 30);
         try {
-          // Same fetch logic as single mode (3-proxy chain)
-          const pageText = await _fetchPageMulti(url, (stage) => {
-            console.log('[Batch] ' + completed + ' ' + stage);
-            prog.textContent = completed + '/' + urls.length + ' — ' + shortUrl + ' (' + stage + ')';
-          });
-
-          // Same Claude + Places logic as single mode
-          console.log('[Batch] ' + completed + ' calling Claude API');
-          prog.textContent = completed + '/' + urls.length + ' — ' + shortUrl + ' (analysing)';
-          const result = await _qualifyClinicData(pageText, url, apiKey);
-
-          console.log('[Batch] ' + completed + ' done: ' + (result.clinic_name||'(unknown)') + ' — ' + (result.score||'?'));
-          appendBatchRow(listEl, url, result, null);
-          if(result.score!=='Cold') added++;
-        } catch(e) {
-          console.log('[Batch] ' + completed + ' error: ' + e.message);
-          appendBatchRow(listEl, url, null, 'Error: ' + e.message);
+          const fetchResult = await _fetchPageMulti(url, (stage) => updateProg(shortUrl + ' (' + stage + ')'));
+          updateProg(shortUrl + ' (analysing)');
+          const result = await _qualifyClinicData(fetchResult, url, apiKey);
+          const entry = {
+            url, result,
+            regexEmails: fetchResult.regexEmails || [],
+            fetchedPages: fetchResult.fetchedPages || [],
+            pageText: fetchResult.pageText,
+            customObservation: ''
+          };
+          writeBatchCacheEntry(hash, entry);
+          _batchState.results[url] = { urlHash: hash, entry };
+        } catch (e) {
+          _batchState.results[url] = { urlHash: hash, error: e && e.message ? e.message : String(e) };
+        } finally {
+          active.delete(url);
+          done++;
+          const cp2 = readBatchProgress() || {};
+          cp2.inProgress = Array.from(active); cp2.queued = [...queue];
+          cp2.completed = (cp2.completed || []).concat([url]);
+          writeBatchProgress(cp2);
+          updateProg();
+          renderBatchTable();
+          if (!_batchCancelled && queue.length) startNext();
         }
+      };
+
+      for (let i = 0; i < Math.min(POOL_SIZE, queue.length); i++) startNext();
+      while (active.size > 0 || (queue.length > 0 && !_batchCancelled)) {
+        await new Promise(r => setTimeout(r, 150));
       }
 
-      prog.textContent = (_batchCancelled ? 'Cancelled — ' : 'Done — ') + completed + ' processed, ' + added + ' qualifiable';
-      btn.disabled=false; btn.textContent='Qualify All';
-      if(cancelBtn) cancelBtn.style.display='none';
-      console.log('[Batch] Finished');
+      _batchState.running = false;
+      btn.disabled = false; btn.textContent = 'Qualify All';
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      const qualifiable = Object.values(_batchState.results).filter(r => r.entry && r.entry.result && r.entry.result.score !== 'Cold').length;
+      prog.textContent = (_batchCancelled ? 'Cancelled — ' : 'Done — ') + total + ' processed (' + dupCount + ' dup, ' + qualifiable + ' qualifiable)';
+      clearBatchProgress();
     }
 
-    function appendBatchRow(container, url, result, error){
-      const row=document.createElement('div');
-      row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px';
-      if(error){
-        row.innerHTML='<span style="color:var(--muted);flex:1">'+_escapeHtml(url.replace(/^https?:\/\//,'').slice(0,40))+'</span><span style="color:var(--danger);font-size:12px">'+_escapeHtml(error)+'</span>';
-      } else {
-        _batchResultsCache.set(url, result);
-        const score=result.score||'?';
-        const conf=result.score_confidence||'';
-        const cls=score==='Hot'?'color:var(--success)':score==='Warm'?'color:var(--warn)':'color:var(--danger)';
-        const reviews=result.review_count!=null?result.review_count+(result.google_rating?' ('+result.google_rating+'★)':''):'—';
-        const nhs=result.nhs_status||'—';
-        row.innerHTML='<span style="font-weight:600;flex:1">'+_escapeHtml(result.clinic_name||'(unknown)')+'</span><span style="'+cls+';font-weight:600;min-width:60px">'+score+(conf&&conf!=='high'?' <span style="font-weight:400;font-size:11px">'+conf+'</span>':'')+'</span><span style="min-width:70px;color:var(--muted)">'+reviews+'</span><span style="min-width:50px;color:var(--muted);font-size:12px">'+nhs+'</span><button style="font-size:12px;padding:3px 8px;background:var(--accent);color:#fff;border:none;border-radius:4px;cursor:pointer" onclick="openSingleFromBatch(\''+_escapeHtml(url.replace(/'/g,"\\'"))+'\')">Open</button>';
+    // ── Retry + paste-HTML recovery for error rows ──
+    async function retryBatchLead(url) {
+      const apiKey = (document.getElementById('apiKey').value || window._apiKey || '').trim();
+      if (!apiKey) { alert('Enter your Anthropic API key first.'); return; }
+      const rec = _batchState.results[url]; if (!rec) return;
+      _batchState.results[url] = { urlHash: rec.urlHash };
+      renderBatchTable();
+      try {
+        const fetchResult = await _fetchPageMulti(url);
+        const result = await _qualifyClinicData(fetchResult, url, apiKey);
+        const entry = { url, result, regexEmails: fetchResult.regexEmails || [], fetchedPages: fetchResult.fetchedPages || [], pageText: fetchResult.pageText, customObservation: '' };
+        writeBatchCacheEntry(rec.urlHash, entry);
+        _batchState.results[url] = { urlHash: rec.urlHash, entry };
+      } catch (e) {
+        _batchState.results[url] = { urlHash: rec.urlHash, error: e && e.message ? e.message : String(e) };
       }
-      container.appendChild(row);
+      renderBatchTable();
     }
 
-    function openSingleFromBatch(url){
-      const cached = _batchResultsCache.get(url);
-      if(!cached){
-        // Fallback: no cached result (e.g. error row). Re-run from scratch.
-        if(_batchMode) toggleBatchMode();
-        document.getElementById('clinicUrl').value=url;
-        runAnalysis();
+    async function qualifyFromPastedHTML(url, pastedText) {
+      const apiKey = (document.getElementById('apiKey').value || window._apiKey || '').trim();
+      if (!apiKey) { alert('Enter your Anthropic API key first.'); return; }
+      const rec = _batchState.results[url];
+      if (!rec || !pastedText || pastedText.length < 30) { alert('Paste some content first.'); return; }
+      _batchState.results[url] = { urlHash: rec.urlHash };
+      renderBatchTable();
+      try {
+        const regexEmails = extractEmailsFromHTML(pastedText);
+        const pageText = htmlToText(pastedText);
+        if (pageText.length < 30) { _batchState.results[url] = { urlHash: rec.urlHash, error: 'Pasted content too thin' }; renderBatchTable(); return; }
+        const fetchResult = { pageText, regexEmails, fetchedPages: [{ url, source: 'pasted', emails: regexEmails.length }] };
+        const result = await _qualifyClinicData(fetchResult, url, apiKey);
+        const entry = { url, result, regexEmails, fetchedPages: fetchResult.fetchedPages, pageText, customObservation: '' };
+        writeBatchCacheEntry(rec.urlHash, entry);
+        _batchState.results[url] = { urlHash: rec.urlHash, entry };
+      } catch (e) {
+        _batchState.results[url] = { urlHash: rec.urlHash, error: e && e.message ? e.message : String(e) };
+      }
+      renderBatchTable();
+    }
+
+    // ── Batch results table render ──
+    function batchScoreRank(score) { return score === 'Hot' ? 0 : score === 'Warm' ? 1 : score === 'Cold' ? 2 : 3; }
+    function renderBatchTable() {
+      const wrap = document.getElementById('batchResults');
+      const listEl = document.getElementById('batchResultsList');
+      if (!wrap || !listEl) return;
+      wrap.style.display = 'block';
+      const compact = document.body.classList.contains('split-view');
+      const gridTmpl = compact ? '2fr 55px 60px 100px' : '2fr 70px 70px 80px 60px 90px';
+
+      const rows = [];
+      for (const url of _batchState.urls) {
+        const rec = _batchState.results[url];
+        if (!rec) { rows.push({ url, status: 'pending' }); continue; }
+        if (rec.dup) { rows.push({ url, status: 'dup', dup: rec.dup, urlHash: rec.urlHash }); continue; }
+        if (rec.error) { rows.push({ url, status: 'error', error: rec.error, urlHash: rec.urlHash }); continue; }
+        if (rec.entry) { rows.push({ url, status: 'done', result: rec.entry.result, urlHash: rec.urlHash, addedToTracker: !!rec.addedToTracker, userMarkedDone: !!rec.userMarkedDone }); continue; }
+      }
+      const filter = _batchState.filter;
+      const filtered = rows.filter(r => {
+        if (filter === 'all') return true;
+        if (filter === 'hidecold') { if (r.status === 'done') return r.result?.score !== 'Cold'; return true; }
+        if (r.status !== 'done') return false;
+        const s = r.result?.score;
+        if (filter === 'hot') return s === 'Hot';
+        if (filter === 'warm') return s === 'Warm';
+        return true;
+      });
+      filtered.sort((a, b) => {
+        const pa = a.status === 'dup' ? 0 : a.status === 'pending' ? 1 : a.status === 'done' ? 2 : 3;
+        const pb = b.status === 'dup' ? 0 : b.status === 'pending' ? 1 : b.status === 'done' ? 2 : 3;
+        if (pa !== pb) return pa - pb;
+        if (a.status === 'done' && b.status === 'done') {
+          const sa = batchScoreRank(a.result?.score), sb = batchScoreRank(b.result?.score);
+          if (sa !== sb) return sa - sb;
+          return (b.result?.review_count || 0) - (a.result?.review_count || 0);
+        }
+        return 0;
+      });
+
+      listEl.innerHTML = '';
+      const header = document.createElement('div');
+      header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap';
+      [{k:'all',label:'All'},{k:'hot',label:'Hot'},{k:'warm',label:'Warm'},{k:'hidecold',label:'Hide Cold'}].forEach(c => {
+        const b = document.createElement('button');
+        b.textContent = c.label;
+        b.style.cssText = 'background:' + (filter === c.k ? 'var(--accent)' : 'transparent') + ';color:' + (filter === c.k ? '#002' : 'var(--muted)') + ';border:1px solid ' + (filter === c.k ? 'var(--accent)' : 'var(--border)') + ';padding:4px 12px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit;letter-spacing:.02em';
+        b.addEventListener('click', () => { _batchState.filter = c.k; renderBatchTable(); });
+        header.appendChild(b);
+      });
+      const counts = document.createElement('span');
+      counts.style.cssText = 'margin-left:auto;color:var(--muted);font-size:12px';
+      const qualifiedCount = rows.filter(r => r.status === 'done').length;
+      const dupCount = rows.filter(r => r.status === 'dup').length;
+      const errCount = rows.filter(r => r.status === 'error').length;
+      const pendingCount = rows.filter(r => r.status === 'pending').length;
+      const reviewedCount = Object.values(_batchState.results).filter(rec => rec && (rec.addedToTracker || rec.userMarkedDone)).length;
+      counts.textContent = qualifiedCount + ' qualified' + (reviewedCount ? ' · ' + reviewedCount + ' reviewed' : '') + (pendingCount ? ' · ' + pendingCount + ' pending' : '') + (dupCount ? ' · ' + dupCount + ' dup' : '') + (errCount ? ' · ' + errCount + ' error' : '');
+      header.appendChild(counts);
+      listEl.appendChild(header);
+
+      const colLabels = document.createElement('div');
+      colLabels.style.cssText = 'display:grid;grid-template-columns:' + gridTmpl + ';gap:10px;padding:7px 14px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);font-weight:600';
+      colLabels.innerHTML = compact
+        ? '<span>Clinic</span><span>Score</span><span>Reviews</span><span style="text-align:right">Action</span>'
+        : '<span>Clinic</span><span>Score</span><span>Reviews</span><span>City</span><span>NHS</span><span style="text-align:right">Action</span>';
+      listEl.appendChild(colLabels);
+
+      if (!filtered.length) {
+        const empty = document.createElement('div');
+        empty.style.cssText = 'padding:20px 14px;color:var(--muted);font-size:13px;text-align:center';
+        empty.textContent = rows.length ? 'No rows match this filter.' : 'Waiting for first result...';
+        listEl.appendChild(empty);
         return;
       }
-      // Wipe ALL per-clinic state + DOM from any previous Open (prevents leaks
-      // across clinics: emails, contact names, custom obs, draft email, flags).
-      resetForNewClinic();
-      // Reuse cached result — no API spend, batch list stays visible above.
-      document.getElementById('clinicUrl').value = url;
-      window._lastResult = cached;
-      window._lastUrl = url;
-      window._apiKey = (document.getElementById('apiKey').value || window._apiKey || '').trim();
-      // Show the Back-to-batch link
-      const back = document.getElementById('batchBackLink');
-      if(back) back.style.display = 'block';
-      renderResults(cached, url);
-      // Scroll the single-mode results into view
-      const r = document.getElementById('results');
-      if(r) r.scrollIntoView({behavior:'smooth', block:'start'});
+
+      filtered.forEach(r => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:grid;grid-template-columns:' + gridTmpl + ';gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px';
+        const urlTrim = _escapeHtml(r.url.replace(/^https?:\/\/(www\.)?/, '').slice(0, 45));
+        if (r.status === 'pending') {
+          row.innerHTML = compact
+            ? '<span style="color:var(--muted);opacity:.6">' + urlTrim + '</span><span style="color:var(--muted);font-size:12px">queued</span><span></span><span></span>'
+            : '<span style="color:var(--muted);opacity:.6">' + urlTrim + '</span><span style="color:var(--muted);font-size:12px">queued</span><span></span><span></span><span></span><span></span>';
+        } else if (r.status === 'dup') {
+          row.style.opacity = '0.55';
+          const dupClinic = '<span><span style="color:#e6eef2">' + _escapeHtml(r.dup.clinicName || '(unknown)') + '</span><span style="color:var(--muted);font-size:11px;display:block">' + urlTrim + '</span></span>';
+          const dupBadge = '<span style="color:var(--muted);font-size:12px;font-weight:600">DUP</span>';
+          const dupAction = '<span style="text-align:right;color:var(--muted);font-size:11px">in tracker</span>';
+          row.innerHTML = compact ? dupClinic + dupBadge + '<span></span>' + dupAction : dupClinic + dupBadge + '<span></span><span></span><span></span>' + dupAction;
+        } else if (r.status === 'error') {
+          const errAction = '<span style="text-align:right;display:flex;gap:4px;justify-content:flex-end"><button class="copy-btn batch-retry-btn" data-url="' + _escapeHtml(r.url) + '" style="font-size:11px;padding:3px 7px">Retry</button><button class="copy-btn batch-paste-btn" data-url="' + _escapeHtml(r.url) + '" style="font-size:11px;padding:3px 7px">Paste HTML</button></span>';
+          row.innerHTML = compact
+            ? '<span style="color:var(--muted)">' + urlTrim + '</span><span style="color:var(--danger);font-weight:600">ERR</span><span style="color:var(--danger);font-size:12px;font-style:italic">' + _escapeHtml(r.error) + '</span>' + errAction
+            : '<span style="color:var(--muted)">' + urlTrim + '</span><span style="color:var(--danger);font-weight:600">ERR</span><span style="grid-column:span 3;color:var(--danger);font-size:12px;font-style:italic">' + _escapeHtml(r.error) + '</span>' + errAction;
+        } else {
+          const s = r.result?.score || '?';
+          const conf = r.result?.score_confidence || '';
+          const scoreColor = s === 'Hot' ? 'var(--success)' : s === 'Warm' ? 'var(--warn)' : 'var(--danger)';
+          const reviews = r.result?.review_count != null ? (r.result.review_count + (r.result.google_rating ? ' (' + r.result.google_rating + '★)' : '')) : '—';
+          const nhs = r.result?.nhs_status || '—';
+          const city = r.result?.city_name || r.result?.city || '—';
+          const actionHTML = '<span style="text-align:right;display:flex;gap:4px;justify-content:flex-end;align-items:center">' +
+            (r.addedToTracker
+              ? '<span style="font-size:11px;color:var(--accent);font-weight:600;letter-spacing:.05em">✓ ADDED</span>'
+              : r.userMarkedDone
+                ? '<span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.05em">✓ DONE</span><button data-url="' + _escapeHtml(r.url) + '" class="batch-undo-btn copy-btn" style="font-size:10px;padding:2px 6px">Undo</button>'
+                : '<button data-url="' + _escapeHtml(r.url) + '" class="batch-open-btn primary" style="font-size:12px;padding:5px 12px">Open</button><button data-url="' + _escapeHtml(r.url) + '" class="batch-mark-done-btn copy-btn" style="font-size:10px;padding:2px 6px" title="Mark processed — hides from action list">Done</button>'
+            ) + '</span>';
+          const clinicCell = '<span style="font-weight:500"><span style="color:#e6eef2">' + _escapeHtml(r.result?.clinic_name || '(unknown)') + '</span><span style="color:var(--muted);font-size:11px;display:block">' + urlTrim + '</span></span>';
+          const scoreCell = '<span style="color:' + scoreColor + ';font-weight:600">' + _escapeHtml(s) + (conf && conf !== 'high' ? '<span style="font-weight:400;font-size:11px;display:block;color:var(--muted)">' + _escapeHtml(conf) + '</span>' : '') + '</span>';
+          const reviewsCell = '<span style="color:var(--muted)">' + _escapeHtml(reviews) + '</span>';
+          if (compact) {
+            row.innerHTML = clinicCell + scoreCell + reviewsCell + actionHTML;
+          } else {
+            row.innerHTML = clinicCell + scoreCell + reviewsCell +
+              '<span style="color:var(--muted);font-size:12px">' + _escapeHtml(city) + '</span>' +
+              '<span style="color:var(--muted);font-size:11px">' + _escapeHtml(nhs) + '</span>' +
+              actionHTML;
+          }
+        }
+        listEl.appendChild(row);
+      });
+
+      listEl.querySelectorAll('.batch-open-btn').forEach(btn => btn.addEventListener('click', () => openBatchInline(btn.dataset.url)));
+      listEl.querySelectorAll('.batch-mark-done-btn').forEach(btn => btn.addEventListener('click', () => {
+        const u = btn.dataset.url; if (_batchState.results[u]) { _batchState.results[u].userMarkedDone = true; renderBatchTable(); }
+      }));
+      listEl.querySelectorAll('.batch-undo-btn').forEach(btn => btn.addEventListener('click', () => {
+        const u = btn.dataset.url; if (_batchState.results[u]) { _batchState.results[u].userMarkedDone = false; renderBatchTable(); }
+      }));
+      listEl.querySelectorAll('.batch-retry-btn').forEach(btn => btn.addEventListener('click', () => retryBatchLead(btn.dataset.url)));
+      listEl.querySelectorAll('.batch-paste-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const url = btn.dataset.url;
+          const row = btn.closest('div[style*="grid-template-columns"]');
+          if (!row) return;
+          const existing = row.nextElementSibling && row.nextElementSibling.classList && row.nextElementSibling.classList.contains('batch-paste-panel') ? row.nextElementSibling : null;
+          if (existing) { existing.remove(); return; }
+          const panel = document.createElement('div');
+          panel.className = 'batch-paste-panel';
+          panel.style.cssText = 'padding:10px 14px;border-bottom:1px solid var(--border);background:#071018';
+          panel.innerHTML = '<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Open ' + _escapeHtml(url) + ' in a new tab, press Ctrl+A then Ctrl+C on the page, and paste here:</div><textarea class="bp-ta" rows="5" style="width:100%;background:#0f1619;border:1px solid var(--border);color:#e6eef2;padding:8px 10px;border-radius:5px;font-size:12px;font-family:inherit;resize:vertical;box-sizing:border-box" placeholder="Paste page content..."></textarea><div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end"><button class="copy-btn bp-cancel" style="font-size:11px">Cancel</button><button class="primary bp-run" style="font-size:12px;padding:5px 14px">Qualify from paste</button></div>';
+          row.after(panel);
+          panel.querySelector('.bp-cancel').addEventListener('click', () => panel.remove());
+          panel.querySelector('.bp-run').addEventListener('click', () => {
+            const text = panel.querySelector('.bp-ta').value.trim();
+            if (!text) { alert('Paste something first.'); return; }
+            qualifyFromPastedHTML(url, text);
+          });
+          panel.querySelector('.bp-ta').focus();
+        });
+      });
     }
 
-    function scrollToBatchList(){
-      const b = document.getElementById('batchResults');
-      if(b) b.scrollIntoView({behavior:'smooth', block:'start'});
+    // ── Inline expansion (replaces new-tab-per-lead) ──
+    let _inlineBatchUrl = null;
+    function resetInlineLeadState() {
+      window._lastDraft = null;
+      window._customObservation = '';
+      window._lastHookVariant = null;
+      window._manuallyQualified = false;
+      window._oohDetected = false;
+      window._ctaVariant = 'demo';
+      window._createdLeadId = null;
+      if (typeof selectedEmail !== 'undefined') selectedEmail = '';
+      const inputIds = ['emailToSendInput','principalInput','pmInput','customObsInput','editSubjectInput','editBodyInput','pasteTextarea'];
+      inputIds.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      const textIds = ['draftSubject','draftEmailAddress','draftBody','scoreBadge','reasoningText','analysedUrl','coldReason','recommendation','confirmMsg','markSentMsg'];
+      textIds.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; });
+      const containerIds = ['emailsList','emailSelector','metaGrid','signalList','disqualifierList','flagChannel','flagContact'];
+      containerIds.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+      const sectionsToHide = ['emailDraftSection','draftOutput','confirmState','markSentState','customObsCard','intakeMethodCard','draftCtaWrap','emailsCard','emailToSendCard','principalCard','pmCard','namesCard','metaCard','signalsCard','recommendationCard','coldPanel','outOfAreaPanel','flagChannel','flagContact','manuallyQualifiedBadge'];
+      sectionsToHide.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+      const btnConfirm = document.getElementById('btnConfirmTracker');
+      if (btnConfirm) { btnConfirm.style.display = ''; btnConfirm.disabled = false; }
+      const btnMarkSent = document.getElementById('btnMarkSent');
+      if (btnMarkSent) { btnMarkSent.disabled = false; btnMarkSent.textContent = 'Mark as Sent'; }
     }
+
+    function openBatchInline(url) {
+      const rec = _batchState && _batchState.results && _batchState.results[url];
+      if (!rec || !rec.entry || !rec.entry.result) { alert('Lead data not available. Batch may still be running for this URL.'); return; }
+      const entry = rec.entry;
+      _inlineBatchUrl = url;
+      resetInlineLeadState();
+      window._lastResult        = entry.result;
+      window._lastUrl           = entry.url;
+      window._apiKey            = (document.getElementById('apiKey').value || window._apiKey || '').trim();
+      window._customObservation = entry.customObservation || '';
+      window._skipDupCheck      = true;
+      document.getElementById('clinicUrl').value = entry.url;
+      document.body.classList.add('split-view');
+      renderBatchTable();
+      const bar = document.getElementById('batchBackLink');
+      if (bar) bar.style.display = 'flex';
+      renderResults(entry.result, entry.url);
+      if (window.innerWidth < 1100) {
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function backToBatchView() {
+      _inlineBatchUrl = null;
+      document.body.classList.remove('split-view');
+      renderBatchTable();
+      const bar = document.getElementById('batchBackLink');
+      if (bar) bar.style.display = 'none';
+      document.getElementById('results').style.display = 'none';
+      const draft = document.getElementById('emailDraftSection');
+      if (draft) draft.style.display = 'none';
+      resetInlineLeadState();
+      window._lastResult = null;
+      window._skipDupCheck = false;
+    }
+
+    // Legacy aliases for backwards compat with any inline onclick still in HTML
+    function scrollToBatchList() { const b = document.getElementById('batchResults'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    function openSingleFromBatch(url) { openBatchInline(url); }
 
     // ── Helpers ──
     function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
@@ -1390,6 +1838,34 @@ ${pageText}`;
     // Init count on load
     updateFutureTargetsBtn();
     document.getElementById('btnReviewDraft').addEventListener('click', openDraftSection);
+
+    // Back-to-Batch button (new inline batch bar inside #results)
+    const _btnBackToBatch = document.getElementById('btnBackToBatch');
+    if (_btnBackToBatch) _btnBackToBatch.addEventListener('click', backToBatchView);
+
+    // Clear Storage button — frees localStorage quota. Tracker leads (vdhq_tracker_v1) untouched.
+    const _btnClearStorage = document.getElementById('btnClearStorage');
+    if (_btnClearStorage) _btnClearStorage.addEventListener('click', () => {
+      const before = JSON.stringify(localStorage).length;
+      clearBatchCache();
+      clearBatchProgress();
+      try { for (let i = 1; i <= 10; i++) localStorage.removeItem('vdhq_tracker_v1_snap_' + i); } catch {}
+      const after = JSON.stringify(localStorage).length;
+      alert('Storage cleared — ' + ((before - after) / 1024).toFixed(1) + ' KB freed.\n\nTracker leads (vdhq_tracker_v1) were NOT touched.');
+    });
+
+    // Mark-as-added hook — when confirmAddToTracker succeeds in inline-batch mode, flip the row flag.
+    // This is a lightweight observer: patch confirmAddToTracker's original end-state, else mark on visible confirm.
+    (function wireBatchAddedMark() {
+      const confirmState = document.getElementById('confirmState');
+      if (!confirmState) return;
+      const mo = new MutationObserver(() => {
+        if (confirmState.style.display !== 'none' && _inlineBatchUrl && _batchState && _batchState.results && _batchState.results[_inlineBatchUrl]) {
+          _batchState.results[_inlineBatchUrl].addedToTracker = true;
+        }
+      });
+      mo.observe(confirmState, { attributes: true, attributeFilter: ['style'] });
+    })();
 
     document.getElementById('btnBackToResults').addEventListener('click', e => {
       e.preventDefault();
