@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260422audit1';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260422audit2';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -428,6 +428,37 @@
     const SB_TABLE = 'versa_leads';
     let _sb = null;
     function getSB(){ if(!_sb && window.supabase) _sb = window.supabase.createClient(SB_URL, SB_KEY); return _sb; }
+
+    // ── Supabase write tracking + visible sync error banner ──
+    let _pendingWrites = 0;
+    function _sbTracked(promise, label){
+      _pendingWrites++;
+      return promise.then(result => {
+        _pendingWrites--;
+        if(result && result.error){ console.warn('['+label+'] Supabase:', result.error.message); showSyncError(label + ': ' + result.error.message); }
+        return result;
+      }, err => {
+        _pendingWrites--;
+        console.warn('['+label+'] Supabase threw:', err);
+        showSyncError(label + ': ' + (err && err.message ? err.message : 'unknown error'));
+        throw err;
+      });
+    }
+    function showSyncError(msg){
+      let el = document.getElementById('_syncErr');
+      if(!el){
+        el = document.createElement('div');
+        el.id = '_syncErr';
+        el.style.cssText = 'position:fixed;top:12px;right:12px;max-width:380px;padding:12px 16px;background:#E5484D;color:#fff;border-radius:8px;font-size:13px;z-index:99999;box-shadow:0 8px 32px rgba(0,0,0,0.4);cursor:pointer;font-family:inherit;line-height:1.45';
+        el.onclick = () => el.remove();
+        document.body.appendChild(el);
+      }
+      el.textContent = 'Sync failed — ' + msg + ' (click to dismiss)';
+      setTimeout(() => { const cur = document.getElementById('_syncErr'); if(cur) cur.remove(); }, 10000);
+    }
+    window.addEventListener('beforeunload', function(e){
+      if(_pendingWrites > 0){ e.preventDefault(); e.returnValue = 'Sync in progress — changes may be lost if you leave now.'; return e.returnValue; }
+    });
     const SB_FIELD_MAP = {
       id:'id', clinicName:'clinic_name', contactName:'contact_name', email:'email',
       website:'website', address:'address', city:'city', channel:'channel', angle:'angle',
@@ -793,20 +824,20 @@ ${pageText}`;
         if(onStage) onStage('proxy 1');
         const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), { signal: AbortSignal.timeout(10000) });
         if(r.ok){ const t = await r.text(); if(t && t.length > 50) html = t; }
-      } catch {}
+      } catch (e) { console.debug('[fetch proxy 1]', e && e.message); }
       if(!html){
         try {
           if(onStage) onStage('proxy 2');
           const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), { signal: AbortSignal.timeout(8000) });
           if(r.ok){ const d = await r.json(); if(d.contents && d.contents.length > 50) html = d.contents; }
-        } catch {}
+        } catch (e) { console.debug('[fetch proxy 2]', e && e.message); }
       }
       if(!html){
         try {
           if(onStage) onStage('proxy 3');
           const r = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url), { signal: AbortSignal.timeout(10000) });
           if(r.ok){ const t = await r.text(); if(t && t.length > 50) html = t; }
-        } catch {}
+        } catch (e) { console.debug('[fetch proxy 3]', e && e.message); }
       }
       if(!html) throw new Error('All proxies failed');
       const pageText = htmlToText(html);
@@ -1485,7 +1516,7 @@ ${pageText}`;
       // Supabase insert — primary source of truth
       try {
         const sb=getSB();
-        if(sb){ sb.from(SB_TABLE).insert(leadToSnake(lead)).then(({error})=>{ if(error) console.warn('[confirmAddToTracker] Supabase:',error.message); else console.log('[confirmAddToTracker] Supabase: inserted '+lead.clinicName); }); }
+        if(sb){ _sbTracked(sb.from(SB_TABLE).insert(leadToSnake(lead)), 'confirmAddToTracker').then(result => { if(result && !result.error) console.log('[confirmAddToTracker] Supabase: inserted '+lead.clinicName); }); }
       } catch (e) {
         console.error('[confirmAddToTracker] Supabase sync error:', e);
         showError('Could not save to tracker — ' + (e && e.message ? e.message : 'unknown error'));
@@ -1532,7 +1563,7 @@ ${pageText}`;
         localStorage.setItem(TRACKER_KEY, JSON.stringify(leads));
         // Supabase update
         const sb=getSB();
-        if(sb){ sb.from(SB_TABLE).update({date_sent:today,fu1_date:leads[idx].fu1Date||null,fu2_date:leads[idx].fu2Date||null,fu3_date:leads[idx].fu3Date||null}).eq('id',id).then(({error})=>{ if(error) console.warn('[markAsSent] Supabase:',error.message); }); }
+        if(sb){ _sbTracked(sb.from(SB_TABLE).update({date_sent:today,fu1_date:leads[idx].fu1Date||null,fu2_date:leads[idx].fu2Date||null,fu3_date:leads[idx].fu3Date||null}).eq('id',id), 'markAsSent'); }
 
         // Update UI
         document.getElementById('btnMarkSent').disabled = true;

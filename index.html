@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260422audit1';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260422audit2';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1176,6 +1176,37 @@
     let _sb = null;
     function getSB(){ if(!_sb && window.supabase) _sb = window.supabase.createClient(SB_URL, SB_KEY); return _sb; }
 
+    // ── Supabase write tracking + visible sync error banner ──
+    let _pendingWrites = 0;
+    function _sbTracked(promise, label){
+      _pendingWrites++;
+      return promise.then(result => {
+        _pendingWrites--;
+        if(result && result.error){ console.warn('['+label+'] Supabase:', result.error.message); showSyncError(label + ': ' + result.error.message); }
+        return result;
+      }, err => {
+        _pendingWrites--;
+        console.warn('['+label+'] Supabase threw:', err);
+        showSyncError(label + ': ' + (err && err.message ? err.message : 'unknown error'));
+        throw err;
+      });
+    }
+    function showSyncError(msg){
+      let el = document.getElementById('_syncErr');
+      if(!el){
+        el = document.createElement('div');
+        el.id = '_syncErr';
+        el.style.cssText = 'position:fixed;top:12px;right:12px;max-width:380px;padding:12px 16px;background:#E5484D;color:#fff;border-radius:8px;font-size:13px;z-index:99999;box-shadow:0 8px 32px rgba(0,0,0,0.4);cursor:pointer;font-family:inherit;line-height:1.45';
+        el.onclick = () => el.remove();
+        document.body.appendChild(el);
+      }
+      el.textContent = 'Sync failed — ' + msg + ' (click to dismiss)';
+      setTimeout(() => { const cur = document.getElementById('_syncErr'); if(cur) cur.remove(); }, 10000);
+    }
+    window.addEventListener('beforeunload', function(e){
+      if(_pendingWrites > 0){ e.preventDefault(); e.returnValue = 'Sync in progress — changes may be lost if you leave now.'; return e.returnValue; }
+    });
+
     // snake_case ↔ camelCase field map for Supabase
     const SB_FIELD_MAP = {
       id:'id', clinicName:'clinic_name', contactName:'contact_name', email:'email',
@@ -1256,7 +1287,7 @@
       if(sb){
         const batch=leads.map(l=>leadToSnake(l));
         const BSIZE=50;
-        for(let i=0;i<batch.length;i+=BSIZE){ sb.from(SB_TABLE).upsert(batch.slice(i,i+BSIZE),{onConflict:'id'}).then(({error})=>{ if(error) console.warn('[save] Supabase batch '+i+':',error.message); }); }
+        for(let i=0;i<batch.length;i+=BSIZE){ _sbTracked(sb.from(SB_TABLE).upsert(batch.slice(i,i+BSIZE),{onConflict:'id'}), 'save batch '+i); }
       }
       // Non-fatal localStorage write — quota errors must not abort renderAll()
       try { localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); saveBackup(); } catch (e) { console.warn('[save] localStorage skipped (non-fatal — Supabase is authoritative):', e && e.message); }
@@ -1298,7 +1329,7 @@
 
     function toggleDNC(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(lead.doNotContact){ if(!confirm('Remove the Do Not Contact flag from this clinic?')) return; lead.doNotContact=false; } else { if(!confirm('Mark this clinic as Do Not Contact? This cannot be easily undone.')) return; lead.doNotContact=true; } save(); }
 
-    function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; if(expandedFollowUpId==id) expandedFollowUpId=null; selectedFollowUpItems.forEach((_,k)=>{ if(k.startsWith(id+'-')) selectedFollowUpItems.delete(k); }); if(emailState.leadId==id){ emailState.leadId=null; emailState.type=null; } const sb=getSB(); if(sb) sb.from(SB_TABLE).delete().eq('id',id).then(({error})=>{ if(error) console.warn('[deleteLead] Supabase:',error.message); }); save(); }
+    function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; if(expandedFollowUpId==id) expandedFollowUpId=null; selectedFollowUpItems.forEach((_,k)=>{ if(k.startsWith(id+'-')) selectedFollowUpItems.delete(k); }); if(emailState.leadId==id){ emailState.leadId=null; emailState.type=null; } const sb=getSB(); if(sb) _sbTracked(sb.from(SB_TABLE).delete().eq('id',id), 'deleteLead'); save(); }
 
     function statusDotClass(l){ if((l.replyType||'').toLowerCase()==='disqualified') return 'sdot-disq'; if(l.reply==='Y') return 'sdot-replied'; const td=todayISO(); if((l.fu1Date===td&&!l.fu1Sent)||(l.fu2Date===td&&!l.fu2Sent)||(l.fu3Date===td&&!l.fu3Sent)) return 'sdot-due'; return 'sdot-pending'; }
 
