@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260422hithere';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260422audit1';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -1282,13 +1282,13 @@ ${pageText}`;
       try {
         const raw = localStorage.getItem('futureTargets');
         const targets = raw ? JSON.parse(raw) : [];
-        targets.push({ clinicName: r.clinic_name || '', url, savedAt: new Date().toISOString().slice(0,10) });
+        targets.push({ clinicName: r.clinic_name || '', url, savedAt: todayISO() });
         localStorage.setItem('futureTargets', JSON.stringify(targets));
         const btn = document.getElementById('btnSaveFuture');
         btn.textContent = '✓ Saved';
         btn.disabled = true;
         updateFutureTargetsBtn();
-      } catch { showError('Could not save to storage.'); }
+      } catch (e) { console.warn('[saveFutureTarget]', e); showError('Could not save to storage' + (e && e.message ? ': ' + e.message : '.')); }
     });
 
     // ── Stage 5: Future Targets ──
@@ -1296,7 +1296,7 @@ ${pageText}`;
       try {
         const raw = localStorage.getItem('futureTargets');
         return raw ? JSON.parse(raw) : [];
-      } catch { return []; }
+      } catch (e) { console.warn('[getFutureTargets]', e); return []; }
     }
 
     function updateFutureTargetsBtn() {
@@ -1420,13 +1420,17 @@ ${pageText}`;
     });
 
     // ── Stage 4: date helpers ──
+    // BST-safe local YYYY-MM-DD — never use toISOString().slice(0,10) for date-only fields
+    function _localISO(d) {
+      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
     function todayISO() {
-      return new Date().toISOString().slice(0, 10);
+      return _localISO(new Date());
     }
     function addDaysISO(n) {
       const d = new Date();
       d.setDate(d.getDate() + n);
-      return d.toISOString().slice(0, 10);
+      return _localISO(d);
     }
     function formatDate(iso) {
       if (!iso) return iso;
