@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260420quotanonfatal';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260422stateleak';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -511,21 +511,35 @@
     }
 
     // ── Duplicate check ──
-    function checkDuplicate(url, clinicName) {
+    async function checkDuplicate(url, clinicName) {
+      const normUrl = s => String(s || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').trim();
+      const inputUrl = normUrl(url);
+      if (!inputUrl) return null;
+      // Supabase is authoritative — localStorage is frozen on this origin due to quota, so a local-only check returns stale data
+      try {
+        const sb = getSB();
+        if (sb) {
+          const { data, error } = await sb.from(SB_TABLE).select('clinic_name,website').limit(5000);
+          if (error) console.warn('[checkDuplicate] Supabase error:', error.message);
+          if (!error && Array.isArray(data)) {
+            const hit = data.find(r => normUrl(r.website || '') === inputUrl);
+            if (hit) return { clinicName: hit.clinic_name, website: hit.website };
+            return null;
+          }
+        }
+      } catch (e) { console.warn('[checkDuplicate] Supabase query threw:', e && e.message); }
+      // Fallback: localStorage (only reached if Supabase unreachable)
       try {
         const raw = localStorage.getItem(TRACKER_KEY);
         if (!raw) return null;
         const leads = JSON.parse(raw);
         if (!Array.isArray(leads)) return null;
-        const normUrl = s => String(s || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').trim();
-        const inputUrl = normUrl(url);
-        if (!inputUrl) return null;
         return leads.find(l => {
           const storedUrl = normUrl(l.website || '');
           if (!storedUrl) return false;
           return storedUrl === inputUrl;
         }) || null;
-      } catch { return null; }
+      } catch (e) { console.warn('[checkDuplicate] localStorage fallback failed:', e && e.message); return null; }
     }
 
     // ── HTML → plain text ──
@@ -543,6 +557,9 @@
 
     // ── Entry point ──
     function runAnalysis() {
+      // Wipe all per-clinic state from any previous analyse before starting a fresh one
+      resetForNewClinic();
+
       const apiKey = document.getElementById('apiKey').value.trim();
       const url    = document.getElementById('clinicUrl').value.trim();
 
@@ -732,8 +749,8 @@ ${pageText}`;
 
         setLoading(false);
 
-        // Post-analysis duplicate check — requires both clinic name AND URL to match
-        const dupMatch = checkDuplicate(url, result.clinic_name || '');
+        // Post-analysis duplicate check — URL-only, Supabase-authoritative
+        const dupMatch = await checkDuplicate(url, result.clinic_name || '');
         if (dupMatch) {
           const name = dupMatch.clinicName || dupMatch.website || 'a clinic with this URL';
           document.getElementById('dupMsg').textContent =
@@ -923,7 +940,7 @@ ${pageText}`;
         console.log('[Batch] ' + completed + '/' + urls.length + ' starting: ' + url);
 
         // Duplicate check (URL-only — same as single mode)
-        const dup = checkDuplicate(url, '');
+        const dup = await checkDuplicate(url, '');
         if(dup){
           console.log('[Batch] ' + completed + ' duplicate');
           appendBatchRow(listEl, url, null, 'Duplicate — ' + (dup.clinicName||'already in tracker'));
@@ -1543,6 +1560,9 @@ ${pageText}`;
       const _pi = document.getElementById('principalInput'); if (_pi) _pi.value = '';
       const _pmi = document.getElementById('pmInput'); if (_pmi) _pmi.value = '';
       const _coi = document.getElementById('customObsInput'); if (_coi) _coi.value = '';
+      // Clear paste fallback so a previous clinic's pasted text can't be re-sent under a new URL
+      const _pt = document.getElementById('pasteTextarea'); if (_pt) _pt.value = '';
+      const _ps = document.getElementById('pasteState'); if (_ps) _ps.style.display = 'none';
 
       // Reset edit-mode state + UI
       _draftEdited = false;
