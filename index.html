@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260417initsel';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260422removera';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -417,41 +417,16 @@
     .draft-edit-ta{width:100%;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:16px;font-family:inherit;line-height:1.65;resize:vertical;outline:none;box-sizing:border-box;margin-top:6px}
     .draft-edit-ta:focus{border-color:var(--accent)}
 
-    /* Inline Reply Analyser (Pipeline expand) */
+    /* Inline Reply Log (Pipeline expand) */
     .ra-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
     .ra-section-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px}
     .ra-textarea{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;font-family:inherit;outline:none;resize:vertical;min-height:72px;line-height:1.55;transition:border-color .15s}
     .ra-textarea:focus{border-color:var(--accent)}
-    .btn-ra-analyse{background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:6px 14px;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer;transition:background .15s;margin-top:8px}
-    .btn-ra-analyse:hover{background:var(--accent-dim)}
-    .btn-ra-analyse:disabled{opacity:.4;cursor:not-allowed}
-    .ra-api-prompt{margin-top:8px;padding:10px 12px;background:var(--elevated);border-radius:6px;border:1px solid var(--border)}
-    .ra-api-prompt-label{font-size:14px;color:var(--muted);margin-bottom:6px;display:block}
-    .ra-api-input{width:100%;padding:6px 9px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;font-family:inherit;outline:none;transition:border-color .15s}
-    .ra-api-input:focus{border-color:var(--accent)}
-    .btn-ra-savekey{background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:5px 12px;font-size:14px;font-family:inherit;cursor:pointer;margin-top:6px;transition:background .12s,color .12s}
-    .btn-ra-savekey:hover{background:var(--accent);color:#fff}
-    .ra-loading{font-size:16px;color:var(--muted);margin-top:8px;display:none}
-    .ra-error{font-size:16px;color:var(--danger);margin-top:8px;padding:7px 10px;background:var(--danger-dim);border-radius:6px;display:none}
-    .ra-results{margin-top:10px;display:none}
-    .ra-badge{display:inline-block;font-size:14px;font-weight:700;padding:3px 10px;border-radius:6px;letter-spacing:.03em;margin-bottom:8px}
-    .ra-badge-hot{background:rgba(45,125,70,.25);color:#4CAF7D}
-    .ra-badge-gatekeeper{background:rgba(94,106,210,.2);color:#8B9CF5}
-    .ra-badge-sofno{background:rgba(240,164,41,.15);color:#F0A429}
-    .ra-badge-hardno{background:rgba(229,72,77,.15);color:#E5484D}
-    .ra-badge-nurturing{background:rgba(240,164,41,.1);color:#F0A429}
-    .ra-badge-wrongperson{background:var(--elevated);color:var(--muted)}
+    .btn-ra-save{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:16px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:10px}
+    .btn-ra-save:hover{opacity:.85}
     .ra-result-row{margin-bottom:8px}
     .ra-result-label{font-size:14px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
     .ra-result-text{font-size:16px;color:var(--text-dim);line-height:1.55}
-    .ra-suggested-box{font-size:16px;color:var(--text-dim);line-height:1.6;white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:6px;padding:8px 10px;border:1px solid var(--border);margin-bottom:6px}
-    .ra-watchout{font-size:16px;line-height:1.55;padding:8px 10px;border-radius:0 5px 5px 0;border-left:3px solid var(--danger);background:rgba(229,72,77,.07);color:#fca5a5;margin-bottom:8px}
-    .ra-watchout.amber{border-left-color:var(--warning);background:rgba(240,164,41,.07);color:#fde68a}
-    .ra-action-row{display:flex;gap:8px;align-items:center;margin-top:4px}
-    .btn-ra-copy{background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:14px;font-family:inherit;cursor:pointer;transition:border-color .12s,color .12s;white-space:nowrap}
-    .btn-ra-copy:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
-    .btn-ra-save{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:16px;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s;display:none;margin-top:10px}
-    .btn-ra-save:hover{opacity:.85}
     .ra-on-record{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
     .ra-on-record-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0}
     .ra-on-record-title{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
@@ -1241,13 +1216,6 @@
 
     let leads = [];
 
-    // ── Reply Analyser constants ─────────────────────────────────────────────
-    const RA_SYSTEM_PROMPT = `You are an expert B2B sales analyst for Versa Digital HQ, a business that sells dental intake automation to independent UK dental clinics. The product is a front-end intake layer that captures, organises and routes enquiries automatically — reducing missed bookings and manual back-and-forth. The owner Lawrence cold emails clinic owners and principal dentists. You are analysing replies to his cold outreach emails. Be specific, direct and actionable. No fluff.`;
-    const RA_BADGE_MAP = {'Hot Lead':'ra-badge-hot','Gatekeeper':'ra-badge-gatekeeper','Soft No':'ra-badge-sofno','Hard No':'ra-badge-hardno','Needs Nurturing':'ra-badge-nurturing','Wrong Person':'ra-badge-wrongperson'};
-    const RA_TYPE_MAP = {'Hot Lead':'Interested','Gatekeeper':'Other','Soft No':'Not Interested','Hard No':'Disqualified','Needs Nurturing':'Other','Wrong Person':'Other'};
-    const RA_AMBER_TYPES = ['Soft No','Needs Nurturing','Gatekeeper','Wrong Person'];
-    const raResults = {}; // keyed by lead id, stores analysis result for session
-
     function _localISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
     function todayISO(){ return _localISO(new Date()); }
     function isValidDateStr(s){ if(!s) return false; const d=new Date(s+'T00:00:00'); return !isNaN(d.getTime()); }
@@ -1280,7 +1248,7 @@
         const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
       }
       if(!leads.length){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); if(bRaw){ const backups=JSON.parse(bRaw); if(backups.length&&(backups[0].data||[]).length){ const b=backups[0]; const ts=formatBackupTimestamp(b.timestamp); if(confirm('No leads found but a backup exists from '+ts+' with '+b.data.length+' leads. Restore it?')){ leads=b.data; localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); } } } }catch(e){} }
-      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(l.replyAnalysis===undefined) l.replyAnalysis=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; }); renderAll();
+      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; }); renderAll();
     }
     function save(){
       // Dual-write: Supabase + localStorage
@@ -1950,9 +1918,9 @@
         const hasDraft=!!(l.draftSubject||l.draftBody);
         // Reply on record section (only if replyText saved)
         let onRecordHtml='';
-        if(l.replyText){ let sb='',sm='',sna=''; try{ const ra=JSON.parse(l.replyAnalysis||'{}'); const rt=String(ra.replyType||''); const bc=RA_BADGE_MAP[rt]||'ra-badge-wrongperson'; sb=rt?`<span class="ra-badge ${bc}">${escapeHtml(rt)}</span>`:''; sm=ra.meaning?`<div class="ra-result-row"><span class="ra-result-label">Meaning</span><div class="ra-result-text">${escapeHtml(ra.meaning)}</div></div>`:''; sna=ra.nextAction?`<div class="ra-result-row"><span class="ra-result-label">Next Action</span><div class="ra-result-text">${escapeHtml(ra.nextAction)}</div></div>`:''; }catch(e){} onRecordHtml=`<div class="ra-on-record"><div class="ra-on-record-header" id="ror-hdr-${l.id}"><span class="ra-on-record-title">Reply on record</span><span class="ra-on-record-toggle" id="ror-tog-${l.id}">&#9658; Show</span></div><div class="ra-on-record-body" id="ror-body-${l.id}">${sb}${sm}${sna}<div class="ra-result-row"><span class="ra-result-label">Reply Text</span><div class="ra-result-text" style="white-space:pre-wrap">${escapeHtml(l.replyText)}</div></div></div></div>`; }
+        if(l.replyText){ onRecordHtml=`<div class="ra-on-record"><div class="ra-on-record-header" id="ror-hdr-${l.id}"><span class="ra-on-record-title">Reply on record</span><span class="ra-on-record-toggle" id="ror-tog-${l.id}">&#9658; Show</span></div><div class="ra-on-record-body" id="ror-body-${l.id}"><div class="ra-result-row"><span class="ra-result-label">Reply Text</span><div class="ra-result-text" style="white-space:pre-wrap">${escapeHtml(l.replyText)}</div></div></div></div>`; }
         // Log Reply section (always shown)
-        const logReplyHtml=`<div class="ra-section"><span class="ra-section-label">Log Reply</span><textarea class="ra-textarea" id="ra-txt-${l.id}" placeholder="Paste the reply you received..."></textarea><div class="ra-api-prompt" id="ra-apiprompt-${l.id}" style="display:none"><span class="ra-api-prompt-label">Enter your Anthropic API key to use this feature</span><input type="password" class="ra-api-input" id="ra-key-${l.id}" placeholder="sk-ant-..." autocomplete="off" spellcheck="false"><button class="btn-ra-savekey" id="ra-savekey-${l.id}">Save Key</button></div><button class="btn-ra-analyse" id="ra-btn-${l.id}">Analyse Reply</button><div class="ra-loading" id="ra-loading-${l.id}">Analysing reply...</div><div class="ra-error" id="ra-error-${l.id}"></div><div class="ra-results" id="ra-results-${l.id}"><div id="ra-badge-${l.id}" class="ra-badge"></div><div class="ra-result-row" style="margin-top:6px"><span class="ra-result-label">Meaning</span><div class="ra-result-text" id="ra-meaning-${l.id}"></div></div><div class="ra-result-row"><span class="ra-result-label">Next Action</span><div class="ra-result-text" id="ra-nextaction-${l.id}"></div></div><div class="ra-result-row"><span class="ra-result-label">Suggested Response</span><div class="ra-suggested-box" id="ra-suggested-${l.id}"></div><div class="ra-action-row"><button class="btn-ra-copy" id="ra-copybtn-${l.id}">Copy Response</button></div></div><div id="ra-watchout-${l.id}" style="display:none"></div></div><button class="btn-ra-save" id="ra-savebtn-${l.id}">Save Reply</button></div>`;
+        const logReplyHtml=`<div class="ra-section"><span class="ra-section-label">Log Reply</span><textarea class="ra-textarea" id="ra-txt-${l.id}" placeholder="Paste the reply you received...">${escapeHtml(l.replyText||'')}</textarea><button class="btn-ra-save" id="ra-savebtn-${l.id}">Save Reply</button></div>`;
         const dncBadgeHtml=l.doNotContact?'<span class="dnc-badge">DO NOT CONTACT</span>':'';
         const scoreBadgeHtml=(l.score==='Hot')?'<span class="score-badge-hot">HOT LEAD</span>':(l.score==='Warm')?'<span class="score-badge-warm">WARM LEAD</span>':'';
         expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}${l.address?'<div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">'+escapeHtml(l.address)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.reviewCount?'<div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">'+escapeHtml(l.reviewCount)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button>${l.reply==='Y'?`<select class="rt-inline" data-id="${l.id}" data-action="setReplyType"><option value=""${!l.replyType?' selected':''}>Reply type...</option>${['Disqualified','Interested','Discovery Booked','Discovery Completed','Pilot Agreed','Pilot Started','Not Interested','Converted','Other'].map(t=>`<option value="${t}"${l.replyType===t?' selected':''}>${t}</option>`).join('')}</select>`:''}<button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
@@ -2017,89 +1985,23 @@
       }
     }
 
-    // ── Inline Reply Analyser ────────────────────────────────────────────────
+    // ── Inline Reply Log ─────────────────────────────────────────────────────
 
     function bindExpandRA(id, expandEl){
       // Reply on record toggle
       const rorHdr=expandEl.querySelector(`#ror-hdr-${id}`);
       if(rorHdr){ rorHdr.addEventListener('click',e=>{ e.stopPropagation(); const body=expandEl.querySelector(`#ror-body-${id}`); const tog=expandEl.querySelector(`#ror-tog-${id}`); if(!body) return; const open=body.style.display!=='none'; body.style.display=open?'none':'block'; tog.innerHTML=open?'&#9658; Show':'&#9660; Hide'; }); }
-      // Save Key button
-      const saveKeyBtn=expandEl.querySelector(`#ra-savekey-${id}`);
-      if(saveKeyBtn){ saveKeyBtn.addEventListener('click',e=>{ e.stopPropagation(); const keyInput=expandEl.querySelector(`#ra-key-${id}`); const k=(keyInput&&keyInput.value.trim())||''; if(!k){ return; } sessionStorage.setItem('vdhq_api_key',k); expandEl.querySelector(`#ra-apiprompt-${id}`).style.display='none'; runInlineAnalysis(id,expandEl); }); }
-      // Analyse button
-      const analyseBtn=expandEl.querySelector(`#ra-btn-${id}`);
-      if(analyseBtn){ analyseBtn.addEventListener('click',e=>{ e.stopPropagation(); runInlineAnalysis(id,expandEl); }); }
-      // Copy response button
-      const copyBtn=expandEl.querySelector(`#ra-copybtn-${id}`);
-      if(copyBtn){ copyBtn.addEventListener('click',e=>{ e.stopPropagation(); const box=expandEl.querySelector(`#ra-suggested-${id}`); if(!box) return; navigator.clipboard.writeText(box.textContent||'').then(()=>{ copyBtn.textContent='Copied!'; setTimeout(()=>copyBtn.textContent='Copy Response',1600); }); }); }
-      // Save Reply button
+      // Save Reply button — saves replyText, marks lead as replied
       const saveBtn=expandEl.querySelector(`#ra-savebtn-${id}`);
       if(saveBtn){ saveBtn.addEventListener('click',e=>{ e.stopPropagation(); saveInlineReply(id,expandEl); }); }
     }
 
-    async function runInlineAnalysis(id, expandEl){
-      const lead=leads.find(l=>l.id==id); if(!lead) return;
-      const replyTxt=(expandEl.querySelector(`#ra-txt-${id}`)?.value||'').trim();
-      const loadingEl=expandEl.querySelector(`#ra-loading-${id}`);
-      const errorEl=expandEl.querySelector(`#ra-error-${id}`);
-      const resultsEl=expandEl.querySelector(`#ra-results-${id}`);
-      const analyseBtn=expandEl.querySelector(`#ra-btn-${id}`);
-      const saveBtn=expandEl.querySelector(`#ra-savebtn-${id}`);
-      const apiPrompt=expandEl.querySelector(`#ra-apiprompt-${id}`);
-      const setError=msg=>{ if(errorEl){ errorEl.textContent=msg; errorEl.style.display='block'; } };
-      const clearError=()=>{ if(errorEl) errorEl.style.display='none'; };
-      clearError();
-      if(!replyTxt){ setError('Please paste the reply you received.'); return; }
-      let apiKey=sessionStorage.getItem('vdhq_api_key')||'';
-      if(!apiKey){ if(apiPrompt) apiPrompt.style.display='block'; return; }
-      if(loadingEl) loadingEl.style.display='block';
-      if(analyseBtn) analyseBtn.disabled=true;
-      if(resultsEl) resultsEl.style.display='none';
-      if(saveBtn) saveBtn.style.display='none';
-      const angleCtx=lead.angle?`The outreach angle used was: ${lead.angle}.`:'';
-      const origCtx=lead.draftBody?`\n\nOriginal email sent:\n${lead.draftBody}`:'';
-      const userContent=`${angleCtx}${origCtx}\n\nReply received:\n${replyTxt}`;
-      const prompt=`Analyse the following reply to a cold outreach email and return a JSON object with these exact fields:\n\n- replyType: one of exactly: "Hot Lead", "Gatekeeper", "Soft No", "Hard No", "Needs Nurturing", "Wrong Person"\n- meaning: 1-2 sentences explaining what this reply actually means in plain English\n- nextAction: one clear, specific action Lawrence should take next (one sentence)\n- suggestedResponse: a short, ready-to-send reply Lawrence can copy and send (or empty string if no reply needed)\n- watchOut: one sentence flagging any risk or thing to be careful about (or empty string if none)\n\nReply type definitions:\n- Hot Lead: genuine interest, wants to know more, open to a call or demo\n- Gatekeeper: reply is from reception/admin/someone who is not the decision maker, passing to management or blocking\n- Soft No: polite disinterest, not right now, not for us — but not a firm close\n- Hard No: definitive rejection, do not contact again, strongly negative\n- Needs Nurturing: curious or slightly warm but not ready — needs more information or time\n- Wrong Person: replied to confirm they are not the right contact, directs elsewhere\n\nReturn ONLY a raw JSON object. No markdown, no code fences, no explanation. Just the JSON.\n\n${userContent}`;
-      try{
-        const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,system:RA_SYSTEM_PROMPT,messages:[{role:'user',content:prompt}]})});
-        if(!res.ok){ const eb=await res.json().catch(()=>({})); throw new Error(eb.error?.message||'API error '+res.status); }
-        const data=await res.json();
-        const raw=(data.content?.[0]?.text||'').trim();
-        let result; try{ result=JSON.parse(raw.replace(/^```json?\s*/i,'').replace(/```\s*$/,'').trim()); }catch(e){ throw new Error('Unexpected response format: '+raw.slice(0,80)); }
-        raResults[id]=result;
-        if(loadingEl) loadingEl.style.display='none';
-        if(analyseBtn) analyseBtn.disabled=false;
-        renderInlineRAResult(id,expandEl,result);
-        if(saveBtn) saveBtn.style.display='block';
-      }catch(err){
-        if(loadingEl) loadingEl.style.display='none';
-        if(analyseBtn) analyseBtn.disabled=false;
-        setError('Analysis failed: '+err.message);
-      }
-    }
-
-    function renderInlineRAResult(id, expandEl, r){
-      const replyType=String(r.replyType||'').trim();
-      const badgeEl=expandEl.querySelector(`#ra-badge-${id}`);
-      if(badgeEl){ badgeEl.textContent=replyType; badgeEl.className='ra-badge '+(RA_BADGE_MAP[replyType]||'ra-badge-wrongperson'); }
-      const meaningEl=expandEl.querySelector(`#ra-meaning-${id}`); if(meaningEl) meaningEl.textContent=r.meaning||'';
-      const naEl=expandEl.querySelector(`#ra-nextaction-${id}`); if(naEl) naEl.textContent=r.nextAction||'';
-      const sugEl=expandEl.querySelector(`#ra-suggested-${id}`); if(sugEl) sugEl.textContent=r.suggestedResponse||(r.suggestedResponse===''?'(No reply needed)':'');
-      const woEl=expandEl.querySelector(`#ra-watchout-${id}`);
-      if(woEl){ if(r.watchOut){ woEl.textContent=r.watchOut; woEl.className='ra-watchout'+(RA_AMBER_TYPES.includes(replyType)?' amber':''); woEl.style.display='block'; } else { woEl.style.display='none'; } }
-      const resultsEl=expandEl.querySelector(`#ra-results-${id}`); if(resultsEl) resultsEl.style.display='block';
-    }
-
     function saveInlineReply(id, expandEl){
       const lead=leads.find(l=>l.id==id); if(!lead) return;
-      const result=raResults[id]; if(!result) return;
       const replyTxt=(expandEl.querySelector(`#ra-txt-${id}`)?.value||'').trim();
-      if(!replyTxt) return;
-      const mappedType=RA_TYPE_MAP[String(result.replyType||'')]||'Other';
-      lead.reply='Y';
-      lead.replyType=mappedType;
+      if(!replyTxt){ alert('Paste the reply text first.'); return; }
       lead.replyText=replyTxt;
-      lead.replyAnalysis=JSON.stringify(result);
+      if(!lead.reply) lead.reply='Y';
       save();
     }
 
@@ -2504,8 +2406,8 @@
     }
 
     function exportCSV(){ if(!leads.length){ alert('No leads to export'); return; }
-      const headers=['Clinic Name','City','Address','Website','Named Contact','Email Address','Channel','Angle','Date Sent','FU1 Date','FU1 Sent','FU2 Date','FU2 Sent','FU3 Date','FU3 Sent','Reply','Reply Type','Notes','Review Count','Do Not Contact','Reply Text','Reply Analysis'];
-      const rows=leads.map(l=>[l.clinicName||'',l.city||'',l.address||'',l.website||'',l.contactName||'',l.email||'',l.channel||'',l.angle||'',l.dateSent||'',l.fu1Date||'',l.fu1Sent?'Y':'',l.fu2Date||'',l.fu2Sent?'Y':'',l.fu3Date||'',l.fu3Sent?'Y':'',l.reply||'',l.replyType||'',l.notes||'',l.reviewCount||'',l.doNotContact?'Y':'',l.replyText||'',l.replyAnalysis||'']);
+      const headers=['Clinic Name','City','Address','Website','Named Contact','Email Address','Channel','Angle','Date Sent','FU1 Date','FU1 Sent','FU2 Date','FU2 Sent','FU3 Date','FU3 Sent','Reply','Reply Type','Notes','Review Count','Do Not Contact','Reply Text'];
+      const rows=leads.map(l=>[l.clinicName||'',l.city||'',l.address||'',l.website||'',l.contactName||'',l.email||'',l.channel||'',l.angle||'',l.dateSent||'',l.fu1Date||'',l.fu1Sent?'Y':'',l.fu2Date||'',l.fu2Sent?'Y':'',l.fu3Date||'',l.fu3Sent?'Y':'',l.reply||'',l.replyType||'',l.notes||'',l.reviewCount||'',l.doNotContact?'Y':'',l.replyText||'']);
       const csv=[headers.join(','),...rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='vdhq-leads.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
 
