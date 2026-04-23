@@ -8,7 +8,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260423batchport';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260423bfcache';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -474,6 +474,16 @@
     }
     window.addEventListener('beforeunload', function(e){
       if(_pendingWrites > 0){ e.preventDefault(); e.returnValue = 'Sync in progress — changes may be lost if you leave now.'; return e.returnValue; }
+    });
+    // bfcache guard: when the browser restores this page from back/forward cache, DOM + JS heap
+    // are restored as-is. Without this, the previously-open lead's split-view class, #results
+    // innerHTML and all lead-specific state remain visible/accessible. Force a clean reset.
+    window.addEventListener('pageshow', function(e){
+      if(!e.persisted) return;
+      try{ document.body.classList.remove('split-view'); }catch{}
+      try{ var r=document.getElementById('results'); if(r) r.style.display='none'; }catch{}
+      try{ if(typeof resetInlineLeadState==='function') resetInlineLeadState(); }catch(err){ console.debug('[pageshow] resetInlineLeadState',err&&err.message); }
+      try{ if(typeof resetForNewClinic==='function') resetForNewClinic(); }catch(err){ console.debug('[pageshow] resetForNewClinic',err&&err.message); }
     });
     const SB_FIELD_MAP = {
       id:'id', clinicName:'clinic_name', contactName:'contact_name', email:'email',
@@ -1338,7 +1348,7 @@ ${pageText}`;
       const errCount = rows.filter(r => r.status === 'error').length;
       const pendingCount = rows.filter(r => r.status === 'pending').length;
       const reviewedCount = Object.values(_batchState.results).filter(rec => rec && (rec.addedToTracker || rec.userMarkedDone)).length;
-      counts.textContent = qualifiedCount + ' qualified' + (reviewedCount ? ' · ' + reviewedCount + ' reviewed' : '') + (pendingCount ? ' · ' + pendingCount + ' pending' : '') + (dupCount ? ' · ' + dupCount + ' dup' : '') + (errCount ? ' · ' + errCount + ' error' : '');
+      counts.textContent = qualifiedCount + ' scored' + (reviewedCount ? ' · ' + reviewedCount + ' reviewed' : '') + (pendingCount ? ' · ' + pendingCount + ' pending' : '') + (dupCount ? ' · ' + dupCount + ' dup' : '') + (errCount ? ' · ' + errCount + ' error' : '');
       header.appendChild(counts);
       listEl.appendChild(header);
 
