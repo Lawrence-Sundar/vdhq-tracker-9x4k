@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260422audit2';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260423backup';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1261,7 +1261,7 @@
 
     function formatBackupTimestamp(iso){ try{ const d=new Date(iso); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return iso; } }
 
-    function saveBackup(){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); const backups=bRaw?JSON.parse(bRaw):[]; const snapshot=localStorage.getItem(STORAGE_KEY); backups.unshift({timestamp:new Date().toISOString(),data:JSON.parse(snapshot||'[]')}); if(backups.length>5) backups.length=5; localStorage.setItem(BACKUP_KEY,JSON.stringify(backups)); }catch(e){ console.warn('[saveBackup]',e.message); } }
+    function saveBackup(){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); const backups=bRaw?JSON.parse(bRaw):[]; const snapshot=localStorage.getItem(STORAGE_KEY); backups.unshift({timestamp:new Date().toISOString(),data:JSON.parse(snapshot||'[]')}); if(backups.length>2) backups.length=2; localStorage.setItem(BACKUP_KEY,JSON.stringify(backups)); }catch(e){ console.warn('[saveBackup]',e.message); } }
 
     async function load(){
       // Primary: Supabase
