@@ -2457,9 +2457,9 @@
 
     // ── Email Sequence Manager ──────────────────────────────────────────────
     // Initial emails are Qualifier-generated only — no templates here.
-    const _FU1_TPL = { body: `Hi [greeting],\n\nFollowing up on my note from [day of initial] \u2014 thought this might be easier than reading about it. Put together a quick two-minute walkthrough showing exactly how it works:\n\n<a href="https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb">Watch the 2-minute demo \u2192</a>\n(https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb)\n\nHappy to discuss if it's relevant.\n\nLawrence\nVersa Digital HQ` };
-    const _FU2_TPL = { body: `Hi [greeting],\n\nDid you get a chance to look at the demo I sent over?\n\nLink here if not: <a href="https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb">Watch the 2-minute demo \u2192</a>\n\nHappy to answer any questions if the timing wasn't right.\n\nLawrence\nVersa Digital HQ` };
-    const _FU3_TPL = { body: `Hi [greeting],\n\nLast note from me on this \u2014 if the timing isn't right, no problem at all. Happy to pick this up whenever it suits.\n\nLawrence\nVersa Digital HQ` };
+    const _FU1_TPL = { body: `Hi [greeting],\n\nFollowing up on my email from a couple of days ago.\n\nIf easier than typing a reply, I put together a quick two-minute walkthrough showing how the system works:\n\n<a href="https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb">Watch here</a>\n(https://www.loom.com/share/eb75cb3c40bf467ab459d17864e04bdb)\n\nLawrence\nVersa Digital HQ` };
+    const _FU2_TPL = { body: `Hi [greeting],\n\nOne question: when a patient submits an enquiry at 10pm on a weeknight, what happens to it before your team is back at 9am?\n\nThat's the gap the system closes.\n\nHappy to show you in 10 minutes.\n\nLawrence\nVersa Digital HQ` };
+    const _FU3_TPL = { body: `Hi [greeting],\n\nLast note from me on this. If the timing isn't right, no problem at all. Happy to pick this up whenever it suits.\n\nLawrence\nVersa Digital HQ` };
 
     let expandedLeadId = null;
     let expandedFollowUpId = null;
@@ -2562,10 +2562,10 @@ STRUCTURE - four parts, strict order:
 Example: "Noticed [Clinic Name]'s enquiry form goes quiet after closing time - when patients submit after hours, how quickly does your team typically get back to them?"
 2. Introduction + mechanism - who Lawrence is and exactly how the system works in one sentence. Specific enough to be credible. Simple enough for anyone to understand.
 Example: "I'm Lawrence - I build intake automation specifically for independent dental clinics. The system captures every enquiry the moment it arrives, sends the patient an instant confirmation, and delivers a clean log to your team by morning. Nothing handled by hand."
-3. The offer - free build, demo first, zero cost, honest review in return. Two sentences maximum. Reference the clinic name.
-Example: "I'm looking for my first clinic partner and I'd love to build this for [Clinic Name] at zero cost. Demo first, no commitment - all I ask is honest feedback."
-4. CTA - confident, specific, one-word reply possible. Personalised to the clinic. No calendar link. No passive language.
-Example: "Want me to show you what that looks like for [Clinic Name]?"
+3. The offer - mutual exchange: no fee, no contract, setup takes ten minutes. Two sentences maximum. Reference the clinic name.
+Example: "I'm at the stage where I'm looking for one clinic to build this for first - so there's no fee, no contract, and setup takes me about ten minutes. You get the system running, I get proof it works."
+4. CTA - diagnostic question about their current overnight process. Not a demo request. Invites them to describe their situation.
+Example: "How does your team currently handle enquiries that come in overnight - is there a process, or is it whoever checks emails first?"
 Sign off: Lawrence / Versa Digital HQ
 
 HARD RULES:
@@ -2579,27 +2579,11 @@ HARD RULES:
 - No unsubscribe language
 - Zero reading level complexity - "handled by hand" not "manually processed"
 - Opening line must reference the clinic name specifically
-- CTA must be confident and personalised - never passive
+- CTA must be a diagnostic question - never a demo request, never passive
 - In the body JSON field, separate the greeting, each paragraph, the close, and the sign-off with a blank line (two newline characters \\n\\n between each section)
 
 SUBJECT LINE:
-- Sentence case — capitalise first word only. Do not title-case. Do not all-lowercase.
-- Statement form only. No questions. Never end with a question mark.
-- Must always include the clinic name.
-- Max 6 words
-- No city references
-- No contact name in subject
-- Use this priority order to choose the pattern:
-  1. If Custom Observation references overnight or after-hours specifically: "[Clinic Name] - overnight enquiries" or "After-hours at [Clinic Name]"
-  2. Default (no after-hours angle): "[Clinic Name]'s enquiry gap"
-  3. Fallback if intake method is contact form with no stronger observation: "[Clinic Name]'s contact form"
-- "Gap" should appear in the majority of subjects where no stronger observation exists.
-- Examples:
-  - "Elm Dental's enquiry gap"
-  - "After-hours at Bright Smile"
-  - "Riverside Dental's enquiry gap"
-  - "Regency Dental's contact form"
-  - "City Smile - overnight enquiries"
+Always use exactly: "9pm to 9am"
 
 FIELDS PROVIDED:
 - Greeting - use for greeting line

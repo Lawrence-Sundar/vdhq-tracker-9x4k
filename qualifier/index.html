@@ -401,13 +401,6 @@
           <div class="section-label">Email Body</div>
           <div id="draftBody" class="draft-body-field"></div>
           <textarea id="editBodyInput" style="display:none;width:100%;background:#071018;border:1px solid rgba(201,168,76,0.4);border-radius:6px;color:#e6eef2;padding:10px 12px;font-size:13px;line-height:1.8;resize:vertical;box-sizing:border-box;font-family:inherit;outline:none"></textarea>
-          <div id="ctaVariantWrap" style="margin-top:12px">
-            <label style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#aab;display:block;margin-bottom:6px">CTA Variant</label>
-            <div style="display:flex;gap:6px">
-              <button class="secondary" id="btnCtaDemo" style="font-size:12px;padding:5px 14px;opacity:1">Demo</button>
-              <button class="secondary" id="btnCtaAudit" style="font-size:12px;padding:5px 14px;opacity:0.5">Audit</button>
-            </div>
-          </div>
           <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
             <button class="copy-btn" id="btnCopyEmail">Copy Email</button>
             <button class="btn-edit" id="btnEditDraft">Edit</button>
@@ -1454,7 +1447,6 @@ ${pageText}`;
       window._lastHookVariant = null;
       window._manuallyQualified = false;
       window._oohDetected = false;
-      window._ctaVariant = 'demo';
       window._createdLeadId = null;
       if (typeof selectedEmail !== 'undefined') selectedEmail = '';
       const inputIds = ['emailToSendInput','principalInput','pmInput','customObsInput','editSubjectInput','editBodyInput','pasteTextarea'];
@@ -1901,33 +1893,6 @@ ${pageText}`;
                document.getElementById('btnCopyEmail'));
     });
 
-    // CTA Variant toggle
-    window._ctaVariant = 'demo';
-    const CTA_DEMO_TEXT = clinic => `Want me to show you what that looks like for ${clinic}?`;
-    const CTA_AUDIT_TEXT = 'I put together a quick audit for your clinic - want me to send it over?';
-
-    function setCtaVariant(variant) {
-      window._ctaVariant = variant;
-      document.getElementById('btnCtaDemo').style.opacity = variant === 'demo' ? '1' : '0.5';
-      document.getElementById('btnCtaAudit').style.opacity = variant === 'audit' ? '1' : '0.5';
-      if (!window._lastDraft) return;
-      const body = window._lastDraft.body || '';
-      const clinic = window._lastResult ? (window._lastResult.clinic_name || '[Clinic Name]') : '[Clinic Name]';
-      const demoRx = /Want me to show you what that looks like for .+\?/;
-      const auditRx = /I put together a quick audit for your clinic - want me to send it over\?/;
-      let newBody;
-      if (variant === 'audit') {
-        newBody = body.replace(demoRx, CTA_AUDIT_TEXT);
-      } else {
-        newBody = body.replace(auditRx, CTA_DEMO_TEXT(clinic));
-      }
-      window._lastDraft.body = newBody;
-      document.getElementById('draftBody').textContent = newBody;
-    }
-
-    document.getElementById('btnCtaDemo').addEventListener('click', () => setCtaVariant('demo'));
-    document.getElementById('btnCtaAudit').addEventListener('click', () => setCtaVariant('audit'));
-
     document.getElementById('btnConfirmTracker').addEventListener('click', confirmAddToTracker);
     document.getElementById('btnMarkSent').addEventListener('click', markAsSent);
     document.getElementById('btnAddAnother').addEventListener('click', resetAll);
@@ -1995,7 +1960,6 @@ ${pageText}`;
         score:        r.score || '',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
         draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : '',
-        ctaVariant:   window._ctaVariant || 'demo',
         subjectLine:  window._lastDraft ? (window._lastDraft.subject || '') : ''
       };
 
@@ -2075,7 +2039,6 @@ ${pageText}`;
       window._createdLeadId     = null;
       window._manuallyQualified = false;
       window._oohDetected       = false;
-      window._ctaVariant        = 'demo';
       selectedEmail = '';
 
       // Reset per-clinic inputs (NOT clinicUrl — caller controls that)
@@ -2097,10 +2060,6 @@ ${pageText}`;
         document.getElementById('editBodyInput').style.display    = 'none';
         document.getElementById('btnEditDraft').textContent       = 'Edit';
       }
-
-      // Reset CTA variant toggle
-      const _ctaD = document.getElementById('btnCtaDemo'); if (_ctaD) _ctaD.style.opacity = '1';
-      const _ctaA = document.getElementById('btnCtaAudit'); if (_ctaA) _ctaA.style.opacity = '0.5';
 
       // Reset draft + confirm + mark-sent UI
       hide('emailDraftSection');
@@ -2192,10 +2151,10 @@ STRUCTURE - four parts, strict order:
 Example: "Noticed [Clinic Name]'s enquiry form goes quiet after closing time - when patients submit after hours, how quickly does your team typically get back to them?"
 2. Introduction + mechanism - who Lawrence is and exactly how the system works in one sentence. Specific enough to be credible. Simple enough for anyone to understand.
 Example: "I'm Lawrence - I build intake automation specifically for independent dental clinics. The system captures every enquiry the moment it arrives, sends the patient an instant confirmation, and delivers a clean log to your team by morning. Nothing handled by hand."
-3. The offer - free build, demo first, zero cost, honest review in return. Two sentences maximum. Reference the clinic name.
-Example: "I'm looking for my first clinic partner and I'd love to build this for [Clinic Name] at zero cost. Demo first, no commitment - all I ask is honest feedback."
-4. CTA - confident, specific, one-word reply possible. Personalised to the clinic. No calendar link. No passive language.
-Example: "Want me to show you what that looks like for [Clinic Name]?"
+3. The offer - mutual exchange: no fee, no contract, setup takes ten minutes. Two sentences maximum. Reference the clinic name.
+Example: "I'm at the stage where I'm looking for one clinic to build this for first - so there's no fee, no contract, and setup takes me about ten minutes. You get the system running, I get proof it works."
+4. CTA - diagnostic question about their current overnight process. Not a demo request. Invites them to describe their situation.
+Example: "How does your team currently handle enquiries that come in overnight - is there a process, or is it whoever checks emails first?"
 Sign off: Lawrence / Versa Digital HQ
 
 HARD RULES:
@@ -2213,23 +2172,7 @@ HARD RULES:
 - In the body JSON field, separate the greeting, each paragraph, the close, and the sign-off with a blank line (two newline characters \\n\\n between each section)
 
 SUBJECT LINE:
-- Sentence case — capitalise first word only. Do not title-case. Do not all-lowercase.
-- Statement form only. No questions. Never end with a question mark.
-- Must always include the clinic name.
-- Max 6 words
-- No city references
-- No contact name in subject
-- Use this priority order to choose the pattern:
-  1. If Custom Observation references overnight or after-hours specifically: "[Clinic Name] - overnight enquiries" or "After-hours at [Clinic Name]"
-  2. Default (no after-hours angle): "[Clinic Name]'s enquiry gap"
-  3. Fallback if intake method is contact form with no stronger observation: "[Clinic Name]'s contact form"
-- "Gap" should appear in the majority of subjects where no stronger observation exists.
-- Examples:
-  - "Elm Dental's enquiry gap"
-  - "After-hours at Bright Smile"
-  - "Riverside Dental's enquiry gap"
-  - "Regency Dental's contact form"
-  - "City Smile - overnight enquiries"
+Always use exactly: "9pm to 9am"
 
 FIELDS PROVIDED:
 - Greeting - use for greeting line
@@ -2240,7 +2183,7 @@ FIELDS PROVIDED:
 
 <examples>
 <example>
-Subject: After-hours at Bright Smile
+Subject: 9pm to 9am
 
 Hi Sarah,
 
@@ -2248,16 +2191,16 @@ Noticed Bright Smile Dental's enquiry form goes quiet after closing time - when 
 
 I'm Lawrence. I build intake automation specifically for independent dental clinics - the system captures every enquiry the moment it arrives, sends the patient an instant confirmation, and delivers a clean log to your team by morning. Nothing handled by hand.
 
-I'm looking for my first clinic partner and I'd love to build this for Bright Smile Dental at zero cost. Demo first, no commitment - all I ask is honest feedback.
+I'm at the stage where I'm looking for one clinic to build this for first - so there's no fee, no contract, and setup takes me about ten minutes. You get the system running, I get proof it works.
 
-Want me to show you what that looks like for your clinic?
+How does your team currently handle enquiries that come in overnight - is there a process, or is it whoever checks emails first?
 
 Lawrence
 Versa Digital HQ
 </example>
 
 <example>
-Subject: Riverside Dental's enquiry gap
+Subject: 9pm to 9am
 
 Hi Dr Patel,
 
@@ -2265,9 +2208,9 @@ Noticed Riverside Dental's contact page asks patients to call or email - anythin
 
 I'm Lawrence. I build intake automation specifically for independent dental clinics - the system captures every enquiry instantly, confirms the patient, and delivers everything your team needs by morning. Nothing to handle by hand.
 
-I'm looking for my first clinic partner and I'd love to build this for Riverside Dental at zero cost. Demo first, no obligation - just honest feedback in return.
+I'm at the stage where I'm looking for one clinic to build this for first - so there's no fee, no contract, and setup takes me about ten minutes. You get the system running, I get proof it works.
 
-Want me to show you what that looks like for Riverside Dental?
+How does your team currently handle enquiries that come in overnight - is there a process, or is it whoever checks emails first?
 
 Lawrence
 Versa Digital HQ
