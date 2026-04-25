@@ -1028,6 +1028,142 @@
     #tab-linkedin .li-empty{font-family:'Fraunces',serif !important;font-style:italic;color:var(--aur-text-faint) !important;text-align:center;padding:40px}
 
     /* ════════════════════════════════════════════════════════════════════
+       AURORA FOLLOW UPS · EMAIL · LINKEDIN — Daedalus replica (Nebula)
+       Replaces Stages 7/8/9 light-restyle. CSS cascade ensures these rules
+       win over the earlier blocks where they target the same selectors.
+       ════════════════════════════════════════════════════════════════════ */
+    /* Follow Ups */
+    body.on-followups #mainContent .content-topbar{display:none}
+    body.on-followups #dailyActionsBar{display:none}
+    #tab-followups.tabPane.active{display:flex !important;flex-direction:column !important;gap:16px !important;padding:22px 32px 28px !important;overflow:hidden !important;position:relative;height:100%;background:radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139,92,246,0.07) 0%, transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%, rgba(236,72,153,0.06) 0%, transparent 60%),radial-gradient(ellipse 70% 40% at 50% 50%, rgba(6,182,212,0.04) 0%, transparent 50%),#0a0b1a !important;color:#e0dce8}
+    #tab-followups > *{position:relative;z-index:2}
+    #tab-followups .fu-page,#tab-followups .fu-page > *{position:static}
+    #tab-followups .fu-page{padding:0 !important;display:contents !important;background:transparent !important}
+    #tab-followups .fu-hero{flex:0 0 auto;display:flex !important;align-items:flex-end !important;justify-content:space-between !important;gap:24px !important;padding:0 0 16px 0 !important;border-bottom:1px solid rgba(255,255,255,0.06) !important;background:transparent !important}
+    #tab-followups .fu-h1{font-family:'Fraunces',serif !important;font-weight:300 !important;font-style:italic !important;font-size:42px !important;line-height:1 !important;margin:0 !important;letter-spacing:-0.02em;background:linear-gradient(120deg,#8B5CF6 0%,#EC4899 55%,#06B6D4 100%);background-clip:text !important;-webkit-background-clip:text !important;-webkit-text-fill-color:transparent !important}
+    #tab-followups .fu-sub{margin-top:8px;font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:#9a95a8}
+    #tab-followups .fu-today-actions{display:flex;align-items:center;gap:18px;padding:10px 18px;border:1px solid rgba(139,92,246,0.3);border-radius:10px;background:rgba(139,92,246,0.05)}
+    #tab-followups .fu-today-label{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#6b6580}
+    #tab-followups .fu-today-stat{font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:#e0dce8;display:flex;align-items:baseline;gap:4px}
+    #tab-followups .fu-today-stat strong{font-family:'Fraunces',serif;font-weight:500;font-size:20px;color:#8B5CF6;font-variant-numeric:tabular-nums}
+    #tab-followups .fu-today-sep{color:#6b6580;opacity:0.5}
+    #tab-followups .fu-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:0 0 auto}
+    #tab-followups .fu-stat{padding:1px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%);box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04);transition:box-shadow .25s}
+    #tab-followups .fu-stat:hover{box-shadow:0 4px 32px rgba(139,92,246,0.16),0 0 60px rgba(236,72,153,0.08)}
+    #tab-followups .fu-stat.red{background:linear-gradient(135deg,rgba(239,68,68,0.6) 0%,rgba(220,38,38,0.35) 50%,rgba(239,68,68,0.55) 100%)}
+    #tab-followups .fu-stat.amber{background:linear-gradient(135deg,rgba(245,158,11,0.6) 0%,rgba(251,191,36,0.35) 50%,rgba(217,119,6,0.55) 100%)}
+    #tab-followups .fu-stat.emerald{background:linear-gradient(135deg,rgba(16,185,129,0.6) 0%,rgba(6,214,160,0.35) 50%,rgba(16,185,129,0.55) 100%)}
+    #tab-followups .fu-stat-inner{background:#0a0b1a;border-radius:13px;padding:14px 18px;display:flex;flex-direction:column;gap:4px}
+    #tab-followups .fu-stat-label{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#6b6580}
+    #tab-followups .fu-stat-value{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:28px;line-height:1;font-variant-numeric:tabular-nums;color:#e8e4f0}
+    #tab-followups .fu-stat-value.red{color:#ef4444}
+    #tab-followups .fu-stat-value.amber{color:#f59e0b}
+    #tab-followups .fu-stat-value.emerald{color:#10B981}
+    #tab-followups .fu-stat-sub{font-family:'DM Sans',sans-serif;font-size:11px;color:#9a95a8;margin-top:2px}
+    #tab-followups #followUpsList{flex:1 !important;min-height:0;display:flex !important;flex-direction:column !important;gap:14px !important;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#1e1e1e transparent;padding-right:4px}
+    #tab-followups .fu-section{padding:1px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%);box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04);flex:0 0 auto;border:none}
+    #tab-followups .fu-section.red{background:linear-gradient(135deg,rgba(239,68,68,0.6) 0%,rgba(220,38,38,0.35) 50%,rgba(239,68,68,0.55) 100%);box-shadow:0 4px 24px rgba(239,68,68,0.12),0 0 36px rgba(239,68,68,0.06)}
+    #tab-followups .fu-section.amber{background:linear-gradient(135deg,rgba(245,158,11,0.6) 0%,rgba(251,191,36,0.35) 50%,rgba(217,119,6,0.55) 100%);box-shadow:0 4px 24px rgba(245,158,11,0.12),0 0 36px rgba(251,191,36,0.06)}
+    #tab-followups .fu-section.emerald{background:linear-gradient(135deg,rgba(16,185,129,0.6) 0%,rgba(6,214,160,0.35) 50%,rgba(16,185,129,0.55) 100%);box-shadow:0 4px 24px rgba(16,185,129,0.12),0 0 36px rgba(6,214,160,0.06)}
+    #tab-followups .fu-section-inner{background:#0a0b1a;border-radius:13px;padding:16px 20px}
+    #tab-followups .fu-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.04)}
+    #tab-followups .fu-section-title{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.22em;display:flex;align-items:center;gap:10px}
+    #tab-followups .fu-section-title .dot{width:7px;height:7px;border-radius:50%}
+    #tab-followups .fu-section.red .fu-section-title{color:#ef4444}
+    #tab-followups .fu-section.red .fu-section-title .dot{background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,0.6)}
+    #tab-followups .fu-section.amber .fu-section-title{color:#f59e0b}
+    #tab-followups .fu-section.amber .fu-section-title .dot{background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,0.6)}
+    #tab-followups .fu-section.emerald .fu-section-title{color:#10B981}
+    #tab-followups .fu-section.emerald .fu-section-title .dot{background:#10B981;box-shadow:0 0 8px rgba(16,185,129,0.6)}
+    #tab-followups .fu-section-count{font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:#9a95a8}
+    #tab-followups .fu-empty{text-align:center;padding:40px 20px;color:#8B5CF6;font-family:'Fraunces',serif;font-style:italic;font-size:18px;line-height:1.6}
+
+    /* Email — Daedalus replica */
+    #tab-email.tabPane.active{display:flex !important;flex-direction:column !important;gap:16px !important;padding:22px 32px 28px !important;overflow-y:auto !important;overflow-x:hidden;position:relative;height:100%;background:radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139,92,246,0.07) 0%, transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%, rgba(236,72,153,0.06) 0%, transparent 60%),radial-gradient(ellipse 70% 40% at 50% 50%, rgba(6,182,212,0.04) 0%, transparent 50%),#0a0b1a !important;color:#e0dce8}
+    #tab-email .em-page,#tab-email .em-page > *{position:static}
+    #tab-email .em-page{padding:0 !important;display:contents !important;background:transparent !important;gap:0 !important}
+    #tab-email .em-hero,#tab-email .email-hero{flex:0 0 auto;display:flex !important;align-items:flex-end !important;justify-content:space-between !important;gap:24px !important;padding:0 0 16px 0 !important;border-bottom:1px solid rgba(255,255,255,0.06) !important;background:transparent !important}
+    #tab-email .em-h1,#tab-email .email-h1{font-family:'Fraunces',serif !important;font-weight:300 !important;font-style:italic !important;font-size:42px !important;line-height:1 !important;margin:0 !important;letter-spacing:-0.02em;background:linear-gradient(120deg,#8B5CF6 0%,#EC4899 55%,#06B6D4 100%);background-clip:text !important;-webkit-background-clip:text !important;-webkit-text-fill-color:transparent !important}
+    #tab-email .em-sub,#tab-email .email-sub{margin-top:8px;font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:#9a95a8}
+    #tab-email .card{background:linear-gradient(#0a0b1a,#0a0b1a) padding-box,linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%) border-box !important;border:1px solid transparent !important;border-radius:14px !important;box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04) !important;transition:box-shadow .25s;padding:20px 24px !important;margin-bottom:0 !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+    #tab-email .card > *{background:transparent !important}
+    #tab-email .card:hover{box-shadow:0 4px 32px rgba(139,92,246,0.16),0 0 60px rgba(236,72,153,0.08) !important}
+    #tab-email .step-label,#tab-email .email-section-label{font-family:'DM Sans',sans-serif !important;font-size:11px !important;font-weight:600 !important;text-transform:uppercase !important;letter-spacing:0.22em !important;color:#8B5CF6 !important;margin-bottom:14px !important;display:flex !important;align-items:center !important;gap:10px !important}
+    #tab-email .step-num{width:20px;height:20px;border-radius:50%;border:1px solid rgba(139,92,246,0.4);background:rgba(139,92,246,0.08);display:flex;align-items:center;justify-content:center;font-size:10px;color:#8B5CF6;font-weight:700;flex-shrink:0;font-family:'DM Sans',sans-serif}
+    #tab-email .lead-select,#tab-email #emailLeadSelect,#tab-email #emailLeadSearch{width:100% !important;background:rgba(255,255,255,0.03) !important;border:1px solid rgba(255,255,255,0.06) !important;color:#e0dce8 !important;padding:10px 14px !important;font-size:14px !important;outline:none;border-radius:8px !important;font-family:inherit !important}
+    #tab-email .lead-select:focus,#tab-email #emailLeadSelect:focus,#tab-email #emailLeadSearch:focus{border-color:rgba(139,92,246,0.4) !important}
+    #tab-email .lead-search-wrap{position:relative}
+    #tab-email .lead-search-results{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#0d0e20;border:1px solid rgba(139,92,246,0.3);border-radius:10px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.45),0 0 24px rgba(139,92,246,0.08);max-height:260px;overflow-y:auto}
+    #tab-email .lead-result-item{padding:11px 16px;font-size:14px;color:#e0dce8;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .12s;font-family:'DM Sans',sans-serif}
+    #tab-email .lead-result-item:last-child{border-bottom:none}
+    #tab-email .lead-result-item:hover,#tab-email .lead-result-item.focused{background:rgba(139,92,246,0.1)}
+    #tab-email .lr-meta{color:#9a95a8;font-size:13px}
+    #tab-email .lr-city{color:#6b6580;font-size:12px;margin-left:6px}
+    #tab-email .email-autofill{display:grid !important;grid-template-columns:1fr 1fr !important;gap:8px !important;margin-top:14px !important}
+    #tab-email .autofill-field{background:rgba(255,255,255,0.02) !important;border:1px solid rgba(255,255,255,0.04) !important;border-radius:8px !important;padding:10px 12px !important;display:flex;flex-direction:column}
+    #tab-email .autofill-field span{display:block;font-size:10px;letter-spacing:0.2em;color:#6b6580 !important;margin-bottom:4px;text-transform:uppercase;font-family:'DM Sans',sans-serif !important;font-weight:600}
+    #tab-email .autofill-field strong{font-size:14px;font-weight:500;color:#e8e4f0;font-family:'DM Sans',sans-serif}
+    #tab-email .btn-group{display:flex;gap:6px;flex-wrap:wrap}
+    #tab-email .toggle-btn{border:1px solid rgba(255,255,255,0.06) !important;background:transparent !important;color:#9a95a8 !important;padding:9px 18px !important;font-size:12px !important;font-weight:600 !important;letter-spacing:0.1em !important;text-transform:uppercase !important;border-radius:8px !important;transition:all .18s;font-family:'DM Sans',sans-serif !important;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+    #tab-email .toggle-btn:hover{border-color:rgba(139,92,246,0.35) !important;color:#e0dce8 !important}
+    #tab-email .toggle-btn.active,#tab-email .toggle-btn.active-type{background:rgba(139,92,246,0.12) !important;color:#8B5CF6 !important;border-color:rgba(139,92,246,0.4) !important;box-shadow:0 0 14px rgba(139,92,246,0.12) !important}
+    #tab-email .day-badge{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#6b6580;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);border-radius:999px;padding:3px 10px;margin-left:0}
+    #tab-email .toggle-btn.active .day-badge{color:#8B5CF6;border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.08)}
+    #tab-email .email-preview-box{background:rgba(255,255,255,0.02) !important;border:1px solid rgba(255,255,255,0.04) !important;border-radius:10px !important;padding:18px !important;line-height:1.7 !important;color:#e0dce8 !important;white-space:pre-wrap;font-family:'DM Sans',sans-serif !important;font-size:14px !important;margin-bottom:0 !important}
+    #tab-email .email-preview-box a{color:#8B5CF6 !important;text-decoration:underline}
+    #tab-email .subject-line{font-family:'Fraunces',serif !important;font-style:italic !important;font-size:20px !important;font-weight:400 !important;letter-spacing:-0.01em;color:#e8e4f0 !important;margin-bottom:14px !important;padding:0 0 14px 0 !important;background:transparent !important;border:none !important;border-bottom:1px solid rgba(255,255,255,0.04) !important;border-radius:0 !important;line-height:1.4}
+    #tab-email .subject-line::before{content:'Subject';display:block;font-family:'DM Sans',sans-serif;font-style:normal;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#6b6580;margin-bottom:6px}
+    #tab-email .email-actions{display:flex !important;gap:8px !important;margin-top:12px !important;align-items:center !important;flex-wrap:wrap !important}
+    #tab-email .btn.btn-ghost.btn-sm,#tab-email .btn-ghost{background:transparent !important;border:1px solid rgba(255,255,255,0.06) !important;color:#9a95a8 !important;padding:8px 16px !important;font-size:11px !important;font-weight:600 !important;letter-spacing:0.1em !important;text-transform:uppercase !important;border-radius:8px !important;transition:all .18s;font-family:'DM Sans',sans-serif !important;cursor:pointer}
+    #tab-email .btn-ghost:hover{border-color:rgba(139,92,246,0.35) !important;color:#e0dce8 !important}
+    #tab-email .btn.btn-primary.btn-sm,#tab-email .btn.btn-primary,#tab-email .btn-primary{background:linear-gradient(135deg,#8B5CF6,#06B6D4) !important;border:none !important;color:#fff !important;padding:9px 20px !important;font-size:11px !important;font-weight:700 !important;letter-spacing:0.1em !important;text-transform:uppercase !important;border-radius:8px !important;box-shadow:0 0 20px rgba(139,92,246,0.25);transition:opacity .18s;font-family:'DM Sans',sans-serif !important;cursor:pointer}
+    #tab-email .btn-primary:hover{opacity:0.9}
+    #tab-email .btn-send-outlook{background:transparent !important;border:1px solid rgba(236,72,153,0.35) !important;color:#EC4899 !important;padding:9px 20px !important;font-size:11px !important;font-weight:600 !important;letter-spacing:0.1em !important;text-transform:uppercase !important;border-radius:8px !important;transition:all .18s;font-family:'DM Sans',sans-serif !important;cursor:pointer}
+    #tab-email .btn-send-outlook:hover{background:rgba(236,72,153,0.08) !important;border-color:#EC4899 !important}
+    #tab-email .copy-confirm{font-size:14px !important;color:#8B5CF6 !important;opacity:0;transition:opacity .2s;font-family:'DM Sans',sans-serif !important}
+    #tab-email .copy-confirm.show{opacity:1}
+    #tab-email .muted.small,#tab-email #emailPreviewPlaceholder{font-family:'Fraunces',serif !important;font-style:italic !important;font-size:16px !important;color:#6b6580 !important;text-align:center !important;padding:32px 0 !important}
+
+    /* LinkedIn — Daedalus replica */
+    body.on-linkedin #mainContent .content-topbar{display:none}
+    #tab-linkedin.tabPane.active{display:flex !important;flex-direction:column !important;gap:16px !important;padding:22px 32px 28px !important;overflow:hidden !important;position:relative;height:100%;background:radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139,92,246,0.07) 0%, transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%, rgba(236,72,153,0.06) 0%, transparent 60%),radial-gradient(ellipse 70% 40% at 50% 50%, rgba(6,182,212,0.04) 0%, transparent 50%),#0a0b1a !important;color:#e0dce8}
+    #tab-linkedin > *{position:relative;z-index:2}
+    #tab-linkedin .li-page,#tab-linkedin .li-page > *{position:static}
+    #tab-linkedin .li-page{padding:0 !important;display:contents !important;background:transparent !important;gap:0 !important;overflow:visible !important}
+    #tab-linkedin .li-hero{flex:0 0 auto;display:flex !important;align-items:flex-end !important;justify-content:space-between !important;gap:24px !important;padding:0 0 16px 0 !important;border-bottom:1px solid rgba(255,255,255,0.06) !important;background:transparent !important}
+    #tab-linkedin .li-h1{font-family:'Fraunces',serif !important;font-weight:300 !important;font-style:italic !important;font-size:42px !important;line-height:1 !important;margin:0 !important;letter-spacing:-0.02em;background:linear-gradient(120deg,#8B5CF6 0%,#EC4899 55%,#06B6D4 100%);background-clip:text !important;-webkit-background-clip:text !important;-webkit-text-fill-color:transparent !important}
+    #tab-linkedin .li-sub{margin-top:8px;font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:#9a95a8}
+    #tab-linkedin .li-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:0 0 auto}
+    #tab-linkedin .li-stat{padding:1px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%);box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04);transition:box-shadow .25s}
+    #tab-linkedin .li-stat-inner{background:#0a0b1a;border-radius:13px;padding:14px 18px;display:flex;flex-direction:column;gap:4px}
+    #tab-linkedin .li-stat-label{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#6b6580}
+    #tab-linkedin .li-stat-value{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:28px;line-height:1;color:#e8e4f0;font-variant-numeric:tabular-nums}
+    #tab-linkedin .li-stat-sub{font-family:'DM Sans',sans-serif;font-size:11px;color:#9a95a8;margin-top:2px}
+    #tab-linkedin .li-filters{display:flex !important;align-items:center !important;gap:16px !important;flex-wrap:wrap !important;margin-bottom:0 !important;padding:14px 22px !important;border-radius:14px !important;background:linear-gradient(#0a0b1a,#0a0b1a) padding-box,linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%) border-box !important;border:1px solid transparent !important;box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04) !important;flex:0 0 auto}
+    #tab-linkedin #liSearch{flex:0 1 280px !important;background:rgba(255,255,255,0.03) !important;border:1px solid rgba(255,255,255,0.06) !important;color:#e0dce8 !important;padding:9px 14px !important;font-size:14px !important;outline:none;border-radius:8px !important;width:auto !important;font-family:inherit !important}
+    #tab-linkedin #liSearch:focus{border-color:rgba(139,92,246,0.4) !important}
+    #tab-linkedin .li-filters > div{display:flex !important;align-items:center !important;gap:8px !important}
+    #tab-linkedin .li-filters > div > span{font-family:'DM Sans',sans-serif !important;font-size:10px !important;font-weight:600 !important;letter-spacing:0.2em !important;text-transform:uppercase !important;color:#6b6580 !important}
+    #tab-linkedin .li-filters select{background:rgba(255,255,255,0.03) !important;border:1px solid rgba(255,255,255,0.06) !important;color:#e0dce8 !important;padding:7px 10px !important;font-size:13px !important;outline:none;border-radius:8px !important;min-width:130px;font-family:inherit !important}
+    #tab-linkedin .li-filters select:focus{border-color:rgba(139,92,246,0.4) !important}
+    #tab-linkedin .li-filters label{font-family:'DM Sans',sans-serif !important;font-size:12px !important;color:#9a95a8 !important;text-transform:none !important;letter-spacing:0 !important;font-weight:400 !important;display:inline-flex;align-items:center;gap:6px}
+    #tab-linkedin .li-filters input[type="checkbox"]{accent-color:#8B5CF6 !important;width:14px !important;height:14px !important;cursor:pointer}
+    #tab-linkedin .li-summary{display:none !important}
+    #tab-linkedin .li-table-wrap{flex:1 !important;min-height:0;display:flex !important;flex-direction:column !important;padding:1px !important;border-radius:14px !important;overflow:hidden !important;background:linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%) !important;box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04) !important}
+    #tab-linkedin .li-table-inner{background:#0a0b1a !important;border-radius:13px !important;flex:1 !important;display:flex !important;flex-direction:column !important;padding:18px 22px !important;min-height:0}
+    #tab-linkedin .li-table-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex:0 0 auto}
+    #tab-linkedin .li-table-title{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.22em;color:#8B5CF6}
+    #tab-linkedin .li-table-meta{font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:#9a95a8}
+    #tab-linkedin .li-table-scroll{flex:1;min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#1e1e1e transparent}
+    #tab-linkedin .li-table{font-size:13px !important;width:100% !important;border-collapse:separate !important;border-spacing:0 !important;background:transparent !important}
+    #tab-linkedin .li-table th{text-align:left !important;font-family:'DM Sans',sans-serif !important;font-size:10px !important;font-weight:600 !important;text-transform:uppercase !important;letter-spacing:0.18em !important;color:#6b6580 !important;padding:12px 10px !important;border-bottom:1px solid rgba(139,92,246,0.14) !important;white-space:nowrap;background:#0a0b1a !important;position:sticky;top:0;z-index:1}
+    #tab-linkedin .li-table td{padding:12px 10px !important;border-bottom:1px solid rgba(255,255,255,0.04) !important;vertical-align:middle;color:#e0dce8 !important;font-family:'DM Sans',sans-serif !important;font-size:13px !important;background:transparent !important}
+    #tab-linkedin .li-table tr:hover td{background:rgba(139,92,246,0.04) !important}
+    #tab-linkedin .li-table td:first-child,#tab-linkedin .li-table .li-clinic{font-family:'Fraunces',serif !important;font-style:italic !important;font-size:15px !important;color:#e8e4f0 !important;font-weight:500 !important}
+    #tab-linkedin .li-empty{color:#6b6580 !important;font-size:14px !important;padding:24px 0 !important;text-align:center !important;font-family:'Fraunces',serif !important;font-style:italic !important}
+    #tab-linkedin .li-person-label{font-family:'DM Sans',sans-serif !important;font-size:9px !important;font-weight:600 !important;letter-spacing:0.16em !important;text-transform:uppercase !important;color:#6b6580 !important;margin-bottom:3px}
+
+    /* ════════════════════════════════════════════════════════════════════
        AURORA LEAD DETAIL MODAL (Nebula) — neon-bordered centred modal
        ════════════════════════════════════════════════════════════════════ */
     #leadDetailBackdrop.open{background:rgba(10,11,26,0.78) !important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);justify-content:center !important;align-items:center !important}
@@ -1344,19 +1480,24 @@
       </div>
     </section>
 
-    <!-- Follow Ups — Aurora -->
+    <!-- Follow Ups — Aurora (Daedalus replica) -->
     <section id="tab-followups" class="tabPane">
       <div class="fu-page">
       <div class="fu-hero">
         <div>
           <h1 class="fu-h1">Follow Ups.</h1>
-          <div class="fu-sub">Everything overdue or due today.</div>
+          <div class="fu-sub">Everything overdue, due today, or awaiting first send.</div>
         </div>
-        <div class="fu-hero-right">
-          <button class="btn-send-outlook" id="btnSendInitial" style="display:none">Send Initial Emails</button>
-          <button class="btn-send-outlook" id="btnSendAllDue" style="display:none">Send All Due Today</button>
+        <div class="fu-today-actions" id="fuTodayActions">
+          <span class="fu-today-label">Today's Actions</span>
+          <span class="fu-today-stat"><strong id="fuDaEmails">0</strong>Emails</span>
+          <span class="fu-today-sep">·</span>
+          <span class="fu-today-stat"><strong id="fuDaLinkedin">0</strong>LinkedIn</span>
+          <span class="fu-today-sep">·</span>
+          <span class="fu-today-stat"><strong id="fuDaTotal">0</strong>Total</span>
         </div>
       </div>
+      <div class="fu-stats" id="fuStats"></div>
       <div id="fuDotLegend" style="display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
         <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-right:4px">Status</span>
         <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-sent" style="width:6px;height:6px"></span>Sent</span>
@@ -1410,10 +1551,11 @@
       <div class="li-page">
       <div class="li-hero">
         <div>
-          <h1 class="li-h1">LinkedIn.</h1>
+          <h1 class="li-h1">LinkedIn Outreach.</h1>
           <div class="li-sub">Track profile visits and DMs alongside your email sequence.</div>
         </div>
       </div>
+      <div class="li-stats" id="liStats"></div>
       <div class="li-filters">
         <input id="liSearch" type="text" placeholder="Search clinics..." style="font-size:14px;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:inherit;width:200px;outline:none">
         <div style="display:flex;align-items:center;gap:6px">
@@ -1458,21 +1600,28 @@
         </div>
       </div>
       <div class="li-summary" id="liSummary"></div>
-      <!-- notice removed; tip available via subtitle title attr -->
-      <div style="overflow-x:auto">
-        <table class="li-table">
-          <thead>
-            <tr>
-              <th>Contact Name</th>
-              <th>Clinic Name</th>
-              <th>City</th>
-              <th>LinkedIn Profile</th>
-              <th>DM</th>
-            </tr>
-          </thead>
-          <tbody id="liTableBody"></tbody>
-        </table>
-        <div id="liEmpty" class="li-empty" style="display:none">No leads match the current filters.</div>
+      <div class="li-table-wrap">
+        <div class="li-table-inner">
+          <div class="li-table-head">
+            <div class="li-table-title">Clinics · LinkedIn</div>
+            <div class="li-table-meta" id="liTableMeta"></div>
+          </div>
+          <div class="li-table-scroll">
+            <table class="li-table">
+              <thead>
+                <tr>
+                  <th>Contact Name</th>
+                  <th>Clinic Name</th>
+                  <th>City</th>
+                  <th>LinkedIn Profile</th>
+                  <th>DM</th>
+                </tr>
+              </thead>
+              <tbody id="liTableBody"></tbody>
+            </table>
+            <div id="liEmpty" class="li-empty" style="display:none">No leads match the current filters.</div>
+          </div>
+        </div>
       </div>
       </div>
     </section>
@@ -1480,17 +1629,17 @@
     <!-- Email -->
     <section id="tab-email" class="tabPane">
       <div class="em-page">
-      <div class="em-hero">
+      <div class="email-hero">
         <div>
-          <h1 class="em-h1">Email Sequence.</h1>
-          <div class="em-sub">Select a lead, angle and follow-up type to generate a ready-to-send email.</div>
+          <h1 class="email-h1">Email Sequence.</h1>
+          <div class="email-sub">Select a lead, choose the email type, and send.</div>
         </div>
       </div>
 
       <div class="card">
-        <div class="email-section-label">Step 1 — Select a Lead</div>
+        <div class="step-label"><span class="step-num">1</span>Select a Lead</div>
         <div class="lead-select-wrap">
-          <select id="emailLeadSelect"><option value="">— choose a lead —</option></select>
+          <select id="emailLeadSelect" class="lead-select"><option value="">— choose a lead —</option></select>
         </div>
         <div class="email-autofill" id="emailAutofill" style="display:none">
           <div class="autofill-field"><span>Clinic Name</span><strong id="af_clinic">—</strong></div>
@@ -1502,17 +1651,17 @@
       </div>
 
       <div class="card">
-        <div class="email-section-label">Step 2 — Select Email Type</div>
+        <div class="step-label"><span class="step-num">2</span>Select Email Type</div>
         <div class="btn-group">
-          <button class="toggle-btn" data-type="Initial">Initial</button>
-          <button class="toggle-btn" data-type="FU1">FU1</button>
-          <button class="toggle-btn" data-type="FU2">FU2</button>
-          <button class="toggle-btn" data-type="FU3">FU3</button>
+          <button class="toggle-btn" data-type="Initial">Initial <span class="day-badge">Day 0</span></button>
+          <button class="toggle-btn" data-type="FU1">FU1 <span class="day-badge">Day 3</span></button>
+          <button class="toggle-btn" data-type="FU2">FU2 <span class="day-badge">Day 7</span></button>
+          <button class="toggle-btn" data-type="FU3">FU3 <span class="day-badge">Day 14</span></button>
         </div>
       </div>
 
       <div class="card" id="initialGenCard" style="display:none">
-        <div class="email-section-label">Step 3 — Initial Email Inputs</div>
+        <div class="step-label"><span class="step-num">3</span>Initial Email Inputs</div>
         <div style="display:flex;flex-direction:column;gap:10px">
           <div>
             <label style="font-size:12px;color:#aab;display:block;margin-bottom:4px">Clinic Name</label>
@@ -1538,7 +1687,7 @@
       </div>
 
       <div class="card">
-        <div class="email-section-label">Step 4 — Generated Email</div>
+        <div class="step-label"><span class="step-num">4</span>Generated Email</div>
         <div id="emailPreviewWrap" style="display:none">
           <div class="subject-line" id="emailSubjectPreview"></div>
           <div class="email-preview-box" id="emailBodyPreview"></div>
@@ -2850,7 +2999,65 @@
 
     function toggleFollowUpExpand(id){ const expand=document.getElementById('fuexpand-'+id); if(!expand) return; const isOpen=expand.style.display!=='none'; document.querySelectorAll('[id^="fuexpand-"]').forEach(e=>e.style.display='none'); if(!isOpen){ expand.style.display='block'; expandedFollowUpId=id; } else { expandedFollowUpId=null; } }
 
+    // Aurora Follow Ups — stats strip + today actions
+    function renderFuStats(){
+      const el=document.getElementById('fuStats'); if(!el) return;
+      const td=todayISO();
+      let overdue=0,dueToday=0,initialNotSent=0,replyWaiting=0;
+      leads.forEach(l=>{
+        if(l.doNotContact) return;
+        const s=computeStatus(l);
+        if(s==='Converted'||s==='Disqualified'||s==='Not Interested') return;
+        if(!l.dateSent && !l.fu1Sent && !l.fu1Date) initialNotSent++;
+        const fus=[{d:l.fu1Date,sent:l.fu1Sent},{d:l.fu2Date,sent:l.fu2Sent},{d:l.fu3Date,sent:l.fu3Sent}];
+        for(const fu of fus){
+          if(!fu.d||fu.sent) continue;
+          const nd=normDateStr(fu.d);
+          if(!nd) break;
+          if(nd<td){ overdue++; break; }
+          if(nd===td){ dueToday++; break; }
+          break;
+        }
+        if(l.reply==='Y' && s==='Replied') replyWaiting++;
+      });
+      el.innerHTML=
+        `<div class="fu-stat red"><div class="fu-stat-inner"><div class="fu-stat-label">Overdue</div><div class="fu-stat-value red">${overdue}</div><div class="fu-stat-sub">past their due date</div></div></div>`+
+        `<div class="fu-stat amber"><div class="fu-stat-inner"><div class="fu-stat-label">Due today</div><div class="fu-stat-value amber">${dueToday}</div><div class="fu-stat-sub">send before end of day</div></div></div>`+
+        `<div class="fu-stat emerald"><div class="fu-stat-inner"><div class="fu-stat-label">Initial not sent</div><div class="fu-stat-value emerald">${initialNotSent}</div><div class="fu-stat-sub">awaiting first send</div></div></div>`+
+        `<div class="fu-stat"><div class="fu-stat-inner"><div class="fu-stat-label">Replies waiting</div><div class="fu-stat-value">${replyWaiting}</div><div class="fu-stat-sub">need a response</div></div></div>`;
+    }
+    function renderFuTodayActions(){
+      const td=todayISO();
+      let emails=0,linkedin=0;
+      leads.forEach(l=>{
+        const dates=[l.dateSent,l.fu1SentOn,l.fu2SentOn,l.fu3SentOn];
+        if(dates.some(d=>(d||'').slice(0,10)===td)) emails++;
+        if((l.linkedinDmDate||'').slice(0,10)===td||(l.linkedinConnectionDate||'').slice(0,10)===td) linkedin++;
+      });
+      const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+      set('fuDaEmails',emails);
+      set('fuDaLinkedin',linkedin);
+      set('fuDaTotal',emails+linkedin);
+    }
+
+    // Aurora LinkedIn — stats strip
+    function renderLiStats(){
+      const el=document.getElementById('liStats'); if(!el) return;
+      const total=leads.filter(l=>!l.doNotContact).length;
+      const connected=leads.filter(l=>l.linkedinConnectionDate).length;
+      const messagesSent=leads.filter(l=>l.linkedinDmDate).length;
+      const profilesToFind=leads.filter(l=>!l.linkedinContact && !l.linkedinNotFoundDate && !l.doNotContact).length;
+      const connRate=total>0?Math.round(connected/total*100):0;
+      el.innerHTML=
+        `<div class="li-stat"><div class="li-stat-inner"><div class="li-stat-label">Total leads</div><div class="li-stat-value">${total}</div><div class="li-stat-sub">in pipeline</div></div></div>`+
+        `<div class="li-stat"><div class="li-stat-inner"><div class="li-stat-label">Connected</div><div class="li-stat-value">${connected}</div><div class="li-stat-sub">${connRate}% connection rate</div></div></div>`+
+        `<div class="li-stat"><div class="li-stat-inner"><div class="li-stat-label">Messages sent</div><div class="li-stat-value">${messagesSent}</div><div class="li-stat-sub">DMs delivered</div></div></div>`+
+        `<div class="li-stat"><div class="li-stat-inner"><div class="li-stat-label">Profiles to find</div><div class="li-stat-value">${profilesToFind}</div><div class="li-stat-sub">no LinkedIn yet</div></div></div>`;
+    }
+
     function renderFollowUps(){
+      renderFuStats();
+      renderFuTodayActions();
       const container=document.getElementById('followUpsList'); if(!container) return; container.innerHTML='';
       const td=todayISO();
       const items=[];
@@ -3705,9 +3912,12 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
     }
 
     function renderLinkedIn(){
+      renderLiStats();
       const tbody = document.getElementById('liTableBody');
       const emptyEl = document.getElementById('liEmpty');
       const summaryEl = document.getElementById('liSummary');
+      const metaEl = document.getElementById('liTableMeta');
+      if(metaEl) metaEl.textContent = leads.filter(l=>!l.doNotContact).length + ' clinics';
       if(!tbody) return;
 
       const cityNorm = s => (s||'').toLowerCase().trim();
