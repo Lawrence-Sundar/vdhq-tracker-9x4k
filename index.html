@@ -941,6 +941,14 @@
     #tab-email .autofill-field{display:flex;flex-direction:column;gap:3px;padding:9px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--aur-border-default);border-radius:8px}
     #tab-email .autofill-field span{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--aur-text-faint)}
     #tab-email .autofill-field strong{font-family:'DM Sans',sans-serif;font-weight:500;color:var(--aur-text-bright);font-size:13px}
+    /* Lead search-as-you-type (Nebula) */
+    #tab-email .lead-search-wrap{position:relative}
+    #tab-email .lead-search-results{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#0d0e20;border:1px solid rgba(139,92,246,0.3);border-radius:10px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.45),0 0 24px rgba(139,92,246,0.08);max-height:260px;overflow-y:auto}
+    #tab-email .lead-result-item{padding:11px 16px;font-size:14px;color:#e0dce8;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .12s;font-family:'Inter',sans-serif}
+    #tab-email .lead-result-item:last-child{border-bottom:none}
+    #tab-email .lead-result-item:hover,#tab-email .lead-result-item.focused{background:rgba(139,92,246,0.1)}
+    #tab-email .lr-meta{color:#9a95a8;font-size:13px}
+    #tab-email .lr-city{color:#6b6580;font-size:12px;margin-left:6px}
 
     /* Toggle buttons (Initial / FU1 / FU2 / FU3) */
     #tab-email .btn-group{display:flex;gap:8px;flex-wrap:wrap}
@@ -974,58 +982,72 @@
     #tab-email .muted.small{color:var(--aur-text-faint) !important}
 
     /* ════════════════════════════════════════════════════════════════════
-       AURORA LINKEDIN (Nebula) — scoped to #tab-linkedin only
+       AURORA LINKEDIN (Nebula) — Daedalus replica, scoped to #tab-linkedin
+       Mirrors Daedalus CRM lines 518-584 (sizing/padding/typography).
+       Palette: Versa Nebula (#8B5CF6 / #EC4899 / #06B6D4).
        ════════════════════════════════════════════════════════════════════ */
-    #tab-linkedin{
-      --p-primary:#8B5CF6;--p-primary-rgb:139,92,246;
-      --p-secondary:#EC4899;--p-secondary-rgb:236,72,153;
-      --p-glow:#06B6D4;--p-glow-rgb:6,182,212;
-      --aur-bg:#0a0b1a;
-      --aur-text-bright:#e8e4f0;
-      --aur-text-std:#e0dce8;
-      --aur-text-muted:#9a95a8;
-      --aur-text-faint:#6b6580;
-      --aur-border-default:rgba(255,255,255,0.06);
-      --aur-border-subtle:rgba(255,255,255,0.04);
-    }
     body.on-linkedin #mainContent .content-topbar{display:none}
-    #tab-linkedin.tabPane.active{display:flex !important;flex-direction:column;padding:0 !important;overflow:hidden;position:relative;height:100%;background:radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139,92,246,0.07) 0%, transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%, rgba(236,72,153,0.06) 0%, transparent 60%),radial-gradient(ellipse 70% 40% at 50% 50%, rgba(6,182,212,0.04) 0%, transparent 50%),var(--aur-bg);color:var(--aur-text-std)}
+    #tab-linkedin.tabPane.active{
+      display:flex !important;flex-direction:column;gap:16px;
+      padding:22px 32px 28px !important;overflow:hidden;
+      position:relative;height:100%;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139,92,246,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 90%, rgba(236,72,153,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 40% at 50% 50%, rgba(6,182,212,0.04) 0%, transparent 50%),
+        #0a0b1a;
+      color:#e0dce8;
+    }
     #tab-linkedin::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;opacity:0.03;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
-    #tab-linkedin .li-page{padding:22px 32px 24px;display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;position:relative;z-index:2;overflow-y:auto}
-
+    #tab-linkedin > *{position:relative;z-index:2}
+    /* .li-page wrapper dissolves so children flex inside #tab-linkedin */
+    #tab-linkedin .li-page{padding:0 !important;display:contents !important}
     /* Hero */
-    #tab-linkedin .li-hero{flex:0 0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:14px;border-bottom:1px solid var(--aur-border-default)}
-    #tab-linkedin .li-h1{font-family:'Fraunces',serif;font-weight:300;font-style:italic;font-size:42px;line-height:1;margin:0;letter-spacing:-0.02em;background:linear-gradient(120deg,var(--p-primary) 0%,var(--p-secondary) 55%,var(--p-glow) 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    #tab-linkedin .li-sub{margin-top:6px;font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--aur-text-muted)}
-
-    /* Filters */
-    #tab-linkedin .li-filters{flex:0 0 auto;background:rgba(255,255,255,0.02);border:1px solid var(--aur-border-default);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-    #tab-linkedin #liSearch{font-family:'DM Sans',sans-serif !important;font-size:13px !important;background:rgba(255,255,255,0.03) !important;border:1px solid var(--aur-border-default) !important;color:var(--aur-text-bright) !important;padding:8px 12px !important;border-radius:8px !important;width:240px !important}
-    #tab-linkedin #liSearch:focus{border-color:rgba(var(--p-primary-rgb),0.4) !important;outline:none}
-    #tab-linkedin #liSearch::placeholder{color:var(--aur-text-faint)}
-    #tab-linkedin .li-filters select{background:rgba(255,255,255,0.03) !important;border:1px solid var(--aur-border-default) !important;color:var(--aur-text-std) !important;padding:7px 10px !important;border-radius:6px !important;font-family:'DM Sans',sans-serif !important;font-size:12px}
-    #tab-linkedin .li-filters span{font-family:'DM Sans',sans-serif !important;font-size:11px !important;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--aur-text-faint) !important}
-    #tab-linkedin .li-filters label{font-family:'DM Sans',sans-serif !important;color:var(--aur-text-muted) !important;font-size:12px !important}
-    #tab-linkedin .li-filters input[type="checkbox"]{accent-color:var(--p-primary)}
-
-    /* Summary */
-    #tab-linkedin .li-summary{flex:0 0 auto;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--aur-text-muted);letter-spacing:0.04em;padding:0 4px}
-
-    /* Neon table */
-    #tab-linkedin > .li-page > div[style*="overflow-x:auto"]{flex:1;min-height:0;padding:1px;border-radius:14px;background:linear-gradient(135deg,rgba(var(--p-primary-rgb),0.55) 0%,rgba(var(--p-secondary-rgb),0.45) 50%,rgba(var(--p-glow-rgb),0.55) 100%);box-shadow:0 4px 24px rgba(var(--p-primary-rgb),0.08),0 0 40px rgba(var(--p-secondary-rgb),0.04);overflow:hidden !important}
-    #tab-linkedin .li-table{background:var(--aur-bg);border-radius:13px;width:100%;border-collapse:separate;border-spacing:0}
-    #tab-linkedin .li-table thead th{font-family:'DM Sans',sans-serif !important;font-size:10px !important;font-weight:600 !important;letter-spacing:0.18em !important;text-transform:uppercase !important;color:var(--p-primary) !important;background:rgba(var(--p-primary-rgb),0.06) !important;padding:12px 14px !important;text-align:left;position:sticky;top:0;z-index:1}
-    #tab-linkedin .li-table tbody tr{border-bottom:1px solid var(--aur-border-subtle)}
-    #tab-linkedin .li-table tbody tr:hover{background:rgba(255,255,255,0.02)}
-    #tab-linkedin .li-table tbody td{padding:11px 14px !important;font-family:'DM Sans',sans-serif !important;font-size:13px !important;color:var(--aur-text-std) !important;vertical-align:middle}
-    #tab-linkedin .li-table .li-clinic{font-family:'Fraunces',serif !important;font-style:italic !important;font-size:16px !important;color:var(--aur-text-bright) !important}
-    #tab-linkedin .li-person-label{font-family:'DM Sans',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--aur-text-faint);margin-bottom:3px}
-
+    #tab-linkedin .li-hero{flex:0 0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+    #tab-linkedin .li-h1{font-family:'Fraunces',serif;font-weight:300;font-style:italic;font-size:42px;line-height:1;margin:0;letter-spacing:-0.02em;background:linear-gradient(120deg,#8B5CF6 0%,#EC4899 55%,#06B6D4 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    #tab-linkedin .li-sub{margin-top:8px;font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:#9a95a8}
+    /* Stats strip */
+    #tab-linkedin .li-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:0 0 auto}
+    #tab-linkedin .li-stat{padding:1px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%);box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04);transition:box-shadow .25s}
+    #tab-linkedin .li-stat:hover{box-shadow:0 4px 32px rgba(139,92,246,0.16),0 0 60px rgba(236,72,153,0.08)}
+    #tab-linkedin .li-stat-inner{background:#0a0b1a;border-radius:13px;padding:14px 18px;display:flex;flex-direction:column;gap:4px}
+    #tab-linkedin .li-stat-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#6b6580}
+    #tab-linkedin .li-stat-value{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:28px;line-height:1;color:#e8e4f0;font-variant-numeric:tabular-nums}
+    #tab-linkedin .li-stat-sub{font-family:'Inter',sans-serif;font-size:11px;color:#9a95a8;margin-top:2px}
+    /* Filters card */
+    #tab-linkedin .li-filters{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:0;padding:14px 22px;border-radius:14px;background:linear-gradient(#0a0b1a,#0a0b1a) padding-box,linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%) border-box;border:1px solid transparent;box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04);flex:0 0 auto}
+    #tab-linkedin #liSearch{flex:0 1 280px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#e0dce8;padding:9px 14px;font-size:14px;outline:none;border-radius:8px;width:auto;font-family:inherit}
+    #tab-linkedin #liSearch:focus{border-color:rgba(139,92,246,0.4)}
+    #tab-linkedin #liSearch::placeholder{color:#6b6580}
+    #tab-linkedin .li-filters > div{display:flex;align-items:center;gap:8px}
+    #tab-linkedin .li-filters > div > span{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6b6580}
+    #tab-linkedin .li-filters select{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#e0dce8;padding:7px 10px;font-size:13px;outline:none;border-radius:8px;min-width:130px;font-family:inherit}
+    #tab-linkedin .li-filters select:focus{border-color:rgba(139,92,246,0.4)}
+    #tab-linkedin .li-filters label{font-family:'Inter',sans-serif;font-size:12px;color:#9a95a8;text-transform:none;letter-spacing:0;font-weight:400;display:inline-flex;align-items:center;gap:6px}
+    #tab-linkedin .li-filters input[type="checkbox"]{accent-color:#8B5CF6;width:14px;height:14px;cursor:pointer}
+    /* Old summary line — hidden, replaced by stats strip */
+    #tab-linkedin .li-summary{display:none}
+    /* Table card */
+    #tab-linkedin .li-table-wrap{flex:1;min-height:0;display:flex;flex-direction:column;padding:1px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%);box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04);transition:box-shadow .25s}
+    #tab-linkedin .li-table-inner{background:#0a0b1a;border-radius:13px;flex:1;display:flex;flex-direction:column;padding:18px 22px;min-height:0}
+    #tab-linkedin .li-table-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex:0 0 auto}
+    #tab-linkedin .li-table-title{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.22em;color:#8B5CF6}
+    #tab-linkedin .li-table-meta{font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:#9a95a8}
+    #tab-linkedin .li-table-scroll{flex:1;min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#1e1e1e transparent}
+    /* Table — each clinic row is a framed card */
+    #tab-linkedin .li-table{font-size:13px;width:100%;border-collapse:separate;border-spacing:0 10px;background:transparent;margin-top:-10px}
+    #tab-linkedin .li-table th{text-align:left;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.18em;color:#6b6580;padding:12px 10px;border-bottom:1px solid rgba(139,92,246,0.14);white-space:nowrap;background:#0a0b1a;position:sticky;top:0;z-index:1}
+    #tab-linkedin .li-table tbody td{padding:14px 12px;border-top:1px solid rgba(139,92,246,0.18);border-bottom:1px solid rgba(139,92,246,0.18);vertical-align:top;color:#e0dce8;font-family:'Inter',sans-serif;font-size:13px;background:rgba(255,255,255,0.015);transition:background .15s,border-color .15s}
+    #tab-linkedin .li-table tbody td:first-child{border-left:1px solid rgba(139,92,246,0.18);border-top-left-radius:10px;border-bottom-left-radius:10px}
+    #tab-linkedin .li-table tbody td:last-child{border-right:1px solid rgba(139,92,246,0.18);border-top-right-radius:10px;border-bottom-right-radius:10px}
+    #tab-linkedin .li-table tbody tr:hover td{background:rgba(139,92,246,0.05);border-color:rgba(139,92,246,0.35)}
+    #tab-linkedin .li-table td:first-child,#tab-linkedin .li-table .li-clinic{font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:#e8e4f0;font-weight:500}
+    #tab-linkedin .li-empty{color:#6b6580;font-size:14px;padding:24px 0;text-align:center;font-family:'Fraunces',serif;font-style:italic}
+    #tab-linkedin .li-person-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6b6580;margin-bottom:3px}
     /* LinkedIn buttons */
-    #tab-linkedin button{font-family:'DM Sans',sans-serif !important}
-    #tab-linkedin .li-table .btn-primary,#tab-linkedin .li-table button[class*="btn-"]{background:transparent !important;border:1px solid var(--aur-border-default) !important;color:var(--aur-text-muted) !important;padding:5px 10px !important;border-radius:6px !important;font-size:11px !important;letter-spacing:0.06em;cursor:pointer;transition:all .15s}
-    #tab-linkedin .li-table button:hover{border-color:rgba(var(--p-primary-rgb),0.4) !important;color:var(--p-primary) !important}
-    #tab-linkedin .li-empty{font-family:'Fraunces',serif !important;font-style:italic;color:var(--aur-text-faint) !important;text-align:center;padding:40px}
+    #tab-linkedin button{font-family:'Inter',sans-serif}
+    #tab-linkedin .li-table .btn-primary,#tab-linkedin .li-table button[class*="btn-"]{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#9a95a8;padding:5px 10px;border-radius:6px;font-size:11px;letter-spacing:0.06em;cursor:pointer;transition:all .15s}
+    #tab-linkedin .li-table button:hover{border-color:rgba(139,92,246,0.4);color:#8B5CF6}
 
     /* ════════════════════════════════════════════════════════════════════
        AURORA FOLLOW UPS · EMAIL · LINKEDIN — Daedalus replica (Nebula)
@@ -1124,44 +1146,7 @@
     #tab-email .copy-confirm.show{opacity:1}
     #tab-email .muted.small,#tab-email #emailPreviewPlaceholder{font-family:'Fraunces',serif !important;font-style:italic !important;font-size:16px !important;color:#6b6580 !important;text-align:center !important;padding:32px 0 !important}
 
-    /* LinkedIn — Daedalus replica */
-    body.on-linkedin #mainContent .content-topbar{display:none}
-    #tab-linkedin.tabPane.active{display:flex !important;flex-direction:column !important;gap:16px !important;padding:22px 32px 28px !important;overflow:hidden !important;position:relative;height:100%;background:radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139,92,246,0.07) 0%, transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%, rgba(236,72,153,0.06) 0%, transparent 60%),radial-gradient(ellipse 70% 40% at 50% 50%, rgba(6,182,212,0.04) 0%, transparent 50%),#0a0b1a !important;color:#e0dce8}
-    #tab-linkedin > *{position:relative;z-index:2}
-    #tab-linkedin .li-page,#tab-linkedin .li-page > *{position:static}
-    #tab-linkedin .li-page{padding:0 !important;display:contents !important;background:transparent !important;gap:0 !important;overflow:visible !important}
-    #tab-linkedin .li-hero{flex:0 0 auto;display:flex !important;align-items:flex-end !important;justify-content:space-between !important;gap:24px !important;padding:0 0 16px 0 !important;border-bottom:1px solid rgba(255,255,255,0.06) !important;background:transparent !important}
-    #tab-linkedin .li-h1{font-family:'Fraunces',serif !important;font-weight:300 !important;font-style:italic !important;font-size:42px !important;line-height:1 !important;margin:0 !important;letter-spacing:-0.02em;background:linear-gradient(120deg,#8B5CF6 0%,#EC4899 55%,#06B6D4 100%);background-clip:text !important;-webkit-background-clip:text !important;-webkit-text-fill-color:transparent !important}
-    #tab-linkedin .li-sub{margin-top:8px;font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:#9a95a8}
-    #tab-linkedin .li-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:0 0 auto}
-    #tab-linkedin .li-stat{padding:1px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%);box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04);transition:box-shadow .25s}
-    #tab-linkedin .li-stat-inner{background:#0a0b1a;border-radius:13px;padding:14px 18px;display:flex;flex-direction:column;gap:4px}
-    #tab-linkedin .li-stat-label{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#6b6580}
-    #tab-linkedin .li-stat-value{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:28px;line-height:1;color:#e8e4f0;font-variant-numeric:tabular-nums}
-    #tab-linkedin .li-stat-sub{font-family:'DM Sans',sans-serif;font-size:11px;color:#9a95a8;margin-top:2px}
-    #tab-linkedin .li-filters{display:flex !important;align-items:center !important;gap:16px !important;flex-wrap:wrap !important;margin-bottom:0 !important;padding:14px 22px !important;border-radius:14px !important;background:linear-gradient(#0a0b1a,#0a0b1a) padding-box,linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%) border-box !important;border:1px solid transparent !important;box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04) !important;flex:0 0 auto}
-    #tab-linkedin #liSearch{flex:0 1 280px !important;background:rgba(255,255,255,0.03) !important;border:1px solid rgba(255,255,255,0.06) !important;color:#e0dce8 !important;padding:9px 14px !important;font-size:14px !important;outline:none;border-radius:8px !important;width:auto !important;font-family:inherit !important}
-    #tab-linkedin #liSearch:focus{border-color:rgba(139,92,246,0.4) !important}
-    #tab-linkedin .li-filters > div{display:flex !important;align-items:center !important;gap:8px !important}
-    #tab-linkedin .li-filters > div > span{font-family:'DM Sans',sans-serif !important;font-size:10px !important;font-weight:600 !important;letter-spacing:0.2em !important;text-transform:uppercase !important;color:#6b6580 !important}
-    #tab-linkedin .li-filters select{background:rgba(255,255,255,0.03) !important;border:1px solid rgba(255,255,255,0.06) !important;color:#e0dce8 !important;padding:7px 10px !important;font-size:13px !important;outline:none;border-radius:8px !important;min-width:130px;font-family:inherit !important}
-    #tab-linkedin .li-filters select:focus{border-color:rgba(139,92,246,0.4) !important}
-    #tab-linkedin .li-filters label{font-family:'DM Sans',sans-serif !important;font-size:12px !important;color:#9a95a8 !important;text-transform:none !important;letter-spacing:0 !important;font-weight:400 !important;display:inline-flex;align-items:center;gap:6px}
-    #tab-linkedin .li-filters input[type="checkbox"]{accent-color:#8B5CF6 !important;width:14px !important;height:14px !important;cursor:pointer}
-    #tab-linkedin .li-summary{display:none !important}
-    #tab-linkedin .li-table-wrap{flex:1 !important;min-height:0;display:flex !important;flex-direction:column !important;padding:1px !important;border-radius:14px !important;overflow:hidden !important;background:linear-gradient(135deg,rgba(139,92,246,0.55) 0%,rgba(236,72,153,0.45) 50%,rgba(6,182,212,0.55) 100%) !important;box-shadow:0 4px 24px rgba(139,92,246,0.08),0 0 40px rgba(236,72,153,0.04) !important}
-    #tab-linkedin .li-table-inner{background:#0a0b1a !important;border-radius:13px !important;flex:1 !important;display:flex !important;flex-direction:column !important;padding:18px 22px !important;min-height:0}
-    #tab-linkedin .li-table-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex:0 0 auto}
-    #tab-linkedin .li-table-title{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.22em;color:#8B5CF6}
-    #tab-linkedin .li-table-meta{font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:#9a95a8}
-    #tab-linkedin .li-table-scroll{flex:1;min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#1e1e1e transparent}
-    #tab-linkedin .li-table{font-size:13px !important;width:100% !important;border-collapse:separate !important;border-spacing:0 !important;background:transparent !important}
-    #tab-linkedin .li-table th{text-align:left !important;font-family:'DM Sans',sans-serif !important;font-size:10px !important;font-weight:600 !important;text-transform:uppercase !important;letter-spacing:0.18em !important;color:#6b6580 !important;padding:12px 10px !important;border-bottom:1px solid rgba(139,92,246,0.14) !important;white-space:nowrap;background:#0a0b1a !important;position:sticky;top:0;z-index:1}
-    #tab-linkedin .li-table td{padding:12px 10px !important;border-bottom:1px solid rgba(255,255,255,0.04) !important;vertical-align:middle;color:#e0dce8 !important;font-family:'DM Sans',sans-serif !important;font-size:13px !important;background:transparent !important}
-    #tab-linkedin .li-table tr:hover td{background:rgba(139,92,246,0.04) !important}
-    #tab-linkedin .li-table td:first-child,#tab-linkedin .li-table .li-clinic{font-family:'Fraunces',serif !important;font-style:italic !important;font-size:15px !important;color:#e8e4f0 !important;font-weight:500 !important}
-    #tab-linkedin .li-empty{color:#6b6580 !important;font-size:14px !important;padding:24px 0 !important;text-align:center !important;font-family:'Fraunces',serif !important;font-style:italic !important}
-    #tab-linkedin .li-person-label{font-family:'DM Sans',sans-serif !important;font-size:9px !important;font-weight:600 !important;letter-spacing:0.16em !important;text-transform:uppercase !important;color:#6b6580 !important;margin-bottom:3px}
+    /* LinkedIn — Daedalus replica: see consolidated #tab-linkedin block above */
 
     /* ════════════════════════════════════════════════════════════════════
        AURORA LEAD DETAIL MODAL (Nebula) — neon-bordered centred modal
@@ -1642,14 +1627,17 @@
 
       <div class="card">
         <div class="step-label"><span class="step-num">1</span>Select a Lead</div>
-        <div class="lead-select-wrap">
-          <select id="emailLeadSelect" class="lead-select"><option value="">— choose a lead —</option></select>
+        <div class="lead-search-wrap" id="emailLeadSearchWrap">
+          <input type="text" id="emailLeadSearch" class="lead-select" placeholder="Type to search clinics..." autocomplete="off">
+          <div class="lead-search-results" id="emailLeadResults" style="display:none"></div>
+          <input type="hidden" id="emailLeadSelect">
         </div>
-        <div class="email-autofill" id="emailAutofill" style="display:none">
+        <div class="email-autofill" id="emailAutofill" style="display:none;margin-top:12px">
           <div class="autofill-field"><span>Clinic Name</span><strong id="af_clinic">—</strong></div>
-          <div class="autofill-field"><span>Named Contact</span><strong id="af_contact">—</strong></div>
+          <div class="autofill-field"><span>Principal &amp; Practice Manager</span><strong id="af_principal_pm">—</strong></div>
           <div class="autofill-field"><span>City</span><strong id="af_city">—</strong></div>
           <div class="autofill-field"><span>Channel</span><strong id="af_channel">—</strong></div>
+          <div class="autofill-field"><span>Email</span><strong id="af_email">—</strong></div>
           <div class="autofill-field"><span>Reviews</span><strong id="af_reviews">—</strong></div>
         </div>
       </div>
@@ -3337,10 +3325,17 @@
     let emailState = { leadId:null, type:null };
 
     function populateEmailLeadDropdown(){
-      const sel=document.getElementById('emailLeadSelect'); const current=sel.value;
-      sel.innerHTML='<option value="">— choose a lead —</option>';
-      leads.forEach(l=>{ if(l.doNotContact) return; const _ds=computeStatus(l); if(_ds==='Disqualified'||_ds==='Not Interested'||_ds==='Converted') return; const opt=document.createElement('option'); opt.value=l.id; opt.textContent=(l.clinicName||'(no name)')+(l.contactName?' - '+l.contactName:'')+(l.city?' ('+l.city+')':''); sel.appendChild(opt); });
-      if(current&&leads.find(l=>l.id==current)) sel.value=current;
+      const sel=document.getElementById('emailLeadSelect'); if(!sel) return;
+      const input=document.getElementById('emailLeadSearch');
+      const current=sel.value;
+      // Sync visible text if a lead is already selected and still present
+      if(current && input){
+        const lead=leads.find(l=>l.id==current);
+        if(lead){
+          const tag = lead.principalName || lead.contactName || lead.practiceManagerName || '';
+          input.value = (lead.clinicName||'') + (tag?' — '+tag:'');
+        } else { input.value=''; sel.value=''; }
+      }
     }
 
     function emailAutofill(){
@@ -3352,12 +3347,80 @@
       const lead=leads.find(l=>l.id==id); if(!lead){ autofill.style.display='none'; return; }
       emailState.leadId=id;
       document.getElementById('af_clinic').textContent=lead.clinicName||'—';
-      document.getElementById('af_contact').textContent=lead.contactName||'—';
+      // Principal & Practice Manager — stacked role labels + names
+      const lblStyle='font-family:Inter,sans-serif;font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6b6580;display:block;margin-bottom:2px';
+      const blocks=[];
+      if(lead.principalName) blocks.push('<div><span style="'+lblStyle+'">Principal Dentist</span>'+escapeHtml(lead.principalName)+'</div>');
+      if(lead.practiceManagerName) blocks.push('<div><span style="'+lblStyle+'">Practice Manager</span>'+escapeHtml(lead.practiceManagerName)+'</div>');
+      if(!blocks.length && lead.contactName) blocks.push('<div>'+escapeHtml(lead.contactName)+'</div>');
+      document.getElementById('af_principal_pm').innerHTML = blocks.length ? '<div style="display:flex;flex-direction:column;gap:8px">'+blocks.join('')+'</div>' : '—';
       document.getElementById('af_city').textContent=lead.city||'—';
       document.getElementById('af_channel').textContent=lead.channel||'—';
+      document.getElementById('af_email').textContent=lead.email||'—';
       document.getElementById('af_reviews').textContent=lead.reviewCount||'—';
       autofill.style.display='grid';
       refreshEmailPreview();
+    }
+
+    function bindEmailSearch(){
+      const input=document.getElementById('emailLeadSearch');
+      const results=document.getElementById('emailLeadResults');
+      const hidden=document.getElementById('emailLeadSelect');
+      if(!input||!results||!hidden) return;
+      if(input._versaSearchBound) return; input._versaSearchBound=true;
+      function activeLeads(){
+        return leads.filter(l=>{
+          if(l.doNotContact) return false;
+          const cs=computeStatus(l);
+          return cs!=='Disqualified' && cs!=='Not Interested' && cs!=='Converted';
+        });
+      }
+      function displayName(l){
+        const tag = l.principalName || l.contactName || l.practiceManagerName || '';
+        return (l.clinicName||'') + (tag?' — '+tag:'');
+      }
+      function renderResults(list){
+        if(!list.length){ results.style.display='none'; return; }
+        results.innerHTML=list.map(l=>{
+          const tag = l.principalName || l.contactName || l.practiceManagerName || '';
+          return '<div class="lead-result-item" data-id="'+l.id+'">'+escapeHtml(l.clinicName||'(no name)')+(tag?'<span class="lr-meta"> — '+escapeHtml(tag)+'</span>':'')+(l.city?'<span class="lr-city">'+escapeHtml(l.city)+'</span>':'')+'</div>';
+        }).join('');
+        results.style.display='block';
+      }
+      function selectLead(id){
+        const lead=leads.find(l=>l.id==id); if(!lead) return;
+        hidden.value=id;
+        input.value=displayName(lead);
+        results.style.display='none';
+        emailAutofill();
+      }
+      input.addEventListener('input', ()=>{
+        const q=input.value.trim().toLowerCase();
+        if(!q){ results.style.display='none'; return; }
+        const filtered=activeLeads().filter(l=>
+          (l.clinicName||'').toLowerCase().includes(q)||
+          (l.principalName||'').toLowerCase().includes(q)||
+          (l.practiceManagerName||'').toLowerCase().includes(q)||
+          (l.contactName||'').toLowerCase().includes(q)||
+          (l.city||'').toLowerCase().includes(q)
+        ).slice(0,8);
+        renderResults(filtered);
+      });
+      input.addEventListener('focus', ()=>{ if(input.value.trim()) input.dispatchEvent(new Event('input')); });
+      input.addEventListener('keydown', e=>{
+        if(e.key==='Escape'){ results.style.display='none'; }
+        if(e.key==='Enter'){
+          const first=results.querySelector('.lead-result-item');
+          if(first){ e.preventDefault(); selectLead(first.dataset.id); }
+        }
+      });
+      results.addEventListener('mousedown', e=>{
+        const item=e.target.closest('.lead-result-item'); if(!item) return;
+        e.preventDefault(); selectLead(item.dataset.id);
+      });
+      document.addEventListener('click', e=>{
+        if(!e.target.closest('#emailLeadSearchWrap')) results.style.display='none';
+      });
     }
 
     function setActiveType(type){
@@ -3500,7 +3563,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
     }
 
     function bindEmailTab(){
-      document.getElementById('emailLeadSelect').addEventListener('change',emailAutofill);
+      bindEmailSearch();
       document.querySelectorAll('[data-type]').forEach(b=>{ b.addEventListener('click',()=>setActiveType(b.dataset.type)); });
       document.getElementById('btnGenerateInitial').addEventListener('click',generateInitialEmail);
       document.getElementById('btnSaveInitialApiKey').addEventListener('click',()=>{
@@ -3985,73 +4048,88 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       }
       if(emptyEl) emptyEl.style.display = 'none';
 
-      // For each lead, emit 1 row per contact (Principal + PM both → 2 rows; else 1 row using single contact)
+      // For each lead, emit ONE row per clinic with contacts stacked inside cells
       filtered.forEach(l => {
         const contacts = [];
-        if(l.principalName) contacts.push({person:'principal',name:l.principalName,role:'Principal',url:l.principalLinkedinUrl,notFound:l.principalLinkedinNotFound,connSent:l.principalConnectionSent,connDate:l.principalConnectionDate,dmSent:l.principalDMSent,dmDate:l.principalDMDate});
+        if(l.principalName) contacts.push({person:'principal',name:l.principalName,role:'Principal Dentist',url:l.principalLinkedinUrl,notFound:l.principalLinkedinNotFound,connSent:l.principalConnectionSent,connDate:l.principalConnectionDate,dmSent:l.principalDMSent,dmDate:l.principalDMDate});
         if(l.practiceManagerName) contacts.push({person:'pm',name:l.practiceManagerName,role:'Practice Manager',url:l.pmLinkedinUrl,notFound:l.pmLinkedinNotFound,connSent:l.pmConnectionSent,connDate:l.pmConnectionDate,dmSent:l.pmDMSent,dmDate:l.pmDMDate});
         if(contacts.length === 0){
           contacts.push({person:'single',name:l.linkedinContact||l.contactName||'-',role:'',url:l.linkedinUrl,notFound:l.linkedinNotFound,connSent:l.linkedinConnectionSent,connDate:l.linkedinConnectionDate,dmSent:l.linkedinDMSent,dmDate:l.linkedinDMDate});
         }
 
-        contacts.forEach(c => {
-          const tr = document.createElement('tr');
-
-          // Contact column
-          const tdContact = document.createElement('td');
-          const roleHtml = c.role ? '<div class="li-person-label">'+c.role+'</div>' : '';
-          tdContact.innerHTML = roleHtml + escapeHtml(c.name||'-');
-          tr.appendChild(tdContact);
-
-          // Clinic column
-          const tdClinic = document.createElement('td');
-          tdClinic.textContent = l.clinicName || '-';
-          tr.appendChild(tdClinic);
-
-          // City column
-          const tdCity = document.createElement('td');
-          tdCity.textContent = l.city || '-';
-          tr.appendChild(tdCity);
-
-          // LinkedIn Profile column
-          const tdProfile = document.createElement('td');
+        // Per-contact block builders — return raw HTML strings
+        const profileBlock = c => {
           const urlInputId = c.person === 'single' ? 'li-url-'+l.id : 'li-url-'+c.person+'-'+l.id;
           if(c.notFound){
-            tdProfile.innerHTML = '<span class="li-not-found-badge" style="font-family:\'DM Sans\',sans-serif;font-size:11px;color:#9a95a8">Not Found</span>';
+            return '<span class="li-not-found-badge" style="font-size:11px;color:#9a95a8">Not Found</span>';
           } else if(c.url){
-            tdProfile.innerHTML = '<div class="li-url-wrap" style="display:flex;align-items:center;gap:6px"><a class="btn-li-view" href="'+escapeHtml(c.url)+'" target="_blank" rel="noopener">View</a></div>';
+            return '<div class="li-url-wrap" style="display:flex;align-items:center;gap:6px"><a class="btn-li-view" href="'+escapeHtml(c.url)+'" target="_blank" rel="noopener">View</a></div>';
           } else {
             const findArg = c.person === 'single' ? l.id+',\'single\'' : l.id+',\''+c.person+'\'';
             const saveCall = c.person === 'single' ? 'saveLinkedInUrl('+l.id+')' : 'saveLIUrl('+l.id+',\''+c.person+'\')';
-            tdProfile.innerHTML = '<div class="li-url-wrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><button class="btn-li-find" onclick="findLinkedIn('+findArg+')">Find</button><input class="li-url-input" id="'+urlInputId+'" type="url" placeholder="Paste URL..."><button class="li-save-btn" onclick="'+saveCall+'">Save</button></div>';
+            return '<div class="li-url-wrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><button class="btn-li-find" onclick="findLinkedIn('+findArg+')">Find</button><input class="li-url-input" id="'+urlInputId+'" type="url" placeholder="Paste URL..."><button class="li-save-btn" onclick="'+saveCall+'">Save</button></div>';
           }
-          tr.appendChild(tdProfile);
-
-          // Connection column
-          const tdConn = document.createElement('td');
+        };
+        const connBlock = c => {
           if(c.connSent){
-            tdConn.innerHTML = '<span class="li-dm-badge" style="background:rgba(139,92,246,0.12);color:#8B5CF6;border-color:rgba(139,92,246,0.3)">Connected'+(c.connDate?' &middot; '+formatDateISOtoShortUK(c.connDate):'')+'</span>';
-          } else {
-            const fn = c.person === 'single' ? 'markConnectionSent('+l.id+')' : 'markLIConnectionSent('+l.id+',\''+c.person+'\')';
-            tdConn.innerHTML = '<button class="btn-li-conn" onclick="'+fn+'">Mark Connected</button>';
+            return '<span class="li-dm-badge" style="background:rgba(139,92,246,0.12);color:#8B5CF6;border-color:rgba(139,92,246,0.3)">Connected'+(c.connDate?' &middot; '+formatDateISOtoShortUK(c.connDate):'')+'</span>';
           }
-          tr.appendChild(tdConn);
-
-          // Messages column — Send DM + Copy inline
-          const tdMsg = document.createElement('td');
-          let msgInner = '';
+          const fn = c.person === 'single' ? 'markConnectionSent('+l.id+')' : 'markLIConnectionSent('+l.id+',\''+c.person+'\')';
+          return '<button class="btn-li-conn" onclick="'+fn+'">Mark Connected</button>';
+        };
+        const msgBlock = c => {
+          let inner = '';
           if(c.dmSent){
-            msgInner += '<span class="li-dm-badge">DM Sent'+(c.dmDate?' &middot; '+formatDateISOtoShortUK(c.dmDate):'')+'</span>';
+            inner += '<span class="li-dm-badge">DM Sent'+(c.dmDate?' &middot; '+formatDateISOtoShortUK(c.dmDate):'')+'</span>';
           } else {
             const dmFn = c.person === 'single' ? 'markDMSent('+l.id+')' : 'markLIDMSent('+l.id+',\''+c.person+'\')';
-            msgInner += '<button class="btn-li-dm" onclick="'+dmFn+'">Send DM</button>';
+            inner += '<button class="btn-li-dm" onclick="'+dmFn+'">Send DM</button>';
           }
-          msgInner += '<button class="btn-li-copy" onclick="copyForGemini('+l.id+')">Copy</button>';
-          tdMsg.innerHTML = '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+msgInner+'</div>';
-          tr.appendChild(tdMsg);
+          inner += '<button class="btn-li-copy" onclick="copyForGemini('+l.id+')">Copy</button>';
+          return '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+inner+'</div>';
+        };
+        // Stack helper: wraps an array of HTML chunks (one per contact) in a flex column
+        // with role label above each. 14px gap between contacts.
+        const stack = (chunks) => '<div style="display:flex;flex-direction:column;gap:14px">'+
+          chunks.map((html, i) => {
+            const c = contacts[i];
+            const label = c.role ? '<div class="li-person-label">'+c.role+'</div>' : '';
+            return '<div>'+label+html+'</div>';
+          }).join('')+'</div>';
 
-          tbody.appendChild(tr);
-        });
+        const tr = document.createElement('tr');
+
+        // Contact column — stacked role + name
+        const tdContact = document.createElement('td');
+        tdContact.innerHTML = stack(contacts.map(c => '<div>'+escapeHtml(c.name||'-')+'</div>'));
+        tr.appendChild(tdContact);
+
+        // Clinic column — single line
+        const tdClinic = document.createElement('td');
+        tdClinic.textContent = l.clinicName || '-';
+        tr.appendChild(tdClinic);
+
+        // City column — single line
+        const tdCity = document.createElement('td');
+        tdCity.textContent = l.city || '-';
+        tr.appendChild(tdCity);
+
+        // LinkedIn Profile — stacked controls per contact
+        const tdProfile = document.createElement('td');
+        tdProfile.innerHTML = stack(contacts.map(profileBlock));
+        tr.appendChild(tdProfile);
+
+        // Connection — stacked controls per contact
+        const tdConn = document.createElement('td');
+        tdConn.innerHTML = stack(contacts.map(connBlock));
+        tr.appendChild(tdConn);
+
+        // Messages — stacked controls per contact
+        const tdMsg = document.createElement('td');
+        tdMsg.innerHTML = stack(contacts.map(msgBlock));
+        tr.appendChild(tdMsg);
+
+        tbody.appendChild(tr);
       });
     }
 
