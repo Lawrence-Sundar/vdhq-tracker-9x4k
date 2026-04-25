@@ -789,6 +789,39 @@
     #tab-pipeline .lead-row-main .fu-chip.fu-chip-sent{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#34D399}
     #tab-pipeline .lead-row-main .fu-chip.fu-chip-due{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#fbbf24}
     #tab-pipeline .lead-row-main .reply-y-chip{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;padding:4px 10px;background:rgba(var(--p-glow-rgb),0.12);border:1px solid rgba(var(--p-glow-rgb),0.35);color:var(--p-glow);border-radius:4px}
+    /* === Daedalus-style port additions === */
+    /* Font swap: status filter chips + sub-line use Inter */
+    #tab-pipeline .status-filter-btn{font-family:'Inter',sans-serif !important}
+    #tab-pipeline .lead-row-main .lead-sub{font-family:'Inter',sans-serif !important}
+    /* Filters toggle button */
+    #tab-pipeline .btn-filters{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;background:transparent;border:1px solid rgba(255,255,255,0.06);color:#9a95a8;border-radius:8px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s}
+    #tab-pipeline .btn-filters:hover{border-color:rgba(139,92,246,0.35);color:#e0dce8}
+    #tab-pipeline .btn-filters svg{flex-shrink:0}
+    /* Bulk bar */
+    #tab-pipeline .pl-bulk{display:flex;align-items:center;gap:8px;padding:8px 12px;flex-wrap:wrap;background:rgba(255,255,255,0.02);border:1px solid var(--aur-border-default);border-radius:8px;flex:0 0 auto}
+    #tab-pipeline .pl-bulk input[type="checkbox"]{width:14px;height:14px;accent-color:#8B5CF6;cursor:pointer}
+    #tab-pipeline .pl-bulk .sel-count{font-family:'Inter',sans-serif;font-size:12px;color:#9a95a8;letter-spacing:0.04em;white-space:nowrap}
+    #tab-pipeline .pl-bulk .sep{color:rgba(255,255,255,0.1);font-size:12px}
+    #tab-pipeline .pl-bulk .btn-q{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;background:transparent;border:1px solid rgba(255,255,255,0.06);color:#9a95a8;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s}
+    #tab-pipeline .pl-bulk .btn-q:hover{border-color:rgba(139,92,246,0.4);color:#e0dce8}
+    /* Row checkbox */
+    #tab-pipeline .lead-row-main input[type="checkbox"]{width:14px;height:14px;accent-color:#8B5CF6;cursor:pointer;flex-shrink:0}
+    #tab-pipeline .lead-row-main.row-selected{background:rgba(139,92,246,0.06) !important}
+    /* City tag (might be styled elsewhere; scope here for safety) */
+    #tab-pipeline .lead-row-main .city-tag{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.04em;color:#9a95a8;padding:4px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;white-space:nowrap;flex-shrink:0}
+    /* Status pill (Daedalus-style, slug-classed) */
+    #tab-pipeline .pl-status{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 10px;border-radius:6px;white-space:nowrap;text-align:center;flex-shrink:0;border:1px solid;min-width:120px}
+    #tab-pipeline .pl-status.s-not-sent{color:#9a95a8;border-color:rgba(107,114,128,0.35);background:rgba(107,114,128,0.1)}
+    #tab-pipeline .pl-status.s-action-required{color:#ef4444;border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.08)}
+    #tab-pipeline .pl-status.s-awaiting-reply{color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08)}
+    #tab-pipeline .pl-status.s-replied{color:#3B82F6;border-color:rgba(59,130,246,0.35);background:rgba(59,130,246,0.08)}
+    #tab-pipeline .pl-status.s-converted{color:#10B981;border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.15);box-shadow:0 0 10px rgba(16,185,129,0.15)}
+    #tab-pipeline .pl-status.s-not-interested{color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)}
+    #tab-pipeline .pl-status.s-disqualified{color:#6b7280;border-color:rgba(107,114,128,0.3);background:rgba(107,114,128,0.06)}
+    #tab-pipeline .pl-status.s-dnc{color:#6b6580;border-color:rgba(107,101,128,0.35);background:rgba(107,101,128,0.08)}
+    /* View button */
+    #tab-pipeline .lead-row-main .btn-view-lead{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#9a95a8;padding:6px 12px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border-radius:6px;font-family:'Inter',sans-serif;transition:all .15s;flex-shrink:0;cursor:pointer}
+    #tab-pipeline .lead-row-main .btn-view-lead:hover{border-color:rgba(139,92,246,0.4);color:#8B5CF6}
 
     /* Lead row expand panel (kept — replaces row-click-modal until Stage 10) */
     #tab-pipeline .lead-row-expand{background:rgba(255,255,255,0.02) !important;border-top:1px solid var(--aur-border-subtle);padding:14px 16px !important;border-radius:0 0 6px 6px}
@@ -1415,6 +1448,10 @@
         </div>
         <div class="pl-hero-right">
           <input id="pipelineSearch" type="text" placeholder="Search clinics...">
+          <button class="btn-filters" id="btnToggleFilters" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filters
+          </button>
           <span id="filterCount" style="display:none">0</span>
           <div id="pipelineFilterBadge" style="display:none"><button class="filter-reset-badge" id="btnResetFilters">Reset</button></div>
         </div>
@@ -1430,8 +1467,8 @@
         <button class="status-filter-btn" data-status="Converted">Converted <span class="tab-count" id="tcConverted"></span></button>
         <button class="status-filter-btn" data-status="DNC">DNC <span class="tab-count" id="tcDNC"></span></button>
       </div>
-      <!-- Collapsible filters panel -->
-      <div id="pipelineFiltersPanel" style="margin-bottom:16px">
+      <!-- Collapsible filters panel (hidden by default; toggle via btnToggleFilters) -->
+      <div id="pipelineFiltersPanel" style="display:none;margin-bottom:16px">
         <div class="card" style="padding:16px 20px">
           <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
             <div class="filter-group">
@@ -1473,6 +1510,18 @@
       <span id="daLinkedinConn-p" style="display:none">0</span>
       <span id="daQualified-p" style="display:none">0</span>
       <span id="daTotal-p" style="display:none">0</span>
+
+      <!-- Bulk select bar -->
+      <div id="pipelineBulkBar" class="pl-bulk">
+        <input type="checkbox" id="pSelectAll" title="Select / deselect all visible">
+        <span id="pSelCount" class="sel-count">0 selected</span>
+        <span class="sep">|</span>
+        <button class="btn-q" id="btnSel10" type="button" title="Select first 10">10</button>
+        <button class="btn-q" id="btnSel25" type="button" title="Select first 25">25</button>
+        <button class="btn-q" id="btnSel50" type="button" title="Select first 50">50</button>
+        <span class="sep">|</span>
+        <button class="btn-q" id="btnSelClear" type="button">Clear</button>
+      </div>
 
       <!-- Lead list — neon-bordered card -->
       <div class="card">
@@ -2707,10 +2756,9 @@
         const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
         const urgHtml=urgency?`<span class="fu-urgency ${urgency.dotClass}"><span class="fu-urg-dot"></span>${escapeHtml(urgency.label)}</span>`:'';
         const row=document.createElement('div'); row.className='lead-row';
-        const main=document.createElement('div'); main.className='lead-row-main';
-        const contextChip=urgency?`<span class="fu-urgency ${urgency.dotClass}">${escapeHtml(urgency.label)}</span>`:status==='Replied'?'<span style="font-size:12px;color:var(--success);font-weight:500">Replied</span>':status==='Converted'?'<span style="font-size:12px;color:#34d399;font-weight:500">Converted</span>':status==='Not Sent'?'<button class="btn-mark-sent" style="font-size:12px;padding:4px 10px" data-action="markSentInline" data-id="'+l.id+'">Mark Sent</button>':'';
-        const cityDisplay=l.city&&l.city.toLowerCase()!=='unknown'?' · '+escapeHtml(l.city):'';
-        main.innerHTML=`<span class="sdot ${statusDotClassPipeline(status)}"></span><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}${cityDisplay}</span></div><div class="row-right">${contextChip}<button class="btn-view-lead" data-id="${l.id}">View</button></div>`;
+        const main=document.createElement('div'); main.className='lead-row-main'+(selectedPipelineIds.has(l.id)?' row-selected':'');
+        const statusSlug=(status||'').toLowerCase().replace(/\s+/g,'-');
+        main.innerHTML=`<input type="checkbox" class="sel-check sel-pipeline" data-id="${l.id}" ${selectedPipelineIds.has(l.id)?'checked':''}><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div>${cityTag}<span class="pl-status s-${statusSlug}">${escapeHtml(status)}</span><button class="btn-view-lead" data-id="${l.id}">View</button>`;
         const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
         const hasDraft=!!(l.draftSubject||l.draftBody);
         // Reply on record section (only if replyText saved)
@@ -2725,6 +2773,16 @@
         const _viewBtn=main.querySelector('.btn-view-lead');
         if(_viewBtn) _viewBtn.addEventListener('click',e=>{ e.stopPropagation(); openLeadDetail(l.id); });
         const markSentInline=main.querySelector('[data-action="markSentInline"]'); if(markSentInline) markSentInline.addEventListener('click',e=>{ e.stopPropagation(); markAsSentFromInbox(markSentInline.dataset.id); });
+        const _selChk=main.querySelector('.sel-pipeline');
+        if(_selChk){
+          _selChk.addEventListener('click',e=>e.stopPropagation());
+          _selChk.addEventListener('change',e=>{
+            if(_selChk.checked) selectedPipelineIds.add(l.id);
+            else selectedPipelineIds.delete(l.id);
+            main.classList.toggle('row-selected',_selChk.checked);
+            updatePipelineBulkUI();
+          });
+        }
         // Bind expand row buttons directly so they work after filter changes (when renderPipeline is called without attachButtons)
         expand.querySelectorAll('.fu-btn[data-fu]').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation(); markFUSent(btn.dataset.id,btn.dataset.fu); }); });
         const replyBtn=expand.querySelector('[data-action="toggleReply"]'); if(replyBtn) replyBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleReply(replyBtn.dataset.id); });
@@ -2943,6 +3001,10 @@
       const noLinkedin=document.getElementById('pFilterNoLinkedin'); if(noLinkedin) noLinkedin.addEventListener('change',()=>{ pipelineFilter.noLinkedin=noLinkedin.value; renderPipeline(); });
       const resetBtn=document.getElementById('btnResetFilters'); if(resetBtn) resetBtn.addEventListener('click',resetPipelineFilters);
       const psearch=document.getElementById('pipelineSearch'); if(psearch) psearch.addEventListener('input',()=>renderPipeline());
+      // Drop selections that are no longer in the visible filtered set
+      const visibleIds=new Set(_lastPipelineFiltered.map(l=>l.id));
+      Array.from(selectedPipelineIds).forEach(id=>{ if(!visibleIds.has(id)) selectedPipelineIds.delete(id); });
+      updatePipelineBulkUI();
     }
 
     function renderInbox(){
@@ -3255,7 +3317,42 @@
         + '</div>';
     }
 
+    // ── Pipeline bulk-select (Daedalus-style) ──
+    function updatePipelineBulkUI(){
+      const cnt=document.getElementById('pSelCount');
+      if(cnt) cnt.textContent=selectedPipelineIds.size+' selected';
+      const sa=document.getElementById('pSelectAll');
+      if(sa){
+        const allIds=_lastPipelineFiltered.map(l=>l.id);
+        sa.checked=allIds.length>0&&allIds.every(id=>selectedPipelineIds.has(id));
+        sa.indeterminate=!sa.checked&&selectedPipelineIds.size>0;
+      }
+    }
+    function quickSelectPipeline(n){
+      selectedPipelineIds.clear();
+      _lastPipelineFiltered.slice(0,n).forEach(l=>selectedPipelineIds.add(l.id));
+      renderPipeline();
+    }
+    function bindPipelineBulkBar(){
+      const sa=document.getElementById('pSelectAll');
+      if(sa) sa.addEventListener('change',()=>{
+        if(sa.checked) _lastPipelineFiltered.forEach(l=>selectedPipelineIds.add(l.id));
+        else selectedPipelineIds.clear();
+        renderPipeline();
+      });
+      const s10=document.getElementById('btnSel10'); if(s10) s10.addEventListener('click',()=>quickSelectPipeline(10));
+      const s25=document.getElementById('btnSel25'); if(s25) s25.addEventListener('click',()=>quickSelectPipeline(25));
+      const s50=document.getElementById('btnSel50'); if(s50) s50.addEventListener('click',()=>quickSelectPipeline(50));
+      const sc=document.getElementById('btnSelClear'); if(sc) sc.addEventListener('click',()=>{ selectedPipelineIds.clear(); renderPipeline(); });
+      const ft=document.getElementById('btnToggleFilters');
+      if(ft) ft.addEventListener('click',()=>{
+        const p=document.getElementById('pipelineFiltersPanel');
+        if(p) p.style.display=p.style.display==='none'?'block':'none';
+      });
+    }
+
     function bindUI(){
+      bindPipelineBulkBar();
       document.getElementById('leadForm').addEventListener('submit',e=>{ e.preventDefault(); const data={clinicName:document.getElementById('clinicName').value.trim(),city:document.getElementById('city').value.trim(),address:document.getElementById('address').value.trim(),website:document.getElementById('website').value.trim(),contactName:document.getElementById('contactName').value.trim(),email:document.getElementById('email').value.trim(),channel:document.getElementById('channel').value,angle:document.getElementById('angle').value,dateSent:document.getElementById('dateSent').value||'',reply:document.getElementById('reply').value,replyType:document.getElementById('replyType').value.trim(),notes:document.getElementById('notes').value.trim(),reviewCount:document.getElementById('reviewCount').value.trim()}; addLead(data); e.target.reset(); closeAddLeadPanel(); });
 
       document.getElementById('btnFillTest').onclick=()=>{ addLead({clinicName:'Sunrise Dental',city:'Manchester',address:'1 Main St',website:'sunrise.example',contactName:'Dr Alice Shah',email:'alice@sunrise.test',channel:'Email',angle:'Conversion',dateSent:todayISO(),reply:'N',replyType:'',notes:'Test lead'}); };
@@ -3345,6 +3442,7 @@
     let fuFilter = {fuType:'All', city:'All'};
 
     let selectedFollowUpItems = new Map(); // keyed '${id}-${fuKey}'
+    let selectedPipelineIds = new Set();
     let _lastPipelineFiltered = [];
     let _lastFollowUpAllItems = [];
     let _bulkSendCancelled = false;
