@@ -1606,23 +1606,24 @@
       <div class="li-table-wrap">
         <div class="li-table-inner">
           <div class="li-table-head">
-            <div class="li-table-title">Clinics · LinkedIn</div>
+            <div class="li-table-title">Clinics &middot; LinkedIn</div>
             <div class="li-table-meta" id="liTableMeta"></div>
           </div>
           <div class="li-table-scroll">
             <table class="li-table">
               <thead>
                 <tr>
-                  <th>Contact Name</th>
-                  <th>Clinic Name</th>
+                  <th>Contact</th>
+                  <th>Clinic</th>
                   <th>City</th>
                   <th>LinkedIn Profile</th>
-                  <th>DM</th>
+                  <th>Connection</th>
+                  <th>Messages</th>
                 </tr>
               </thead>
               <tbody id="liTableBody"></tbody>
             </table>
-            <div id="liEmpty" class="li-empty" style="display:none">No leads match the current filters.</div>
+            <div id="liEmpty" class="li-empty" style="display:none">No clinics match the current filters.</div>
           </div>
         </div>
       </div>
@@ -3915,7 +3916,146 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
     }
 
     function renderLinkedIn(){
-      renderLiStats();
+      const tbody = document.getElementById('liTableBody');
+      const emptyEl = document.getElementById('liEmpty');
+      const statsEl = document.getElementById('liStats');
+      const metaEl = document.getElementById('liTableMeta');
+      if(!tbody) return;
+
+      const cityNorm = s => (s||'').toLowerCase().trim();
+      const knownCities = ['london','manchester','birmingham','leeds','bristol','edinburgh','glasgow'];
+
+      // Base: exclude DNC always
+      const base = leads.filter(l => !l.doNotContact);
+      const totalActive = base.length;
+
+      // Stats — count contacts (Principal + PM where applicable)
+      let connected = 0, messaged = 0, noProfile = 0;
+      base.forEach(l => {
+        const hasP = !!l.principalName, hasPm = !!l.practiceManagerName;
+        if(hasP && hasPm){
+          if(l.principalConnectionSent) connected++;
+          if(l.pmConnectionSent) connected++;
+          if(l.principalDMSent) messaged++;
+          if(l.pmDMSent) messaged++;
+          if(!l.principalLinkedinUrl) noProfile++;
+          if(!l.pmLinkedinUrl) noProfile++;
+        } else if(hasP || hasPm){
+          if(l.principalConnectionSent || l.pmConnectionSent) connected++;
+          if(l.principalDMSent || l.pmDMSent) messaged++;
+          if(!l.principalLinkedinUrl && !l.pmLinkedinUrl) noProfile++;
+        } else {
+          if(l.linkedinConnectionSent) connected++;
+          if(l.linkedinDMSent) messaged++;
+          if(!l.linkedinUrl) noProfile++;
+        }
+      });
+
+      if(statsEl){
+        const connRate = totalActive > 0 ? Math.round((connected/totalActive)*100) : 0;
+        statsEl.innerHTML =
+          '<div class="li-stat"><div class="li-stat-inner"><div class="li-stat-label">Total leads</div><div class="li-stat-value">'+totalActive+'</div><div class="li-stat-sub">In pipeline</div></div></div>'+
+          '<div class="li-stat"><div class="li-stat-inner"><div class="li-stat-label">Connected</div><div class="li-stat-value">'+connected+'</div><div class="li-stat-sub">'+connRate+'% connection rate</div></div></div>'+
+          '<div class="li-stat"><div class="li-stat-inner"><div class="li-stat-label">Messages sent</div><div class="li-stat-value">'+messaged+'</div><div class="li-stat-sub">Across all stages</div></div></div>'+
+          '<div class="li-stat"><div class="li-stat-inner"><div class="li-stat-label">Profiles to find</div><div class="li-stat-value">'+noProfile+'</div><div class="li-stat-sub">Missing LinkedIn URL</div></div></div>';
+      }
+
+      // Filters
+      const sq = liFilter.search.toLowerCase().trim();
+      const filtered = base.filter(l => {
+        if(sq && !(l.clinicName||'').toLowerCase().includes(sq) && !(l.principalName||'').toLowerCase().includes(sq) && !(l.practiceManagerName||'').toLowerCase().includes(sq) && !(l.contactName||'').toLowerCase().includes(sq) && !(l.linkedinContact||'').toLowerCase().includes(sq)) return false;
+        if(liFilter.city !== 'All'){
+          const cn = cityNorm(l.city);
+          if(liFilter.city === 'Other' && knownCities.includes(cn)) return false;
+          if(liFilter.city !== 'Other' && cn !== liFilter.city.toLowerCase()) return false;
+        }
+        if(liFilter.excludeNoContact && !l.principalName && !l.practiceManagerName && !l.contactName) return false;
+        const anyConn = !!(l.principalConnectionSent || l.pmConnectionSent || l.linkedinConnectionSent);
+        if(liFilter.status === 'Connected' && !anyConn) return false;
+        if(liFilter.status === 'Not Connected' && anyConn) return false;
+        return true;
+      });
+
+      if(metaEl) metaEl.textContent = 'Showing ' + filtered.length + ' of ' + totalActive;
+
+      tbody.innerHTML = '';
+      if(!filtered.length){
+        if(emptyEl) emptyEl.style.display = 'block';
+        return;
+      }
+      if(emptyEl) emptyEl.style.display = 'none';
+
+      // For each lead, emit 1 row per contact (Principal + PM both → 2 rows; else 1 row using single contact)
+      filtered.forEach(l => {
+        const contacts = [];
+        if(l.principalName) contacts.push({person:'principal',name:l.principalName,role:'Principal',url:l.principalLinkedinUrl,notFound:l.principalLinkedinNotFound,connSent:l.principalConnectionSent,connDate:l.principalConnectionDate,dmSent:l.principalDMSent,dmDate:l.principalDMDate});
+        if(l.practiceManagerName) contacts.push({person:'pm',name:l.practiceManagerName,role:'Practice Manager',url:l.pmLinkedinUrl,notFound:l.pmLinkedinNotFound,connSent:l.pmConnectionSent,connDate:l.pmConnectionDate,dmSent:l.pmDMSent,dmDate:l.pmDMDate});
+        if(contacts.length === 0){
+          contacts.push({person:'single',name:l.linkedinContact||l.contactName||'-',role:'',url:l.linkedinUrl,notFound:l.linkedinNotFound,connSent:l.linkedinConnectionSent,connDate:l.linkedinConnectionDate,dmSent:l.linkedinDMSent,dmDate:l.linkedinDMDate});
+        }
+
+        contacts.forEach(c => {
+          const tr = document.createElement('tr');
+
+          // Contact column
+          const tdContact = document.createElement('td');
+          const roleHtml = c.role ? '<div class="li-person-label">'+c.role+'</div>' : '';
+          tdContact.innerHTML = roleHtml + escapeHtml(c.name||'-');
+          tr.appendChild(tdContact);
+
+          // Clinic column
+          const tdClinic = document.createElement('td');
+          tdClinic.textContent = l.clinicName || '-';
+          tr.appendChild(tdClinic);
+
+          // City column
+          const tdCity = document.createElement('td');
+          tdCity.textContent = l.city || '-';
+          tr.appendChild(tdCity);
+
+          // LinkedIn Profile column
+          const tdProfile = document.createElement('td');
+          const urlInputId = c.person === 'single' ? 'li-url-'+l.id : 'li-url-'+c.person+'-'+l.id;
+          if(c.notFound){
+            tdProfile.innerHTML = '<span class="li-not-found-badge" style="font-family:\'DM Sans\',sans-serif;font-size:11px;color:#9a95a8">Not Found</span>';
+          } else if(c.url){
+            tdProfile.innerHTML = '<div class="li-url-wrap" style="display:flex;align-items:center;gap:6px"><a class="btn-li-view" href="'+escapeHtml(c.url)+'" target="_blank" rel="noopener">View</a></div>';
+          } else {
+            const findArg = c.person === 'single' ? l.id+',\'single\'' : l.id+',\''+c.person+'\'';
+            const saveCall = c.person === 'single' ? 'saveLinkedInUrl('+l.id+')' : 'saveLIUrl('+l.id+',\''+c.person+'\')';
+            tdProfile.innerHTML = '<div class="li-url-wrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><button class="btn-li-find" onclick="findLinkedIn('+findArg+')">Find</button><input class="li-url-input" id="'+urlInputId+'" type="url" placeholder="Paste URL..."><button class="li-save-btn" onclick="'+saveCall+'">Save</button></div>';
+          }
+          tr.appendChild(tdProfile);
+
+          // Connection column
+          const tdConn = document.createElement('td');
+          if(c.connSent){
+            tdConn.innerHTML = '<span class="li-dm-badge" style="background:rgba(139,92,246,0.12);color:#8B5CF6;border-color:rgba(139,92,246,0.3)">Connected'+(c.connDate?' &middot; '+formatDateISOtoShortUK(c.connDate):'')+'</span>';
+          } else {
+            const fn = c.person === 'single' ? 'markConnectionSent('+l.id+')' : 'markLIConnectionSent('+l.id+',\''+c.person+'\')';
+            tdConn.innerHTML = '<button class="btn-li-conn" onclick="'+fn+'">Mark Connected</button>';
+          }
+          tr.appendChild(tdConn);
+
+          // Messages column — Send DM + Copy inline
+          const tdMsg = document.createElement('td');
+          let msgInner = '';
+          if(c.dmSent){
+            msgInner += '<span class="li-dm-badge">DM Sent'+(c.dmDate?' &middot; '+formatDateISOtoShortUK(c.dmDate):'')+'</span>';
+          } else {
+            const dmFn = c.person === 'single' ? 'markDMSent('+l.id+')' : 'markLIDMSent('+l.id+',\''+c.person+'\')';
+            msgInner += '<button class="btn-li-dm" onclick="'+dmFn+'">Send DM</button>';
+          }
+          msgInner += '<button class="btn-li-copy" onclick="copyForGemini('+l.id+')">Copy</button>';
+          tdMsg.innerHTML = '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+msgInner+'</div>';
+          tr.appendChild(tdMsg);
+
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function _legacyRenderLinkedIn_DEAD(){
       const tbody = document.getElementById('liTableBody');
       const emptyEl = document.getElementById('liEmpty');
       const summaryEl = document.getElementById('liSummary');
