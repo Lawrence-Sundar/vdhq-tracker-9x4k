@@ -1510,6 +1510,10 @@
         <input type="checkbox" class="sel-check" id="fuSelectAll" title="Select / deselect all filtered">
         <span id="fuSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
         <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel10" title="Select first 10">10</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel25" title="Select first 25">25</button>
+        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel50" title="Select first 50">50</button>
+        <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
         <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSelClear">Clear</button>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <button class="btn-bulk-send" id="btnBulkSendFU" style="font-size:12px;padding:5px 12px" disabled>Send via Outlook</button>
@@ -3069,7 +3073,12 @@
       }
       const overdue=items.filter(i=>i.overdue).sort((a,b)=>a.fuDate.localeCompare(b.fuDate));
       const dueToday=items.filter(i=>!i.overdue).sort((a,b)=>(a.lead.clinicName||'').localeCompare(b.lead.clinicName||''));
-      _lastFollowUpAllItems=items.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel}));
+      // Include initial-not-sent rows in select-all / quick-select scope (visible-row order: initial → overdue → dueToday)
+      _lastFollowUpAllItems=[
+        ...unsent.map(l=>({lead:l,fuKey:'initial',fuLabel:'Initial'})),
+        ...overdue.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel})),
+        ...dueToday.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel}))
+      ];
 
       // === Daedalus-style row rendering ===
       // fu1=Email 2, fu2=Email 3, fu3=Email 4. Initial=Email 1.
