@@ -1486,45 +1486,10 @@
         </div>
       </div>
       <div class="fu-stats" id="fuStats"></div>
-      <div id="fuDotLegend" style="display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-        <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-right:4px">Status</span>
-        <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-sent" style="width:6px;height:6px"></span>Sent</span>
-        <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-fudue" style="width:6px;height:6px"></span>FU Due</span>
-        <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-replied" style="width:6px;height:6px"></span>Replied</span>
-        <span style="display:flex;align-items:center;gap:5px"><span class="sdot sdot-p-notsent" style="width:6px;height:6px"></span>Not Sent</span>
-      </div>
-      <div class="daily-actions-bar">
-        <span class="da-label">Today's Actions</span>
-        <span class="da-stat"><span class="da-val" id="daFreshSends-f">0</span> Fresh Sends</span>
-        <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daFollowups-f">0</span> Follow-ups</span>
-        <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daLinkedinDM-f">0</span> LinkedIn DMs</span>
-        <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daLinkedinConn-f">0</span> LinkedIn Connections</span>
-        <span class="da-sep">|</span>
-        <span class="da-stat"><span class="da-val" id="daQualified-f">0</span> Leads Qualified</span>
-        <span class="da-sep">|</span>
-        <span class="da-total" title="Daily action target">Total: <span id="daTotal-f">0</span> / 100</span>
-      </div>
-      <div class="secondary-filter-bar" style="margin-top:12px">
-        <div class="filter-group">
-          <span class="filter-inline-label">FU Type</span>
-          <select id="fuFilterType"><option value="All">All</option><option value="FU1 Due">FU1 Due</option><option value="FU2 Due">FU2 Due</option><option value="FU3 Due">FU3 Due</option></select>
-        </div>
-        <div class="filter-group">
-          <span class="filter-inline-label">City</span>
-          <select id="fuFilterCity"><option value="All">All</option><option value="London">London</option><option value="Manchester">Manchester</option><option value="Birmingham">Birmingham</option><option value="Leeds">Leeds</option><option value="Bristol">Bristol</option><option value="Edinburgh">Edinburgh</option><option value="Glasgow">Glasgow</option><option value="Other">Other</option></select>
-        </div>
-        <span id="fuShowingCount" style="margin-left:auto;font-size:12px;color:var(--muted)"></span>
-      </div>
       <div id="followUpsBulkBar" style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:8px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px">
         <input type="checkbox" class="sel-check" id="fuSelectAll" title="Select / deselect all filtered">
         <span id="fuSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
         <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel10">Select 10</button>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel25">Select 25</button>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel50">Select 50</button>
         <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSelClear">Clear</button>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <button class="btn-bulk-send" id="btnBulkSendFU" style="font-size:12px;padding:5px 12px" disabled>Send via Outlook</button>
