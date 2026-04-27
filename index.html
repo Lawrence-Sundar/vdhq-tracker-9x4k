@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260427tier3';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260427pillfix';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -816,6 +816,11 @@
     #tab-pipeline .pl-status.s-not-interested{color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)}
     #tab-pipeline .pl-status.s-disqualified{color:#6b7280;border-color:rgba(107,114,128,0.3);background:rgba(107,114,128,0.06)}
     #tab-pipeline .pl-status.s-sent{color:#8B5CF6;border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.08)}
+    #tab-pipeline .pl-status.s-follow-up-due{color:#fbbf24;border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.08)}
+    #tab-pipeline .pl-status.s-pilot-started,
+    #tab-pipeline .pl-status.s-pilot-agreed{color:#EC4899;border-color:rgba(236,72,153,0.4);background:rgba(236,72,153,0.08)}
+    #tab-pipeline .pl-status.s-discovery-booked,
+    #tab-pipeline .pl-status.s-discovery-completed{color:#fbbf24;border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.08)}
     /* View button */
     #tab-pipeline .lead-row-main .btn-view-lead{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#9a95a8;padding:6px 12px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border-radius:6px;font-family:'Inter',sans-serif;transition:all .15s;flex-shrink:0;cursor:pointer}
     #tab-pipeline .lead-row-main .btn-view-lead:hover{border-color:rgba(139,92,246,0.4);color:#8B5CF6}
@@ -2934,11 +2939,11 @@ function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot 
       if(_tcReplied) _tcReplied.textContent=baseLeadsActive.filter(isReplied).length;
       const _cConv=baseLeadsActive.filter(isConverted).length;
       const _cNotInt=baseLeadsAll.filter(isNotInterestedTab).length;
-      if(_tcConverted){ _tcConverted.textContent=_cConv; _tcConverted.parentElement.style.display=_cConv>0?'':'none'; }
-      if(_tcNotInterested){ _tcNotInterested.textContent=_cNotInt; _tcNotInterested.parentElement.style.display=_cNotInt>0?'':'none'; }
+      if(_tcConverted) _tcConverted.textContent=_cConv;
+      if(_tcNotInterested) _tcNotInterested.textContent=_cNotInt;
       const _tcNotSent=document.getElementById('tcNotSent');
       const _cNotSent=baseLeadsActive.filter(isNotSent).length;
-      if(_tcNotSent){ _tcNotSent.textContent=_cNotSent; _tcNotSent.parentElement.style.display=_cNotSent>0?'':'none'; }
+      if(_tcNotSent) _tcNotSent.textContent=_cNotSent;
 
       let filtered=leads.filter(l=>{
         // Hide Not Interested / Disqualified from every tab except the Not Interested tab itself
