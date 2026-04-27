@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260427killdnc';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260427tier3';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2017,7 +2017,6 @@
       fu1Date:'fu1_date', fu1Sent:'fu1_sent', fu1SentOn:'fu1_sent_on',
       fu2Date:'fu2_date', fu2DateOriginal:'fu2_date_original', fu2Sent:'fu2_sent', fu2SentOn:'fu2_sent_on',
       fu3Date:'fu3_date', fu3DateOriginal:'fu3_date_original', fu3Sent:'fu3_sent', fu3SentOn:'fu3_sent_on',
-      fuDatesLocked:'fu_dates_locked',
       reply:'reply', replyType:'reply_type', replyText:'reply_text', replyAnalysis:'reply_analysis',
       doNotContact:'do_not_contact',
       draftSubject:'draft_subject', draftBody:'draft_body', subjectLine:'subject_line',
@@ -2138,7 +2137,7 @@
       if(fu==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); } }
       save(); }
 
-    function toggleReply(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply=(lead.reply==='Y')?'N':'Y'; save(); }
+    function toggleReply(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; const wasYes=lead.reply==='Y'; lead.reply=wasYes?'N':'Y'; if(wasYes){ lead.replyType=''; lead.replyText=''; } save(); }
 
 function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; if(expandedFollowUpId==id) expandedFollowUpId=null; selectedFollowUpItems.forEach((_,k)=>{ if(k.startsWith(id+'-')) selectedFollowUpItems.delete(k); }); if(emailState.leadId==id){ emailState.leadId=null; emailState.type=null; } const sb=getSB(); if(sb) _sbTracked(sb.from(SB_TABLE).delete().eq('id',id), 'deleteLead'); save(); }
 
@@ -3662,6 +3661,7 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
     let _lastPipelineFiltered = [];
     let _lastFollowUpAllItems = [];
     let _bulkSendCancelled = false;
+    let _sendAllCancelled = false;
 
     let emailState = { leadId:null, type:null };
 
@@ -4141,7 +4141,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
     }
 
     function closeSendAllModal(){
-      _bulkSendCancelled = true;
+      _sendAllCancelled = true;
       const bd = document.getElementById('sendAllBackdrop'); const md = document.getElementById('sendAllModal');
       md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true');
     }
@@ -4237,7 +4237,6 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
           if(msgId) lead.threadMessageId = msgId;
           lead.dateSent = todayISO();
           lead.initialSentDate = todayISO();
-          lead.fuDatesLocked = false;
           ensureFUDates(lead);
           sent++;
           if(statusEl) statusEl.innerHTML = '<span style="color:#4CAF7D;font-size:12px">&#10003; Sent</span>';
@@ -4258,16 +4257,16 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       const confirmBtn = document.getElementById('btnConfirmSendAll');
       const progressEl = document.getElementById('sendAllProgress');
       if(!rows.length) return;
-      _bulkSendCancelled = false;
+      _sendAllCancelled = false;
       if(confirmBtn){
         confirmBtn.textContent = 'Stop';
         confirmBtn.disabled = false;
-        confirmBtn.onclick = () => { _bulkSendCancelled = true; confirmBtn.textContent = 'Stopping...'; confirmBtn.disabled = true; };
+        confirmBtn.onclick = () => { _sendAllCancelled = true; confirmBtn.textContent = 'Stopping...'; confirmBtn.disabled = true; };
       }
       if(progressEl){ progressEl.textContent = '0 / ' + rows.length; progressEl.style.display = 'block'; }
       let sent = 0, failed = 0, stopped = 0; const total = rows.length;
       for(const row of rows){
-        if(_bulkSendCancelled){ stopped = total - (sent + failed); break; }
+        if(_sendAllCancelled){ stopped = total - (sent + failed); break; }
         const id = row.dataset.id; const fuKey = row.dataset.fukey; const fuLabel = row.dataset.fulabel;
         const statusEl = document.getElementById(`sas-${id}-${fuKey}`);
         const lead = leads.find(l => l.id == id);
@@ -4297,7 +4296,7 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         }
         if(progressEl) progressEl.textContent = (sent + failed) + ' / ' + total;
       }
-      if(progressEl) progressEl.textContent = (_bulkSendCancelled?'Stopped — ':'Done — ') + sent + ' sent' + (failed ? ', ' + failed + ' failed' : '') + (stopped?', '+stopped+' not sent':'');
+      if(progressEl) progressEl.textContent = (_sendAllCancelled?'Stopped — ':'Done — ') + sent + ' sent' + (failed ? ', ' + failed + ' failed' : '') + (stopped?', '+stopped+' not sent':'');
       if(confirmBtn){ confirmBtn.textContent = 'Close'; confirmBtn.disabled = false; confirmBtn.onclick = closeSendAllModal; }
     }
 
