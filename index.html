@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260427viewmodal2';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260427tier12';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2804,6 +2804,8 @@
           if(lead.replyType==='Discovery Completed' && !lead.discoveryCallCompleted) lead.discoveryCallCompleted=_td;
           if(lead.replyType==='Pilot Agreed' && !lead.pilotAgreed) lead.pilotAgreed=_td;
           if(lead.replyType==='Pilot Started'){ if(!lead.pilotStarted) lead.pilotStarted=_td; if(!lead.pilotEndDate) lead.pilotEndDate=addDays(_td,60); }
+          // Clear pilot/discovery stamps if replyType is terminal/empty (lead exited the funnel)
+          if(!lead.replyType || lead.replyType==='Disqualified' || lead.replyType==='Not Interested' || lead.replyType==='Other'){ delete lead.pilotStarted; delete lead.pilotEndDate; delete lead.pilotAgreed; delete lead.discoveryCallBooked; delete lead.discoveryCallCompleted; }
           save();
           openLeadDetail(id);
         });
@@ -2817,9 +2819,12 @@
           const key=btn.dataset.chip;
           if(key==='initial'){
             if(lead.dateSent){
-              // Untick: warn user about FU date impact
-              if(!confirm('Untick Initial as sent? This clears Date Sent. Use the Edit modal if you want to set a different date instead.')) return;
+              if(!confirm('Untick Initial as sent? This clears Date Sent and all follow-up dates.')) return;
               lead.dateSent=''; lead.initialSentDate='';
+              lead.fu1Date=''; lead.fu2Date=''; lead.fu3Date='';
+              lead.fu1Sent=false; lead.fu2Sent=false; lead.fu3Sent=false;
+              delete lead.fu1SentOn; delete lead.fu2SentOn; delete lead.fu3SentOn;
+              delete lead.fu2DateOriginal; delete lead.fu3DateOriginal;
               save();
             } else {
               markAsSentFromInbox(lead.id);
@@ -2864,9 +2869,9 @@
 
     function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(_rt==='Disqualified') return 'Disqualified'; if(_rt==='Pilot Started') return 'Pilot Started'; if(_rt==='Pilot Agreed') return 'Pilot Agreed'; if(_rt==='Discovery Completed') return 'Discovery Completed'; if(_rt==='Discovery Booked') return 'Discovery Booked'; if(lead.reply==='Y') return 'Replied'; if(!lead.dateSent&&!lead.fu1Sent) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; return 'Sent'; }
 
-    function getNextFUDate(lead){ const fus=[{date:lead.fu1Date,sent:lead.fu1Sent},{date:lead.fu2Date,sent:lead.fu2Sent},{date:lead.fu3Date,sent:lead.fu3Sent}]; for(const fu of fus){ if(fu.date&&!fu.sent) return fu.date; } return null; }
+    function getNextFUDate(lead){ const _s=computeStatus(lead); if(_s==='Replied'||_s==='Converted'||_s==='Not Interested'||_s==='Disqualified'||_s==='Do Not Contact') return null; const fus=[{date:lead.fu1Date,sent:lead.fu1Sent},{date:lead.fu2Date,sent:lead.fu2Sent},{date:lead.fu3Date,sent:lead.fu3Sent}]; for(const fu of fus){ if(fu.date&&!fu.sent) return fu.date; } return null; }
 
-    function computeFUUrgency(lead){ if(!lead.dateSent) return null; const td=todayISO(); const fus=[{date:lead.fu1Date,sent:lead.fu1Sent,label:'FU1'},{date:lead.fu2Date,sent:lead.fu2Sent,label:'FU2'},{date:lead.fu3Date,sent:lead.fu3Sent,label:'FU3'}]; for(const fu of fus){ if(!fu.date||fu.sent) continue; if(fu.date<td) return {label:fu.label+' Overdue',dotClass:'fu-urg-overdue'}; if(fu.date===td) return {label:fu.label+' Today',dotClass:'fu-urg-today'}; const days=Math.round((new Date(fu.date)-new Date(td))/86400000); if(days<=2) return {label:fu.label+' in '+days+(days===1?' day':' days'),dotClass:'fu-urg-soon'}; return null; } return null; }
+    function computeFUUrgency(lead){ if(!lead.dateSent) return null; const _s=computeStatus(lead); if(_s==='Replied'||_s==='Converted'||_s==='Not Interested'||_s==='Disqualified'||_s==='Do Not Contact') return null; const td=todayISO(); const fus=[{date:lead.fu1Date,sent:lead.fu1Sent,label:'FU1'},{date:lead.fu2Date,sent:lead.fu2Sent,label:'FU2'},{date:lead.fu3Date,sent:lead.fu3Sent,label:'FU3'}]; for(const fu of fus){ if(!fu.date||fu.sent) continue; if(fu.date<td) return {label:fu.label+' Overdue',dotClass:'fu-urg-overdue'}; if(fu.date===td) return {label:fu.label+' Today',dotClass:'fu-urg-today'}; const days=Math.round((new Date(fu.date)-new Date(td))/86400000); if(days<=2) return {label:fu.label+' in '+days+(days===1?' day':' days'),dotClass:'fu-urg-soon'}; return null; } return null; }
 
     function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Pilot Started':'sdot-p-pilot','Pilot Agreed':'sdot-p-pilot','Discovery Completed':'sdot-p-discovery','Discovery Booked':'sdot-p-discovery'}; return m[status]||'sdot-p-notsent'; }
 
@@ -3255,9 +3260,16 @@
     }
 
     function markFUFromFollowUps(id,fuKey){ const lead=leads.find(l=>l.id==id); if(!lead) return;
-      if(fuKey==='fu1'){ lead.fu1Sent=true; lead.fu1SentOn=todayISO(); if(lead.fu2Date && !lead.fu2DateOriginal) lead.fu2DateOriginal=lead.fu2Date; lead.fu2Date=addDays(todayISO(),5); }
-      if(fuKey==='fu2'){ lead.fu2Sent=true; lead.fu2SentOn=todayISO(); if(lead.fu3Date && !lead.fu3DateOriginal) lead.fu3DateOriginal=lead.fu3Date; lead.fu3Date=addDays(todayISO(),7); }
-      if(fuKey==='fu3'){ lead.fu3Sent=true; lead.fu3SentOn=todayISO(); }
+      if(lead.doNotContact) return; const _ms=computeStatus(lead); if(_ms==='Replied'||_ms==='Converted'||_ms==='Not Interested'||_ms==='Disqualified') return;
+      if(fuKey==='fu1'){
+        if(lead.fu1Sent){ lead.fu1Sent=false; delete lead.fu1SentOn; if(lead.fu2DateOriginal){ lead.fu2Date=lead.fu2DateOriginal; delete lead.fu2DateOriginal; } }
+        else { lead.fu1Sent=true; lead.fu1SentOn=todayISO(); if(lead.fu2Date && !lead.fu2DateOriginal) lead.fu2DateOriginal=lead.fu2Date; lead.fu2Date=addDays(todayISO(),5); }
+      }
+      if(fuKey==='fu2'){
+        if(lead.fu2Sent){ lead.fu2Sent=false; delete lead.fu2SentOn; if(lead.fu3DateOriginal){ lead.fu3Date=lead.fu3DateOriginal; delete lead.fu3DateOriginal; } }
+        else { lead.fu2Sent=true; lead.fu2SentOn=todayISO(); if(lead.fu3Date && !lead.fu3DateOriginal) lead.fu3DateOriginal=lead.fu3Date; lead.fu3Date=addDays(todayISO(),7); }
+      }
+      if(fuKey==='fu3'){ if(lead.fu3Sent){ lead.fu3Sent=false; delete lead.fu3SentOn; } else { lead.fu3Sent=true; lead.fu3SentOn=todayISO(); } }
       save(); }
 
     function markRepliedFromFollowUps(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply='Y'; save(); }
@@ -3509,7 +3521,20 @@
     function openAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); bd.classList.add('open'); pn.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
     function closeAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); pn.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
 
-    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim(); const _td=todayISO(); if(lead.replyType==='Discovery Booked' && !lead.discoveryCallBooked) lead.discoveryCallBooked=_td; if(lead.replyType==='Discovery Completed' && !lead.discoveryCallCompleted) lead.discoveryCallCompleted=_td; if(lead.replyType==='Pilot Agreed' && !lead.pilotAgreed) lead.pilotAgreed=_td; if(lead.replyType==='Pilot Started'){ if(!lead.pilotStarted) lead.pilotStarted=_td; if(!lead.pilotEndDate) lead.pilotEndDate=addDays(_td,60); } ensureFUDates(lead); save(); closeModal(); }
+    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim();
+      // If reply set to N, clear replyType + replyText so downstream logic agrees
+      if(lead.reply==='N'){ lead.replyType=''; lead.replyText=''; }
+      // If dateSent cleared, also clear FU schedule + flags + originals
+      if(!lead.dateSent){ lead.fu1Date=''; lead.fu2Date=''; lead.fu3Date=''; lead.fu1Sent=false; lead.fu2Sent=false; lead.fu3Sent=false; delete lead.fu1SentOn; delete lead.fu2SentOn; delete lead.fu3SentOn; delete lead.fu2DateOriginal; delete lead.fu3DateOriginal; }
+      const _td=todayISO();
+      if(lead.replyType==='Discovery Booked' && !lead.discoveryCallBooked) lead.discoveryCallBooked=_td;
+      if(lead.replyType==='Discovery Completed' && !lead.discoveryCallCompleted) lead.discoveryCallCompleted=_td;
+      if(lead.replyType==='Pilot Agreed' && !lead.pilotAgreed) lead.pilotAgreed=_td;
+      if(lead.replyType==='Pilot Started'){ if(!lead.pilotStarted) lead.pilotStarted=_td; if(!lead.pilotEndDate) lead.pilotEndDate=addDays(_td,60); }
+      // Clear pilot/discovery stamps if replyType is terminal/empty (lead exited the funnel)
+      if(!lead.replyType || lead.replyType==='Disqualified' || lead.replyType==='Not Interested' || lead.replyType==='Other'){ delete lead.pilotStarted; delete lead.pilotEndDate; delete lead.pilotAgreed; delete lead.discoveryCallBooked; delete lead.discoveryCallCompleted; }
+      ensureFUDates(lead); save(); closeModal();
+    }
 
     function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 

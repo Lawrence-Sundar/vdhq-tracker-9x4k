@@ -8,7 +8,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260425emaildraftcol';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260427fudates';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -1948,9 +1948,9 @@ ${pageText}`;
         email:       (document.getElementById('emailToSendInput') ? document.getElementById('emailToSendInput').value.trim() : selectedEmail) || '',
         channel:     (document.getElementById('intakeMethodSelect') ? document.getElementById('intakeMethodSelect').value : r.booking_channel) || '',
         dateSent:    '',
-        fu1Date:     addDaysISO(3),
-        fu2Date:     addDaysISO(7),
-        fu3Date:     addDaysISO(14),
+        fu1Date:     '',
+        fu2Date:     '',
+        fu3Date:     '',
         fu1Sent:     false,
         fu2Sent:     false,
         fu3Sent:     false,
