@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260427viewmodal';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260427viewmodal2';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2704,9 +2704,9 @@
       // Sequence chips: Initial + FU1 + FU2 + FU3
       const initialSent=lead.dateSent||lead.initialSentDate||'';
       const initialChip=_seqChipHtmlVDHQ('Initial','initial',initialSent,null,false);
-      const fu1Chip=_seqChipHtmlVDHQ('FU1','fu1',lead.fu1Sent?(lead.fu1SentOn||''):'',lead.fu1Date||'',!lead.dateSent);
-      const fu2Chip=_seqChipHtmlVDHQ('FU2','fu2',lead.fu2Sent?(lead.fu2SentOn||''):'',lead.fu2Date||'',!lead.fu1Sent);
-      const fu3Chip=_seqChipHtmlVDHQ('FU3','fu3',lead.fu3Sent?(lead.fu3SentOn||''):'',lead.fu3Date||'',!lead.fu2Sent);
+      const fu1Chip=_seqChipHtmlVDHQ('FU1','fu1',lead.fu1Sent?(lead.fu1SentOn||''):'',lead.dateSent?(lead.fu1Date||''):'',!lead.dateSent);
+      const fu2Chip=_seqChipHtmlVDHQ('FU2','fu2',lead.fu2Sent?(lead.fu2SentOn||''):'',lead.dateSent?(lead.fu2Date||''):'',!lead.fu1Sent);
+      const fu3Chip=_seqChipHtmlVDHQ('FU3','fu3',lead.fu3Sent?(lead.fu3SentOn||''):'',lead.dateSent?(lead.fu3Date||''):'',!lead.fu2Sent);
 
       const replyTypeOpts='<option value="">&mdash; select &mdash;</option>'+REPLY_TYPES.map(r=>'<option value="'+r+'"'+(lead.replyType===r?' selected':'')+'>'+r+'</option>').join('');
 
@@ -2854,17 +2854,15 @@
       if(deleteBtn) deleteBtn.addEventListener('click',()=>{ closeLeadDetail(); deleteLead(id); });
 
       document.getElementById('leadDetailBackdrop').classList.add('open');
-      expandedLeadId=id;
     }
 
     function closeLeadDetail(){
       document.getElementById('leadDetailBackdrop').classList.remove('open');
-      expandedLeadId=null;
     }
 
-    function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); ensureFUDates(lead); save(); }
+    function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); if(!lead.fu1SentOn) lead.fu1Date=''; if(!lead.fu2SentOn) lead.fu2Date=''; if(!lead.fu3SentOn) lead.fu3Date=''; ensureFUDates(lead); save(); }
 
-    function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(_rt==='Disqualified') return 'Disqualified'; if(_rt==='Pilot Started') return 'Pilot Started'; if(_rt==='Pilot Agreed') return 'Pilot Agreed'; if(_rt==='Discovery Completed') return 'Discovery Completed'; if(_rt==='Discovery Booked') return 'Discovery Booked'; if(lead.reply==='Y') return 'Replied'; if(!lead.dateSent&&!lead.fu1Sent&&!lead.fu1Date) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; return 'Sent'; }
+    function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(_rt==='Disqualified') return 'Disqualified'; if(_rt==='Pilot Started') return 'Pilot Started'; if(_rt==='Pilot Agreed') return 'Pilot Agreed'; if(_rt==='Discovery Completed') return 'Discovery Completed'; if(_rt==='Discovery Booked') return 'Discovery Booked'; if(lead.reply==='Y') return 'Replied'; if(!lead.dateSent&&!lead.fu1Sent) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; return 'Sent'; }
 
     function getNextFUDate(lead){ const fus=[{date:lead.fu1Date,sent:lead.fu1Sent},{date:lead.fu2Date,sent:lead.fu2Sent},{date:lead.fu3Date,sent:lead.fu3Sent}]; for(const fu of fus){ if(fu.date&&!fu.sent) return fu.date; } return null; }
 
