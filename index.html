@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260427tier12';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260427killdnc';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -290,7 +290,6 @@
     .sdot-p-replied{background:#2D7D46;box-shadow:0 0 0 2px rgba(45,125,70,.18)}
     .sdot-p-converted{background:var(--mauve);box-shadow:0 0 0 3px var(--mauve-dim)}
     .sdot-p-disqualified{background:#8B0000}
-    .sdot-p-dnc{background:#8B0000}
     .sdot-p-notinterested{background:#444}
     .sdot-p-overdue{background:#E5484D;box-shadow:0 0 0 2px rgba(229,72,77,.18)}
     .sdot-p-pilot{background:#2D7D46;box-shadow:0 0 0 2px rgba(45,125,70,.18)}
@@ -353,8 +352,6 @@
     .da-total{font-size:16px;color:#666;margin-left:auto}
     .da-total span{color:var(--accent);font-weight:600;font-size:16px}
 
-    /* Do Not Contact badge */
-    .dnc-badge{display:inline-block;font-size:14px;font-weight:700;padding:2px 9px;border-radius:12px;background:#8B0000;color:#fff;letter-spacing:.05em;margin-bottom:8px}
 
     /* Pipeline — status filter button group */
     .status-filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
@@ -757,7 +754,7 @@
     #tab-pipeline .status-filter-btn[data-status="Action Required"].active{background:rgba(239,68,68,0.12) !important;color:#ef4444 !important;border-color:rgba(239,68,68,0.4) !important;box-shadow:0 0 14px rgba(239,68,68,0.12)}
     #tab-pipeline .status-filter-btn[data-status="Replied"].active{background:rgba(var(--p-glow-rgb),0.12) !important;color:var(--p-glow) !important;border-color:rgba(var(--p-glow-rgb),0.4) !important;box-shadow:0 0 14px rgba(var(--p-glow-rgb),0.14)}
     #tab-pipeline .status-filter-btn[data-status="Converted"].active{background:rgba(52,211,153,0.12) !important;color:#34D399 !important;border-color:rgba(52,211,153,0.4) !important;box-shadow:0 0 14px rgba(52,211,153,0.12)}
-    #tab-pipeline .status-filter-btn[data-status="DNC"].active{background:rgba(239,68,68,0.1) !important;color:#ef4444 !important;border-color:rgba(239,68,68,0.35) !important;box-shadow:0 0 12px rgba(239,68,68,0.10)}
+    #tab-pipeline .status-filter-btn[data-status="Not Interested"].active{background:rgba(239,68,68,0.1) !important;color:#ef4444 !important;border-color:rgba(239,68,68,0.35) !important;box-shadow:0 0 12px rgba(239,68,68,0.10)}
     #tab-pipeline .status-filter-btn .tab-count{font-family:'Fraunces',serif;font-style:italic;font-size:14px;font-weight:400;font-variant-numeric:tabular-nums;opacity:0.75;background:none;padding:0;margin:0;letter-spacing:0;text-transform:none}
     #tab-pipeline .status-filter-btn.active .tab-count{opacity:1}
 
@@ -818,7 +815,6 @@
     #tab-pipeline .pl-status.s-converted{color:#10B981;border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.15);box-shadow:0 0 10px rgba(16,185,129,0.15)}
     #tab-pipeline .pl-status.s-not-interested{color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)}
     #tab-pipeline .pl-status.s-disqualified{color:#6b7280;border-color:rgba(107,114,128,0.3);background:rgba(107,114,128,0.06)}
-    #tab-pipeline .pl-status.s-dnc{color:#6b6580;border-color:rgba(107,101,128,0.35);background:rgba(107,101,128,0.08)}
     #tab-pipeline .pl-status.s-sent{color:#8B5CF6;border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.08)}
     /* View button */
     #tab-pipeline .lead-row-main .btn-view-lead{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#9a95a8;padding:6px 12px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border-radius:6px;font-family:'Inter',sans-serif;transition:all .15s;flex-shrink:0;cursor:pointer}
@@ -838,7 +834,6 @@
     #tab-pipeline .sdot-p-fudue{background:#fbbf24;box-shadow:0 0 8px rgba(245,158,11,0.5)}
     #tab-pipeline .sdot-p-sent{background:var(--p-primary);box-shadow:0 0 6px rgba(var(--p-primary-rgb),0.4)}
     #tab-pipeline .sdot-p-notsent{background:var(--aur-text-faint)}
-    #tab-pipeline .sdot-p-dnc{background:#6b7280}
     #tab-pipeline .sdot-p-notinterested{background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,0.3)}
     #tab-pipeline .sdot-p-pilot{background:var(--p-secondary);box-shadow:0 0 8px rgba(var(--p-secondary-rgb),0.5)}
     #tab-pipeline .sdot-p-discovery{background:#fbbf24;box-shadow:0 0 8px rgba(245,158,11,0.5)}
@@ -1526,7 +1521,7 @@
         <button class="status-filter-btn" data-status="Awaiting Reply">Awaiting Reply <span class="tab-count" id="tcAwaiting"></span></button>
         <button class="status-filter-btn" data-status="Replied">Replied <span class="tab-count" id="tcReplied"></span></button>
         <button class="status-filter-btn" data-status="Converted">Converted <span class="tab-count" id="tcConverted"></span></button>
-        <button class="status-filter-btn" data-status="DNC">DNC <span class="tab-count" id="tcDNC"></span></button>
+        <button class="status-filter-btn" data-status="Not Interested">Not Interested <span class="tab-count" id="tcNotInterested"></span></button>
       </div>
       <!-- Collapsible filters panel (hidden by default; toggle via btnToggleFilters) -->
       <div id="pipelineFiltersPanel" style="display:none;margin-bottom:16px">
@@ -1671,7 +1666,6 @@
             <option value="Replied">Replied</option>
             <option value="Booked">Booked</option>
             <option value="Not Interested">Not Interested</option>
-            <option value="Do Not Contact">Do Not Contact</option>
           </select>
         </div>
         <label style="text-transform:none;font-size:12px;font-weight:400;display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="liExcludeNoContact" checked> Exclude leads with no named contact</label>
@@ -2085,7 +2079,20 @@
         const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
       }
       if(!leads.length){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); if(bRaw){ const backups=JSON.parse(bRaw); if(backups.length&&(backups[0].data||[]).length){ const b=backups[0]; const ts=formatBackupTimestamp(b.timestamp); if(confirm('No leads found but a backup exists from '+ts+' with '+b.data.length+' leads. Restore it?')){ leads=b.data; localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); } } } }catch(e){ console.warn('[load] Backup restore prompt failed:', e && e.message); } }
-      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; }); renderAll();
+      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; });
+      // One-shot migration: DNC concept retired — convert lingering doNotContact:true leads to reply='Y' + replyType='Not Interested'.
+      // Idempotent via activityLog marker. doNotContact flag stays on the record as historical residue (no logic reads it).
+      let _dncMigrated=0;
+      leads.forEach(l=>{
+        if(l.doNotContact && (!l.activityLog || !l.activityLog.some(a=>a && a.action && a.action.indexOf('Migrated from DNC')>=0))){
+          if(!l.activityLog) l.activityLog=[];
+          l.activityLog.push({action:'Migrated from DNC to Not Interested',previousReplyType:l.replyType||'',date:todayISO()});
+          l.reply='Y'; l.replyType='Not Interested';
+          _dncMigrated++;
+        }
+      });
+      if(_dncMigrated>0){ console.log('[load] Migrated '+_dncMigrated+' DNC lead(s) to Not Interested + Replied'); save(); }
+      else { renderAll(); }
     }
     function save(){
       // Dual-write: Supabase (authoritative, async) + localStorage (fallback, may be quota-frozen)
@@ -2133,9 +2140,7 @@
 
     function toggleReply(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.reply=(lead.reply==='Y')?'N':'Y'; save(); }
 
-    function toggleDNC(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; if(lead.doNotContact){ if(!confirm('Remove the Do Not Contact flag from this clinic?')) return; lead.doNotContact=false; } else { if(!confirm('Mark this clinic as Do Not Contact? This cannot be easily undone.')) return; lead.doNotContact=true; } save(); }
-
-    function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; if(expandedFollowUpId==id) expandedFollowUpId=null; selectedFollowUpItems.forEach((_,k)=>{ if(k.startsWith(id+'-')) selectedFollowUpItems.delete(k); }); if(emailState.leadId==id){ emailState.leadId=null; emailState.type=null; } const sb=getSB(); if(sb) _sbTracked(sb.from(SB_TABLE).delete().eq('id',id), 'deleteLead'); save(); }
+function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot be undone.')) return; leads=leads.filter(l=>l.id!=id); if(expandedLeadId==id) expandedLeadId=null; if(expandedFollowUpId==id) expandedFollowUpId=null; selectedFollowUpItems.forEach((_,k)=>{ if(k.startsWith(id+'-')) selectedFollowUpItems.delete(k); }); if(emailState.leadId==id){ emailState.leadId=null; emailState.type=null; } const sb=getSB(); if(sb) _sbTracked(sb.from(SB_TABLE).delete().eq('id',id), 'deleteLead'); save(); }
 
     function statusDotClass(l){ if((l.replyType||'').toLowerCase()==='disqualified') return 'sdot-disq'; if(l.reply==='Y') return 'sdot-replied'; const td=todayISO(); if((l.fu1Date===td&&!l.fu1Sent)||(l.fu2Date===td&&!l.fu2Sent)||(l.fu3Date===td&&!l.fu3Sent)) return 'sdot-due'; return 'sdot-pending'; }
 
@@ -2526,7 +2531,7 @@
     function renderDashboard(){
       const td=todayISO();
       const _s=id=>document.getElementById(id);
-      const TERMINAL_STATUSES=['Converted','Not Interested','Disqualified','Do Not Contact'];
+      const TERMINAL_STATUSES=['Converted','Not Interested','Disqualified'];
 
       // --- Counts (using Versa fields + computeStatus) ---
       const total=leads.length;
@@ -2714,7 +2719,6 @@
       const cityPill=lead.city?'<span class="md-city-pill">'+escapeHtml(lead.city)+'</span>':'';
       const sourcePill='<span class="md-city-pill">'+((lead.source||'manual')==='qualifier'?'Qualifier':'Manual')+'</span>';
       const reviewsPill=lead.reviewCount?'<span class="md-city-pill">'+escapeHtml(lead.reviewCount)+' reviews</span>':'';
-      const dncBadge=lead.doNotContact?'<span class="md-auto-flag">Do Not Contact</span>':'';
 
       // Details
       const websiteHtml=lead.website?'<a href="'+escapeHtml(lead.website)+'" target="_blank" rel="noopener">'+escapeHtml(lead.website)+'</a>':'<span class="muted">&mdash;</span>';
@@ -2737,7 +2741,6 @@
         '<div class="md-meta-row">'+
           '<span class="md-status-pill s-'+statusSlug+'">'+escapeHtml(displayStatus)+'</span>'+
           cityPill+sourcePill+reviewsPill+
-          dncBadge+
         '</div>'+
         '<div class="md-body">'+
           '<div class="md-section">'+
@@ -2780,7 +2783,6 @@
         '<div class="md-actions">'+
           '<button class="md-btn md-btn-primary" id="ldEditBtn">Edit</button>'+
           '<button class="md-btn md-btn-ghost" id="ldComposeBtn" '+composeDisabled+'>'+composeLabel+'</button>'+
-          '<button class="md-btn md-btn-ghost" id="ldDncBtn">'+(lead.doNotContact?'Remove DNC':'Do Not Contact')+'</button>'+
           '<button class="md-btn md-btn-danger" id="ldDeleteBtn">Delete</button>'+
         '</div>';
 
@@ -2853,8 +2855,6 @@
           goToFUEmail(id,fuType);
         });
       }
-      const dncBtn=content.querySelector('#ldDncBtn');
-      if(dncBtn) dncBtn.addEventListener('click',()=>{ toggleDNC(id); openLeadDetail(id); });
       const deleteBtn=content.querySelector('#ldDeleteBtn');
       if(deleteBtn) deleteBtn.addEventListener('click',()=>{ closeLeadDetail(); deleteLead(id); });
 
@@ -2867,13 +2867,13 @@
 
     function markAsSentFromInbox(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; lead.dateSent=todayISO(); lead.initialSentDate=todayISO(); if(!lead.fu1SentOn) lead.fu1Date=''; if(!lead.fu2SentOn) lead.fu2Date=''; if(!lead.fu3SentOn) lead.fu3Date=''; ensureFUDates(lead); save(); }
 
-    function computeStatus(lead){ if(lead.doNotContact) return 'Do Not Contact'; if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(_rt==='Disqualified') return 'Disqualified'; if(_rt==='Pilot Started') return 'Pilot Started'; if(_rt==='Pilot Agreed') return 'Pilot Agreed'; if(_rt==='Discovery Completed') return 'Discovery Completed'; if(_rt==='Discovery Booked') return 'Discovery Booked'; if(lead.reply==='Y') return 'Replied'; if(!lead.dateSent&&!lead.fu1Sent) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; return 'Sent'; }
+    function computeStatus(lead){ if((lead.replyType||'')==='Converted') return 'Converted'; const _rt=lead.replyType||''; if(_rt==='Not Interested'||_rt==='Not interested') return 'Not Interested'; if(_rt==='Disqualified') return 'Disqualified'; if(_rt==='Pilot Started') return 'Pilot Started'; if(_rt==='Pilot Agreed') return 'Pilot Agreed'; if(_rt==='Discovery Completed') return 'Discovery Completed'; if(_rt==='Discovery Booked') return 'Discovery Booked'; if(lead.reply==='Y') return 'Replied'; if(!lead.dateSent&&!lead.fu1Sent) return 'Not Sent'; const td=todayISO(); const fuDue=(lead.fu1Date&&lead.fu1Date<=td&&!lead.fu1Sent)||(lead.fu2Date&&lead.fu2Date<=td&&!lead.fu2Sent)||(lead.fu3Date&&lead.fu3Date<=td&&!lead.fu3Sent); if(fuDue) return 'Follow Up Due'; return 'Sent'; }
 
-    function getNextFUDate(lead){ const _s=computeStatus(lead); if(_s==='Replied'||_s==='Converted'||_s==='Not Interested'||_s==='Disqualified'||_s==='Do Not Contact') return null; const fus=[{date:lead.fu1Date,sent:lead.fu1Sent},{date:lead.fu2Date,sent:lead.fu2Sent},{date:lead.fu3Date,sent:lead.fu3Sent}]; for(const fu of fus){ if(fu.date&&!fu.sent) return fu.date; } return null; }
+    function getNextFUDate(lead){ const _s=computeStatus(lead); if(_s==='Replied'||_s==='Converted'||_s==='Not Interested'||_s==='Disqualified') return null; const fus=[{date:lead.fu1Date,sent:lead.fu1Sent},{date:lead.fu2Date,sent:lead.fu2Sent},{date:lead.fu3Date,sent:lead.fu3Sent}]; for(const fu of fus){ if(fu.date&&!fu.sent) return fu.date; } return null; }
 
-    function computeFUUrgency(lead){ if(!lead.dateSent) return null; const _s=computeStatus(lead); if(_s==='Replied'||_s==='Converted'||_s==='Not Interested'||_s==='Disqualified'||_s==='Do Not Contact') return null; const td=todayISO(); const fus=[{date:lead.fu1Date,sent:lead.fu1Sent,label:'FU1'},{date:lead.fu2Date,sent:lead.fu2Sent,label:'FU2'},{date:lead.fu3Date,sent:lead.fu3Sent,label:'FU3'}]; for(const fu of fus){ if(!fu.date||fu.sent) continue; if(fu.date<td) return {label:fu.label+' Overdue',dotClass:'fu-urg-overdue'}; if(fu.date===td) return {label:fu.label+' Today',dotClass:'fu-urg-today'}; const days=Math.round((new Date(fu.date)-new Date(td))/86400000); if(days<=2) return {label:fu.label+' in '+days+(days===1?' day':' days'),dotClass:'fu-urg-soon'}; return null; } return null; }
+    function computeFUUrgency(lead){ if(!lead.dateSent) return null; const _s=computeStatus(lead); if(_s==='Replied'||_s==='Converted'||_s==='Not Interested'||_s==='Disqualified') return null; const td=todayISO(); const fus=[{date:lead.fu1Date,sent:lead.fu1Sent,label:'FU1'},{date:lead.fu2Date,sent:lead.fu2Sent,label:'FU2'},{date:lead.fu3Date,sent:lead.fu3Sent,label:'FU3'}]; for(const fu of fus){ if(!fu.date||fu.sent) continue; if(fu.date<td) return {label:fu.label+' Overdue',dotClass:'fu-urg-overdue'}; if(fu.date===td) return {label:fu.label+' Today',dotClass:'fu-urg-today'}; const days=Math.round((new Date(fu.date)-new Date(td))/86400000); if(days<=2) return {label:fu.label+' in '+days+(days===1?' day':' days'),dotClass:'fu-urg-soon'}; return null; } return null; }
 
-    function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Pilot Started':'sdot-p-pilot','Pilot Agreed':'sdot-p-pilot','Discovery Completed':'sdot-p-discovery','Discovery Booked':'sdot-p-discovery'}; return m[status]||'sdot-p-notsent'; }
+    function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Not Interested':'sdot-p-notinterested','Pilot Started':'sdot-p-pilot','Pilot Agreed':'sdot-p-pilot','Discovery Completed':'sdot-p-discovery','Discovery Booked':'sdot-p-discovery'}; return m[status]||'sdot-p-notsent'; }
 
     function lastSentLabel(lead){ if(lead.fu3Sent) return 'FU3 Sent'; if(lead.fu2Sent) return 'FU2 Sent'; if(lead.fu1Sent) return 'FU1 Sent'; if(lead.dateSent) return 'Initial Sent'; return 'Sent'; }
 
@@ -2917,39 +2917,40 @@
       };
       const isNotSent=l=>{ const s=computeStatus(l); return s==='Not Sent'; };
       const isConverted=l=>computeStatus(l)==='Converted';
-      const isDNC=l=>{ const s=computeStatus(l); return s==='Do Not Contact'||s==='Disqualified'; };
+      const isNotInterestedTab=l=>{ const s=computeStatus(l); return s==='Not Interested'||s==='Disqualified'; };
       const isNI=l=>computeStatus(l)==='Not Interested';
 
       // Compute tab counts (before any secondary filters, only base filters)
-      const baseLeads=leads.filter(l=>passesBaseFilters(l)&&!isNI(l));
+      const baseLeadsActive=leads.filter(l=>passesBaseFilters(l)&&!isNotInterestedTab(l));
+      const baseLeadsAll=leads.filter(l=>passesBaseFilters(l));
       const _tcAll=document.getElementById('tcAll');
       const _tcAction=document.getElementById('tcAction');
       const _tcAwaiting=document.getElementById('tcAwaiting');
       const _tcReplied=document.getElementById('tcReplied');
       const _tcConverted=document.getElementById('tcConverted');
-      const _tcDNC=document.getElementById('tcDNC');
-      if(_tcAll) _tcAll.textContent=baseLeads.length;
-      if(_tcAction) _tcAction.textContent=baseLeads.filter(isActionRequired).length;
-      if(_tcAwaiting) _tcAwaiting.textContent=baseLeads.filter(isAwaitingReply).length;
-      if(_tcReplied) _tcReplied.textContent=baseLeads.filter(isReplied).length;
-      const _cConv=baseLeads.filter(isConverted).length;
-      const _cDnc=baseLeads.filter(isDNC).length;
+      const _tcNotInterested=document.getElementById('tcNotInterested');
+      if(_tcAll) _tcAll.textContent=baseLeadsActive.length;
+      if(_tcAction) _tcAction.textContent=baseLeadsActive.filter(isActionRequired).length;
+      if(_tcAwaiting) _tcAwaiting.textContent=baseLeadsActive.filter(isAwaitingReply).length;
+      if(_tcReplied) _tcReplied.textContent=baseLeadsActive.filter(isReplied).length;
+      const _cConv=baseLeadsActive.filter(isConverted).length;
+      const _cNotInt=baseLeadsAll.filter(isNotInterestedTab).length;
       if(_tcConverted){ _tcConverted.textContent=_cConv; _tcConverted.parentElement.style.display=_cConv>0?'':'none'; }
-      if(_tcDNC){ _tcDNC.textContent=_cDnc; _tcDNC.parentElement.style.display=_cDnc>0?'':'none'; }
+      if(_tcNotInterested){ _tcNotInterested.textContent=_cNotInt; _tcNotInterested.parentElement.style.display=_cNotInt>0?'':'none'; }
       const _tcNotSent=document.getElementById('tcNotSent');
-      const _cNotSent=baseLeads.filter(isNotSent).length;
+      const _cNotSent=baseLeadsActive.filter(isNotSent).length;
       if(_tcNotSent){ _tcNotSent.textContent=_cNotSent; _tcNotSent.parentElement.style.display=_cNotSent>0?'':'none'; }
 
-      const niLeads=leads.filter(l=>isNI(l)&&passesBaseFilters(l));
       let filtered=leads.filter(l=>{
-        if(isNI(l)) return false;
+        // Hide Not Interested / Disqualified from every tab except the Not Interested tab itself
+        if(isNotInterestedTab(l) && pipelineFilter.status!=='Not Interested') return false;
         if(pipelineFilter.status!=='All'){
           if(pipelineFilter.status==='Not Sent'&&!isNotSent(l)) return false;
           if(pipelineFilter.status==='Action Required'&&!isActionRequired(l)) return false;
           if(pipelineFilter.status==='Awaiting Reply'&&!isAwaitingReply(l)) return false;
           if(pipelineFilter.status==='Replied'&&!isReplied(l)) return false;
           if(pipelineFilter.status==='Converted'&&!isConverted(l)) return false;
-          if(pipelineFilter.status==='DNC'&&!isDNC(l)) return false;
+          if(pipelineFilter.status==='Not Interested'&&!isNotInterestedTab(l)) return false;
         }
         if(pipelineFilter.fuStage!=='All'){
           const fs=pipelineFilter.fuStage;
@@ -2973,14 +2974,11 @@
       if(pipelineFilter.sort==='oldest') filtered.sort((a,b)=>a.id-b.id);
       else if(pipelineFilter.sort==='fuSoonest'){ filtered.sort((a,b)=>{ const fa=getNextFUDate(a); const fb=getNextFUDate(b); if(!fa&&!fb) return 0; if(!fa) return 1; if(!fb) return -1; return fa.localeCompare(fb); }); }
       else filtered.sort((a,b)=>b.id-a.id);
-      // DNC always at the bottom regardless of sort
-      filtered.sort((a,b)=>{ if(a.doNotContact&&!b.doNotContact) return 1; if(!a.doNotContact&&b.doNotContact) return -1; return 0; });
       _lastPipelineFiltered = filtered.slice();
       updatePipelineFilterBadge();
       // Count excludes Not Interested
       const countEl=document.getElementById('pipelineCount'); if(countEl) countEl.textContent='Showing '+filtered.length+' lead'+(filtered.length===1?'':'s');
-      if(filtered.length===0&&niLeads.length===0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#9635;</div><div>No leads match your current filters. <a href="#" id="emptyResetLink" style="color:var(--accent);text-decoration:underline">Reset filters</a></div></div>'; const link=container.querySelector('#emptyResetLink'); if(link) link.addEventListener('click',e=>{ e.preventDefault(); resetPipelineFilters(); }); return; }
-      if(filtered.length===0&&niLeads.length>0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#9635;</div><div>No active leads match your current filters.</div></div>'; }
+      if(filtered.length===0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#9635;</div><div>No leads match your current filters. <a href="#" id="emptyResetLink" style="color:var(--accent);text-decoration:underline">Reset filters</a></div></div>'; const link=container.querySelector('#emptyResetLink'); if(link) link.addEventListener('click',e=>{ e.preventDefault(); resetPipelineFilters(); }); return; }
       filtered.forEach(l=>{
         const status=computeStatus(l);
         const urgency=computeFUUrgency(l);
@@ -3001,9 +2999,8 @@
         if(l.replyText){ onRecordHtml=`<div class="ra-on-record"><div class="ra-on-record-header" id="ror-hdr-${l.id}"><span class="ra-on-record-title">Reply on record</span><span class="ra-on-record-toggle" id="ror-tog-${l.id}">&#9658; Show</span></div><div class="ra-on-record-body" id="ror-body-${l.id}"><div class="ra-result-row"><span class="ra-result-label">Reply Text</span><div class="ra-result-text" style="white-space:pre-wrap">${escapeHtml(l.replyText)}</div></div></div></div>`; }
         // Log Reply section (always shown)
         const logReplyHtml=`<div class="ra-section"><span class="ra-section-label">Log Reply</span><textarea class="ra-textarea" id="ra-txt-${l.id}" placeholder="Paste the reply you received...">${escapeHtml(l.replyText||'')}</textarea><button class="btn-ra-save" id="ra-savebtn-${l.id}">Save Reply</button></div>`;
-        const dncBadgeHtml=l.doNotContact?'<span class="dnc-badge">DO NOT CONTACT</span>':'';
         const scoreBadgeHtml=(l.score==='Hot')?'<span class="score-badge-hot">HOT LEAD</span>':(l.score==='Warm')?'<span class="score-badge-warm">WARM LEAD</span>':'';
-        expand.innerHTML=`${dncBadgeHtml}${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}${l.address?'<div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">'+escapeHtml(l.address)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.reviewCount?'<div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">'+escapeHtml(l.reviewCount)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button>${l.reply==='Y'?`<select class="rt-inline" data-id="${l.id}" data-action="setReplyType"><option value=""${!l.replyType?' selected':''}>Reply type...</option>${['Disqualified','Interested','Discovery Booked','Discovery Completed','Pilot Agreed','Pilot Started','Not Interested','Converted','Other'].map(t=>`<option value="${t}"${l.replyType===t?' selected':''}>${t}</option>`).join('')}</select>`:''}<button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleDNC">${l.doNotContact?'Remove DNC Flag':'Do Not Contact'}</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
+        expand.innerHTML=`${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}${l.address?'<div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">'+escapeHtml(l.address)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.reviewCount?'<div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">'+escapeHtml(l.reviewCount)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button>${l.reply==='Y'?`<select class="rt-inline" data-id="${l.id}" data-action="setReplyType"><option value=""${!l.replyType?' selected':''}>Reply type...</option>${['Disqualified','Interested','Discovery Booked','Discovery Completed','Pilot Agreed','Pilot Started','Not Interested','Converted','Other'].map(t=>`<option value="${t}"${l.replyType===t?' selected':''}>${t}</option>`).join('')}</select>`:''}<button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
         expand.innerHTML += onRecordHtml + logReplyHtml;
         const _viewBtn=main.querySelector('.btn-view-lead');
         if(_viewBtn) _viewBtn.addEventListener('click',e=>{ e.stopPropagation(); openLeadDetail(l.id); });
@@ -3024,8 +3021,7 @@
         const rtSel=expand.querySelector('[data-action="setReplyType"]'); if(rtSel) rtSel.addEventListener('change',e=>{ e.stopPropagation(); const lead=leads.find(x=>x.id==rtSel.dataset.id); if(!lead) return; lead.replyType=rtSel.value; save(); });
         const editBtn=expand.querySelector('[data-action="edit"]'); if(editBtn) editBtn.addEventListener('click',e=>{ e.stopPropagation(); openEdit(editBtn.dataset.id); });
         const markSentBtn=expand.querySelector('[data-action="markSent"]'); if(markSentBtn) markSentBtn.addEventListener('click',e=>{ e.stopPropagation(); markAsSentFromInbox(markSentBtn.dataset.id); });
-        const dncBtn=expand.querySelector('[data-action="toggleDNC"]'); if(dncBtn) dncBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleDNC(dncBtn.dataset.id); });
-        const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn) deleteBtn.addEventListener('click',e=>{ e.stopPropagation(); deleteLead(deleteBtn.dataset.id); });
+const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn) deleteBtn.addEventListener('click',e=>{ e.stopPropagation(); deleteLead(deleteBtn.dataset.id); });
         const btnCopyDs=expand.querySelector(`#btnCopyDs-${l.id}`); if(btnCopyDs) btnCopyDs.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(l.draftSubject||'').then(()=>{ btnCopyDs.textContent='Copied!'; setTimeout(()=>btnCopyDs.textContent='Copy Subject',1600); }); });
         const btnCopyDb=expand.querySelector(`#btnCopyDb-${l.id}`); if(btnCopyDb) btnCopyDb.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(l.draftBody||'').then(()=>{ btnCopyDb.textContent='Copied!'; setTimeout(()=>btnCopyDb.textContent='Copy Email',1600); }); });
         const btnDraftEdit=expand.querySelector(`#btnDraftEdit-${l.id}`); const btnDraftSave=expand.querySelector(`#btnDraftSave-${l.id}`); const btnDraftCancel=expand.querySelector(`#btnDraftCancel-${l.id}`);
@@ -3037,42 +3033,7 @@
       });
       if(expandedLeadId){ const _el=document.getElementById('expand-'+expandedLeadId); if(_el) _el.style.display='block'; }
 
-      // ── Not Interested collapsed section ──────────────────────────────────
-      if(niLeads.length>0){
-        const niSection=document.createElement('div'); niSection.className='ni-section';
-        const niHeader=document.createElement('div'); niHeader.className='ni-section-header'; niHeader.id='niSectionHeader';
-        niHeader.innerHTML=`<span class="ni-section-toggle" id="niToggleArrow">&#9658;</span><span>Not Interested (${niLeads.length})</span>`;
-        const niBody=document.createElement('div'); niBody.className='ni-section-body'; niBody.id='niSectionBody'; niBody.style.display='none';
-        niHeader.addEventListener('click',()=>{ const open=niBody.style.display!=='none'; niBody.style.display=open?'none':'block'; document.getElementById('niToggleArrow').innerHTML=open?'&#9658;':'&#9660;'; });
-        niLeads.sort((a,b)=>b.id-a.id).forEach(l=>{
-          const status='Not Interested';
-          const isQual=(l.source||'manual')==='qualifier';
-          const cityTag=l.city?`<span class="city-tag">${escapeHtml(l.city)}</span>`:'';
-          const fu1Due=l.fu1Date&&l.fu1Date<=td&&!l.fu1Sent; const fu2Due=l.fu2Date&&l.fu2Date<=td&&!l.fu2Sent; const fu3Due=l.fu3Date&&l.fu3Date<=td&&!l.fu3Sent;
-          const _da=l.dateAdded||(l.id?new Date(l.id).toISOString():''); const _daD=_da?new Date(_da):null; const dateAdded=_daD?(_da.includes('T')?_daD.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+_daD.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):_daD.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})):'—';
-          const row=document.createElement('div'); row.className='lead-row';
-          const main=document.createElement('div'); main.className='lead-row-main';
-          main.innerHTML=`<span class="sdot sdot-p-notinterested"></span><div class="lead-row-info"><span class="lead-name" style="color:#888;font-style:italic">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div><div class="row-centre">${cityTag}<span class="source-badge ${isQual?'source-qualifier':'source-manual'}">${isQual?'Qualifier':'Manual'}</span></div><div class="row-right"><span class="date-added-label">${dateAdded}</span></div>`;
-          const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
-          const hasDraft=!!(l.draftSubject||l.draftBody);
-          const dncBadgeHtml=l.doNotContact?'<span class="dnc-badge">DO NOT CONTACT</span>':'';
-          const niBadgeHtml='<span class="ni-badge">NOT INTERESTED</span>';
-          expand.innerHTML=`${dncBadgeHtml}${niBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-actions"><select class="rt-inline" data-id="${l.id}" data-action="setReplyType"><option value=""${!l.replyType?' selected':''}>Reply type...</option>${['Disqualified','Interested','Discovery Booked','Discovery Completed','Pilot Agreed','Pilot Started','Not Interested','Converted','Other'].map(t=>`<option value="${t}"${l.replyType===t?' selected':''}>${t}</option>`).join('')}</select><button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
-          main.addEventListener('click',()=>toggleExpand(l.id));
-          const editBtn=expand.querySelector('[data-action="edit"]'); if(editBtn) editBtn.addEventListener('click',e=>{ e.stopPropagation(); openEdit(editBtn.dataset.id); });
-          const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn) deleteBtn.addEventListener('click',e=>{ e.stopPropagation(); deleteLead(deleteBtn.dataset.id); });
-          const rtSel=expand.querySelector('[data-action="setReplyType"]'); if(rtSel) rtSel.addEventListener('change',e=>{ e.stopPropagation(); const lead=leads.find(x=>x.id==rtSel.dataset.id); if(!lead) return; lead.replyType=rtSel.value; save(); });
-          const btnCopyDs=expand.querySelector(`#btnCopyDs-${l.id}`); if(btnCopyDs) btnCopyDs.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(l.draftSubject||'').then(()=>{ btnCopyDs.textContent='Copied!'; setTimeout(()=>btnCopyDs.textContent='Copy Subject',1600); }); });
-          const btnCopyDb=expand.querySelector(`#btnCopyDb-${l.id}`); if(btnCopyDb) btnCopyDb.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(l.draftBody||'').then(()=>{ btnCopyDb.textContent='Copied!'; setTimeout(()=>btnCopyDb.textContent='Copy Email',1600); }); });
-          const btnDraftEdit=expand.querySelector(`#btnDraftEdit-${l.id}`); const btnDraftSave=expand.querySelector(`#btnDraftSave-${l.id}`); const btnDraftCancel=expand.querySelector(`#btnDraftCancel-${l.id}`);
-          if(btnDraftEdit){ btnDraftEdit.addEventListener('click',e=>{ e.stopPropagation(); const dsSpan=expand.querySelector(`#ds-${l.id}`); const dsInput=expand.querySelector(`#ds-input-${l.id}`); const dbDiv=expand.querySelector(`#db-${l.id}`); const dbTa=expand.querySelector(`#db-ta-${l.id}`); const dbH=Math.max(dbDiv.offsetHeight,80); dsSpan.style.display='none'; dsInput.style.display=''; dbDiv.style.display='none'; dbTa.style.display=''; dbTa.style.height=dbH+'px'; btnDraftEdit.style.display='none'; btnDraftSave.style.display=''; btnDraftCancel.style.display=''; }); }
-          if(btnDraftSave){ btnDraftSave.addEventListener('click',e=>{ e.stopPropagation(); const dsInput=expand.querySelector(`#ds-input-${l.id}`); const dbTa=expand.querySelector(`#db-ta-${l.id}`); l.draftSubject=dsInput.value; l.draftBody=dbTa.value; save(); }); }
-          if(btnDraftCancel){ btnDraftCancel.addEventListener('click',e=>{ e.stopPropagation(); const dsSpan=expand.querySelector(`#ds-${l.id}`); const dsInput=expand.querySelector(`#ds-input-${l.id}`); const dbDiv=expand.querySelector(`#db-${l.id}`); const dbTa=expand.querySelector(`#db-ta-${l.id}`); dsInput.value=l.draftSubject||''; dbTa.value=l.draftBody||''; dsSpan.style.display=''; dsInput.style.display='none'; dbDiv.style.display=''; dbTa.style.display='none'; btnDraftEdit.style.display=''; btnDraftSave.style.display='none'; btnDraftCancel.style.display='none'; }); }
-          row.appendChild(main); row.appendChild(expand); niBody.appendChild(row);
-        });
-        niSection.appendChild(niHeader); niSection.appendChild(niBody); container.appendChild(niSection);
-        if(expandedLeadId){ const _el=document.getElementById('expand-'+expandedLeadId); if(_el) _el.style.display='block'; }
-      }
+      // ── Not Interested section removed — leads now appear in their own dedicated tab ──
     }
 
     // ── Inline Reply Log ─────────────────────────────────────────────────────
@@ -3671,8 +3632,8 @@
     }
 
     function exportCSV(){ if(!leads.length){ alert('No leads to export'); return; }
-      const headers=['Clinic Name','City','Address','Website','Named Contact','Email Address','Channel','Angle','Date Sent','FU1 Date','FU1 Sent','FU2 Date','FU2 Sent','FU3 Date','FU3 Sent','Reply','Reply Type','Notes','Review Count','Do Not Contact','Reply Text'];
-      const rows=leads.map(l=>[l.clinicName||'',l.city||'',l.address||'',l.website||'',l.contactName||'',l.email||'',l.channel||'',l.angle||'',l.dateSent||'',l.fu1Date||'',l.fu1Sent?'Y':'',l.fu2Date||'',l.fu2Sent?'Y':'',l.fu3Date||'',l.fu3Sent?'Y':'',l.reply||'',l.replyType||'',l.notes||'',l.reviewCount||'',l.doNotContact?'Y':'',l.replyText||'']);
+      const headers=['Clinic Name','City','Address','Website','Named Contact','Email Address','Channel','Angle','Date Sent','FU1 Date','FU1 Sent','FU2 Date','FU2 Sent','FU3 Date','FU3 Sent','Reply','Reply Type','Notes','Review Count','Reply Text'];
+      const rows=leads.map(l=>[l.clinicName||'',l.city||'',l.address||'',l.website||'',l.contactName||'',l.email||'',l.channel||'',l.angle||'',l.dateSent||'',l.fu1Date||'',l.fu1Sent?'Y':'',l.fu2Date||'',l.fu2Sent?'Y':'',l.fu3Date||'',l.fu3Sent?'Y':'',l.reply||'',l.replyType||'',l.notes||'',l.reviewCount||'',l.replyText||'']);
       const csv=[headers.join(','),...rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='vdhq-leads.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
 
@@ -4082,7 +4043,6 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       if(!outlookAccount){ alert('Connect Outlook first.'); return; }
       const lead = emailState.leadId ? leads.find(l => l.id == emailState.leadId) : null;
       if(!lead){ alert('No lead selected.'); return; }
-      if(lead.doNotContact){ alert('This lead is marked Do Not Contact. Cannot send.'); return; }
       const _sendStatus = computeStatus(lead);
       if(_sendStatus==='Replied'||_sendStatus==='Converted'||_sendStatus==='Not Interested'||_sendStatus==='Disqualified'){ alert('This lead is '+_sendStatus+'. Cannot send.'); return; }
       if(!lead.email){ alert('This lead has no email address. Add one via Edit before sending.'); return; }
@@ -4349,7 +4309,6 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
       if(cs === 'Replied') return 'Replied';
       if(cs === 'Converted') return 'Booked';
       if(cs === 'Not Interested' || cs === 'Disqualified') return 'Not Interested';
-      if(cs === 'Do Not Contact') return 'Do Not Contact';
       if(cs === 'Not Sent') return 'Not Sent';
       // Has dateSent — determine FU stage by what's been sent
       if(!lead.fu1Sent) return 'FU1';
