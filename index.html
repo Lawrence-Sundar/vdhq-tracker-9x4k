@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260423backup';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260427viewmodal';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -819,6 +819,7 @@
     #tab-pipeline .pl-status.s-not-interested{color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)}
     #tab-pipeline .pl-status.s-disqualified{color:#6b7280;border-color:rgba(107,114,128,0.3);background:rgba(107,114,128,0.06)}
     #tab-pipeline .pl-status.s-dnc{color:#6b6580;border-color:rgba(107,101,128,0.35);background:rgba(107,101,128,0.08)}
+    #tab-pipeline .pl-status.s-sent{color:#8B5CF6;border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.08)}
     /* View button */
     #tab-pipeline .lead-row-main .btn-view-lead{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#9a95a8;padding:6px 12px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border-radius:6px;font-family:'Inter',sans-serif;transition:all .15s;flex-shrink:0;cursor:pointer}
     #tab-pipeline .lead-row-main .btn-view-lead:hover{border-color:rgba(139,92,246,0.4);color:#8B5CF6}
@@ -1279,6 +1280,66 @@
     #leadDetailContent .btn-primary:hover{background:rgba(139,92,246,0.28) !important;border-color:#8B5CF6 !important}
     #leadDetailContent .btn-ghost{background:transparent !important;border:1px solid rgba(255,255,255,0.06) !important;color:#9a95a8 !important}
     #leadDetailContent .btn-ghost:hover{border-color:rgba(139,92,246,0.4) !important;color:#e0dce8 !important}
+
+    /* New Daedalus-style modal sections (replaces "move expand into modal" pattern) */
+    #leadDetailContent .md-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 0 14px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:18px}
+    #leadDetailContent .md-status-pill{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:6px;border:1px solid;color:#9a95a8;border-color:rgba(107,114,128,0.35);background:rgba(107,114,128,0.1)}
+    #leadDetailContent .md-status-pill.s-not-sent{color:#9a95a8;border-color:rgba(107,114,128,0.35);background:rgba(107,114,128,0.1)}
+    #leadDetailContent .md-status-pill.s-sent{color:#8B5CF6;border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.08)}
+    #leadDetailContent .md-status-pill.s-follow-up-due{color:#fbbf24;border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.08)}
+    #leadDetailContent .md-status-pill.s-replied{color:#3B82F6;border-color:rgba(59,130,246,0.4);background:rgba(59,130,246,0.08)}
+    #leadDetailContent .md-status-pill.s-converted{color:#10B981;border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.15);box-shadow:0 0 10px rgba(16,185,129,0.15)}
+    #leadDetailContent .md-status-pill.s-not-interested{color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)}
+    #leadDetailContent .md-status-pill.s-disqualified{color:#6b7280;border-color:rgba(107,114,128,0.3);background:rgba(107,114,128,0.06)}
+    #leadDetailContent .md-status-pill.s-do-not-contact{color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)}
+    #leadDetailContent .md-status-pill.s-pilot-started,
+    #leadDetailContent .md-status-pill.s-pilot-agreed{color:#EC4899;border-color:rgba(236,72,153,0.4);background:rgba(236,72,153,0.08)}
+    #leadDetailContent .md-status-pill.s-discovery-booked,
+    #leadDetailContent .md-status-pill.s-discovery-completed{color:#fbbf24;border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.08)}
+    #leadDetailContent .md-city-pill{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;color:#9a95a8;padding:4px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px}
+    #leadDetailContent .md-auto-flag{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.08);color:#ef4444;border-radius:6px;margin-left:auto}
+
+    #leadDetailContent .md-body{display:flex;flex-direction:column;gap:20px}
+    #leadDetailContent .md-section{display:flex;flex-direction:column;gap:10px}
+    #leadDetailContent .md-section-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.22em;color:#8B5CF6}
+
+    #leadDetailContent .md-status-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    #leadDetailContent .md-select-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#6b6580;margin-bottom:6px;display:block}
+    #leadDetailContent .md-select{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#e0dce8;padding:9px 11px;font-size:13px;font-family:'Inter',sans-serif;outline:none;border-radius:8px;cursor:pointer;transition:border-color .18s;width:100%;box-sizing:border-box}
+    #leadDetailContent .md-select:focus{border-color:rgba(139,92,246,0.4)}
+
+    #leadDetailContent .md-seq-chips{display:flex;gap:8px;flex-wrap:wrap}
+    #leadDetailContent .md-seq-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;font-size:12px;font-weight:600;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#e0dce8;border-radius:8px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+    #leadDetailContent .md-seq-chip:hover{border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.06)}
+    #leadDetailContent .md-seq-chip.sent{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.4);color:#8B5CF6;box-shadow:0 0 12px rgba(139,92,246,0.12)}
+    #leadDetailContent .md-seq-chip.sent:hover{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);color:#ef4444;box-shadow:0 0 12px rgba(239,68,68,0.12)}
+    #leadDetailContent .md-seq-chip.sent:hover .chk,#leadDetailContent .md-seq-chip.sent:hover .chip-date{color:#ef4444}
+    #leadDetailContent .md-seq-chip.sent:hover .chip-label::after{content:' (untick?)';font-style:italic;font-weight:400;opacity:0.85}
+    #leadDetailContent .md-seq-chip .chk{width:11px;height:11px;display:flex;align-items:center;justify-content:center;color:#8B5CF6;font-size:11px}
+    #leadDetailContent .md-seq-chip .chip-label{letter-spacing:0.05em}
+    #leadDetailContent .md-seq-chip .chip-date{font-family:'Fraunces',serif;font-style:italic;font-weight:400;color:#6b6580;font-size:12px}
+    #leadDetailContent .md-seq-chip.sent .chip-date{color:#8B5CF6;opacity:0.85}
+    #leadDetailContent .md-seq-chip.disabled{opacity:0.45;cursor:not-allowed}
+    #leadDetailContent .md-seq-chip.disabled:hover{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.06)}
+
+    #leadDetailContent .md-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 22px}
+    #leadDetailContent .md-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+    #leadDetailContent .md-field-full{grid-column:1/-1}
+    #leadDetailContent .md-field-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#6b6580}
+    #leadDetailContent .md-field-val{font-family:'Inter',sans-serif;font-size:13.5px;color:#e0dce8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.45}
+    #leadDetailContent .md-field-val .muted{color:#6b6580;font-style:italic}
+    #leadDetailContent .md-field-val a{color:#8B5CF6;text-decoration:none}
+    #leadDetailContent .md-field-val a:hover{text-decoration:underline}
+    #leadDetailContent .md-field-multiline .md-field-val{white-space:pre-wrap;font-family:'Fraunces',serif;font-style:italic;font-size:14.5px;line-height:1.55;color:#e0dce8}
+
+    #leadDetailContent .md-actions{display:flex;gap:10px;flex-wrap:wrap;padding:16px 0 0;margin-top:20px;border-top:1px solid rgba(255,255,255,0.06)}
+    #leadDetailContent .md-btn{padding:9px 16px;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-radius:8px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;border:1px solid;white-space:nowrap;background:transparent}
+    #leadDetailContent .md-btn-primary{background:rgba(139,92,246,0.18);color:#8B5CF6;border-color:rgba(139,92,246,0.4)}
+    #leadDetailContent .md-btn-primary:hover{background:rgba(139,92,246,0.28);border-color:#8B5CF6}
+    #leadDetailContent .md-btn-ghost{border-color:rgba(255,255,255,0.06);color:#9a95a8}
+    #leadDetailContent .md-btn-ghost:hover{border-color:rgba(139,92,246,0.4);color:#e0dce8}
+    #leadDetailContent .md-btn-danger{border-color:rgba(239,68,68,0.4);color:#ef4444;background:rgba(239,68,68,0.06)}
+    #leadDetailContent .md-btn-danger:hover{background:rgba(239,68,68,0.18);border-color:#ef4444}
   </style>
 </head>
 <body>
@@ -2612,22 +2673,190 @@
       if(!isOpen){ expand.style.display='block'; expandedLeadId=id; } else { expandedLeadId=null; }
     }
 
+    // Build a single sequence-chip for the modal
+    function _seqChipHtmlVDHQ(label,key,sentDate,scheduledDate,disabled){
+      const isSent=!!sentDate;
+      const cls='md-seq-chip'+(isSent?' sent':'')+(disabled?' disabled':'');
+      const dt=isSent?(sentDate||''):(scheduledDate||'');
+      const dtTxt=dt?formatDateISOtoShortUK(dt):'';
+      const tick=isSent?'<span class="chk">&#10003;</span>':'';
+      return '<button type="button" class="'+cls+'" data-chip="'+key+'">'
+        +tick
+        +'<span class="chip-label">'+label+'</span>'
+        +(dtTxt?'<span class="chip-date">'+dtTxt+'</span>':'')
+        +'</button>';
+    }
+
     function openLeadDetail(id){
-      const expand=document.getElementById('expand-'+id);
-      if(!expand) return;
       const lead=leads.find(l=>String(l.id)===String(id));
+      if(!lead) return;
       const title=document.getElementById('leadDetailTitle');
       const content=document.getElementById('leadDetailContent');
-      if(title) title.textContent=lead?lead.clinicName:'Lead Details';
-      if(content){
-        // Move the expand div into the modal
-        expand.style.display='block';
-        content.innerHTML='';
-        content.appendChild(expand);
+      if(!content) return;
+      if(title) title.textContent=lead.clinicName||'(no name)';
+
+      const status=computeStatus(lead);
+      const displayStatus=(status==='Sent')?lastSentLabel(lead):status;
+      const statusSlug=(status||'').toLowerCase().replace(/\s+/g,'-');
+
+      const REPLY_TYPES=['Disqualified','Interested','Discovery Booked','Discovery Completed','Pilot Agreed','Pilot Started','Not Interested','Converted','Other'];
+
+      // Sequence chips: Initial + FU1 + FU2 + FU3
+      const initialSent=lead.dateSent||lead.initialSentDate||'';
+      const initialChip=_seqChipHtmlVDHQ('Initial','initial',initialSent,null,false);
+      const fu1Chip=_seqChipHtmlVDHQ('FU1','fu1',lead.fu1Sent?(lead.fu1SentOn||''):'',lead.fu1Date||'',!lead.dateSent);
+      const fu2Chip=_seqChipHtmlVDHQ('FU2','fu2',lead.fu2Sent?(lead.fu2SentOn||''):'',lead.fu2Date||'',!lead.fu1Sent);
+      const fu3Chip=_seqChipHtmlVDHQ('FU3','fu3',lead.fu3Sent?(lead.fu3SentOn||''):'',lead.fu3Date||'',!lead.fu2Sent);
+
+      const replyTypeOpts='<option value="">&mdash; select &mdash;</option>'+REPLY_TYPES.map(r=>'<option value="'+r+'"'+(lead.replyType===r?' selected':'')+'>'+r+'</option>').join('');
+
+      // Meta pills
+      const cityPill=lead.city?'<span class="md-city-pill">'+escapeHtml(lead.city)+'</span>':'';
+      const sourcePill='<span class="md-city-pill">'+((lead.source||'manual')==='qualifier'?'Qualifier':'Manual')+'</span>';
+      const reviewsPill=lead.reviewCount?'<span class="md-city-pill">'+escapeHtml(lead.reviewCount)+' reviews</span>':'';
+      const dncBadge=lead.doNotContact?'<span class="md-auto-flag">Do Not Contact</span>':'';
+
+      // Details
+      const websiteHtml=lead.website?'<a href="'+escapeHtml(lead.website)+'" target="_blank" rel="noopener">'+escapeHtml(lead.website)+'</a>':'<span class="muted">&mdash;</span>';
+      const dateSentHtml=lead.dateSent?formatDateISOtoUK(lead.dateSent):'<span class="muted">Not yet sent</span>';
+      const nextFU=getNextFUDate(lead);
+      const nextFUHtml=nextFU?formatDateISOtoUK(nextFU):'<span class="muted">&mdash;</span>';
+      const notesHtml=lead.notes?'<div class="md-field md-field-full md-field-multiline"><span class="md-field-label">Notes</span><span class="md-field-val">'+escapeHtml(lead.notes)+'</span></div>':'';
+      const replyOnRecordHtml=lead.replyText?'<div class="md-field md-field-full md-field-multiline"><span class="md-field-label">Reply on record</span><span class="md-field-val">'+escapeHtml(lead.replyText)+'</span></div>':'';
+
+      // Compose FU button text — show next unsent FU
+      let composeLabel='Compose FU';
+      if(!lead.dateSent) composeLabel='Compose Initial';
+      else if(!lead.fu1Sent) composeLabel='Compose FU1';
+      else if(!lead.fu2Sent) composeLabel='Compose FU2';
+      else if(!lead.fu3Sent) composeLabel='Compose FU3';
+      else composeLabel='Sequence Complete';
+      const composeDisabled=(lead.fu1Sent&&lead.fu2Sent&&lead.fu3Sent)?'disabled style="opacity:0.45;cursor:not-allowed"':'';
+
+      content.innerHTML=
+        '<div class="md-meta-row">'+
+          '<span class="md-status-pill s-'+statusSlug+'">'+escapeHtml(displayStatus)+'</span>'+
+          cityPill+sourcePill+reviewsPill+
+          dncBadge+
+        '</div>'+
+        '<div class="md-body">'+
+          '<div class="md-section">'+
+            '<div class="md-section-label">Update Status</div>'+
+            '<div class="md-status-row">'+
+              '<div>'+
+                '<label class="md-select-label">Reply</label>'+
+                '<select class="md-select" id="ldReplySelect">'+
+                  '<option value="N"'+(lead.reply==='Y'?'':' selected')+'>No reply yet</option>'+
+                  '<option value="Y"'+(lead.reply==='Y'?' selected':'')+'>Replied</option>'+
+                '</select>'+
+              '</div>'+
+              '<div id="ldReplyTypeWrap" style="display:'+(lead.reply==='Y'?'block':'none')+'">'+
+                '<label class="md-select-label">Reply Type</label>'+
+                '<select class="md-select" id="ldReplyType">'+replyTypeOpts+'</select>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="md-section">'+
+            '<div class="md-section-label">Email Sequence</div>'+
+            '<div class="md-seq-chips" id="ldSeqChips">'+initialChip+fu1Chip+fu2Chip+fu3Chip+'</div>'+
+          '</div>'+
+          '<div class="md-section">'+
+            '<div class="md-section-label">Details</div>'+
+            '<div class="md-grid">'+
+              '<div class="md-field"><span class="md-field-label">Contact</span><span class="md-field-val">'+escapeHtml(lead.contactName||'—')+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">Email</span><span class="md-field-val">'+escapeHtml(lead.email||'—')+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">Website</span><span class="md-field-val">'+websiteHtml+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">City</span><span class="md-field-val">'+escapeHtml(lead.city||'—')+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">Address</span><span class="md-field-val" style="white-space:normal">'+escapeHtml(lead.address||'—')+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">Reviews</span><span class="md-field-val">'+escapeHtml(lead.reviewCount||'—')+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">Date Sent</span><span class="md-field-val">'+dateSentHtml+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">Next Follow-up</span><span class="md-field-val">'+nextFUHtml+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">Source</span><span class="md-field-val">'+((lead.source||'manual')==='qualifier'?'Qualifier':'Manual')+'</span></div>'+
+              '<div class="md-field"><span class="md-field-label">Channel</span><span class="md-field-val">'+escapeHtml(lead.channel||'—')+'</span></div>'+
+              notesHtml+replyOnRecordHtml+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="md-actions">'+
+          '<button class="md-btn md-btn-primary" id="ldEditBtn">Edit</button>'+
+          '<button class="md-btn md-btn-ghost" id="ldComposeBtn" '+composeDisabled+'>'+composeLabel+'</button>'+
+          '<button class="md-btn md-btn-ghost" id="ldDncBtn">'+(lead.doNotContact?'Remove DNC':'Do Not Contact')+'</button>'+
+          '<button class="md-btn md-btn-danger" id="ldDeleteBtn">Delete</button>'+
+        '</div>';
+
+      // Wire reply select
+      const replySel=content.querySelector('#ldReplySelect');
+      const replyTypeSel=content.querySelector('#ldReplyType');
+      if(replySel){
+        replySel.addEventListener('change',()=>{
+          lead.reply=replySel.value;
+          if(lead.reply==='N') lead.replyType='';
+          save();
+          openLeadDetail(id);
+        });
       }
+      if(replyTypeSel){
+        replyTypeSel.addEventListener('change',()=>{
+          lead.replyType=replyTypeSel.value||'';
+          // Auto-stamp dates (mirrors saveModalEdit logic)
+          const _td=todayISO();
+          if(lead.replyType==='Discovery Booked' && !lead.discoveryCallBooked) lead.discoveryCallBooked=_td;
+          if(lead.replyType==='Discovery Completed' && !lead.discoveryCallCompleted) lead.discoveryCallCompleted=_td;
+          if(lead.replyType==='Pilot Agreed' && !lead.pilotAgreed) lead.pilotAgreed=_td;
+          if(lead.replyType==='Pilot Started'){ if(!lead.pilotStarted) lead.pilotStarted=_td; if(!lead.pilotEndDate) lead.pilotEndDate=addDays(_td,60); }
+          save();
+          openLeadDetail(id);
+        });
+      }
+
+      // Wire chip clicks (Initial + FU1/2/3)
+      content.querySelectorAll('[data-chip]').forEach(btn=>{
+        btn.addEventListener('click',e=>{
+          e.preventDefault();
+          if(btn.classList.contains('disabled')) return;
+          const key=btn.dataset.chip;
+          if(key==='initial'){
+            if(lead.dateSent){
+              // Untick: warn user about FU date impact
+              if(!confirm('Untick Initial as sent? This clears Date Sent. Use the Edit modal if you want to set a different date instead.')) return;
+              lead.dateSent=''; lead.initialSentDate='';
+              save();
+            } else {
+              markAsSentFromInbox(lead.id);
+            }
+            openLeadDetail(id);
+            return;
+          }
+          // FU chips → markFUSent (handles tick + untick + date snapshot/restore)
+          markFUSent(lead.id,key);
+          openLeadDetail(id);
+        });
+      });
+
+      // Action buttons
+      const editBtn=content.querySelector('#ldEditBtn');
+      if(editBtn) editBtn.addEventListener('click',()=>{ closeLeadDetail(); openEdit(id); });
+      const composeBtn=content.querySelector('#ldComposeBtn');
+      if(composeBtn && !composeBtn.disabled){
+        composeBtn.addEventListener('click',()=>{
+          let fuType='FU1';
+          if(!lead.dateSent) fuType='Initial';
+          else if(!lead.fu1Sent) fuType='FU1';
+          else if(!lead.fu2Sent) fuType='FU2';
+          else if(!lead.fu3Sent) fuType='FU3';
+          closeLeadDetail();
+          goToFUEmail(id,fuType);
+        });
+      }
+      const dncBtn=content.querySelector('#ldDncBtn');
+      if(dncBtn) dncBtn.addEventListener('click',()=>{ toggleDNC(id); openLeadDetail(id); });
+      const deleteBtn=content.querySelector('#ldDeleteBtn');
+      if(deleteBtn) deleteBtn.addEventListener('click',()=>{ closeLeadDetail(); deleteLead(id); });
+
       document.getElementById('leadDetailBackdrop').classList.add('open');
       expandedLeadId=id;
     }
+
     function closeLeadDetail(){
       document.getElementById('leadDetailBackdrop').classList.remove('open');
       expandedLeadId=null;
@@ -2642,6 +2871,8 @@
     function computeFUUrgency(lead){ if(!lead.dateSent) return null; const td=todayISO(); const fus=[{date:lead.fu1Date,sent:lead.fu1Sent,label:'FU1'},{date:lead.fu2Date,sent:lead.fu2Sent,label:'FU2'},{date:lead.fu3Date,sent:lead.fu3Sent,label:'FU3'}]; for(const fu of fus){ if(!fu.date||fu.sent) continue; if(fu.date<td) return {label:fu.label+' Overdue',dotClass:'fu-urg-overdue'}; if(fu.date===td) return {label:fu.label+' Today',dotClass:'fu-urg-today'}; const days=Math.round((new Date(fu.date)-new Date(td))/86400000); if(days<=2) return {label:fu.label+' in '+days+(days===1?' day':' days'),dotClass:'fu-urg-soon'}; return null; } return null; }
 
     function statusDotClassPipeline(status){ const m={'Converted':'sdot-p-converted','Replied':'sdot-p-replied','Disqualified':'sdot-p-disqualified','Follow Up Due':'sdot-p-fudue','Sent':'sdot-p-sent','Not Sent':'sdot-p-notsent','Do Not Contact':'sdot-p-dnc','Not Interested':'sdot-p-notinterested','Pilot Started':'sdot-p-pilot','Pilot Agreed':'sdot-p-pilot','Discovery Completed':'sdot-p-discovery','Discovery Booked':'sdot-p-discovery'}; return m[status]||'sdot-p-notsent'; }
+
+    function lastSentLabel(lead){ if(lead.fu3Sent) return 'FU3 Sent'; if(lead.fu2Sent) return 'FU2 Sent'; if(lead.fu1Sent) return 'FU1 Sent'; if(lead.dateSent) return 'Initial Sent'; return 'Sent'; }
 
     function updatePipelineFilterBadge(){ let count=0; if(pipelineFilter.status!=='All') count++; if(pipelineFilter.source!=='All') count++; if(pipelineFilter.city!=='All') count++; if(pipelineFilter.sort!=='newest') count++; if(pipelineFilter.fuStage!=='All') count++; if(pipelineFilter.ctaVariant!=='All') count++; if(pipelineFilter.subjectLine!=='All') count++; if(pipelineFilter.noLinkedin!=='All') count++; const badge=document.getElementById('pipelineFilterBadge'); const countEl=document.getElementById('filterCount'); if(badge) badge.style.display=count>0?'inline-block':'none'; if(countEl){ countEl.textContent=count; countEl.style.display=count>0?'inline':'none'; } }
 
@@ -2758,7 +2989,8 @@
         const row=document.createElement('div'); row.className='lead-row';
         const main=document.createElement('div'); main.className='lead-row-main'+(selectedPipelineIds.has(l.id)?' row-selected':'');
         const statusSlug=(status||'').toLowerCase().replace(/\s+/g,'-');
-        main.innerHTML=`<input type="checkbox" class="sel-check sel-pipeline" data-id="${l.id}" ${selectedPipelineIds.has(l.id)?'checked':''}><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div>${cityTag}<span class="pl-status s-${statusSlug}">${escapeHtml(status)}</span><button class="btn-view-lead" data-id="${l.id}">View</button>`;
+        const displayStatus=(status==='Sent')?lastSentLabel(l):status;
+        main.innerHTML=`<input type="checkbox" class="sel-check sel-pipeline" data-id="${l.id}" ${selectedPipelineIds.has(l.id)?'checked':''}><div class="lead-row-info"><span class="lead-name">${(l.clinicName?escapeHtml(l.clinicName):'<em style="color:var(--muted);font-weight:400">(no name)</em>')}</span><span class="lead-sub">${escapeHtml(l.contactName||'')}</span></div>${cityTag}<span class="pl-status s-${statusSlug}">${escapeHtml(displayStatus)}</span><button class="btn-view-lead" data-id="${l.id}">View</button>`;
         const expand=document.createElement('div'); expand.className='lead-row-expand'; expand.id='expand-'+l.id; expand.style.display='none';
         const hasDraft=!!(l.draftSubject||l.draftBody);
         // Reply on record section (only if replyText saved)
