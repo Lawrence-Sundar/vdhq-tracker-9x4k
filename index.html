@@ -892,13 +892,18 @@
     #tab-followups #fuShowingCount{font-family:'DM Sans',sans-serif !important;color:var(--aur-text-faint) !important;letter-spacing:0.04em}
 
     /* Bulk bar */
-    #tab-followups #followUpsBulkBar{flex:0 0 auto;background:rgba(255,255,255,0.02) !important;border:1px solid var(--aur-border-default) !important;border-radius:10px !important;padding:10px 14px !important}
-    #tab-followups #followUpsBulkBar input[type="checkbox"]{accent-color:var(--p-primary)}
-    #tab-followups #fuSelCount{font-family:'DM Sans',sans-serif !important;color:var(--aur-text-muted) !important}
-    #tab-followups #followUpsBulkBar .btn-ghost{background:transparent !important;border:1px solid var(--aur-border-default) !important;color:var(--aur-text-muted) !important;font-family:'DM Sans',sans-serif !important;letter-spacing:0.04em}
-    #tab-followups #followUpsBulkBar .btn-ghost:hover{border-color:rgba(var(--p-primary-rgb),0.4) !important;color:var(--aur-text-bright) !important}
-    #tab-followups #followUpsBulkBar .btn-bulk-send{background:rgba(var(--p-primary-rgb),0.18) !important;color:var(--p-primary) !important;font-family:'DM Sans',sans-serif !important;border:1px solid rgba(var(--p-primary-rgb),0.4) !important;letter-spacing:0.08em;text-transform:uppercase}
-    #tab-followups #followUpsBulkBar .btn-bulk-send:not(:disabled):hover{background:rgba(var(--p-primary-rgb),0.28) !important}
+    /* Per-section bulk bar (Nebula, inside each fu-section card above the head) */
+    #tab-followups .fu-bulk-section{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;margin-bottom:12px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid var(--aur-border-default);font-family:'Inter',sans-serif}
+    #tab-followups .fu-bulk-section input[type="checkbox"]{width:14px;height:14px;accent-color:var(--p-primary);cursor:pointer}
+    #tab-followups .fu-bulk-section .sel-count{font-size:11px;color:var(--aur-text-muted);letter-spacing:0.08em;text-transform:uppercase;font-weight:600;white-space:nowrap;font-family:'Inter',sans-serif}
+    #tab-followups .fu-bulk-section .sep{color:rgba(255,255,255,0.1);font-size:12px}
+    #tab-followups .fu-bulk-section .btn-q{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;background:transparent;border:1px solid var(--aur-border-default);color:var(--aur-text-muted);padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s}
+    #tab-followups .fu-bulk-section .btn-q:hover:not(:disabled){border-color:rgba(var(--p-primary-rgb),0.4);color:var(--aur-text-bright)}
+    #tab-followups .fu-bulk-section .btn-q:disabled{opacity:0.4;cursor:not-allowed}
+    #tab-followups .fu-bulk-section .bulk-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+    #tab-followups .fu-bulk-section .btn-bulk-send{background:rgba(var(--p-primary-rgb),0.18);color:var(--p-primary);border:1px solid rgba(var(--p-primary-rgb),0.4);font-weight:700}
+    #tab-followups .fu-bulk-section .btn-bulk-send:hover:not(:disabled){background:rgba(var(--p-primary-rgb),0.28);border-color:var(--p-primary)}
+    /* Old #followUpsBulkBar / #fuSelCount dead-code rules removed — see .fu-bulk-section above */
 
     /* Follow ups list — section headers + rows */
     #tab-followups #followUpsList{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;padding-bottom:10px}
@@ -1616,19 +1621,7 @@
         </div>
       </div>
       <div class="fu-stats" id="fuStats"></div>
-      <div id="followUpsBulkBar" style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:8px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px">
-        <input type="checkbox" class="sel-check" id="fuSelectAll" title="Select / deselect all filtered">
-        <span id="fuSelCount" style="font-size:12px;color:var(--muted);white-space:nowrap">0 selected</span>
-        <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel10" title="Select first 10">10</button>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel25" title="Select first 25">25</button>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSel50" title="Select first 50">50</button>
-        <span style="color:rgba(120,80,160,0.2);font-size:12px">|</span>
-        <button class="btn-ghost btn-sm" style="font-size:12px;padding:3px 8px" id="btnFuSelClear">Clear</button>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-          <button class="btn-bulk-send" id="btnBulkSendFU" style="font-size:12px;padding:5px 12px" disabled>Send via Outlook</button>
-        </div>
-      </div>
+      <!-- Per-section bulk bars are rendered inside each fu-section card by renderSection -->
       <div id="followUpsList"></div>
       </div>
     </section>
@@ -3063,21 +3056,41 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
     // ── Multi-select bulk send ───────────────────────────────────────────────
 
     function updateFollowUpsSelectionBar(){
-      const countEl=document.getElementById('fuSelCount');
-      const sa=document.getElementById('fuSelectAll');
-      const sendBtn=document.getElementById('btnBulkSendFU');
-      if(countEl) countEl.textContent=selectedFollowUpItems.size+' selected';
-      if(sendBtn) sendBtn.disabled=selectedFollowUpItems.size===0;
-      if(sa){
-        const all=_lastFollowUpAllItems;
-        sa.checked=all.length>0&&all.every(i=>selectedFollowUpItems.has(`${i.lead.id}-${i.fuKey}`));
-        sa.indeterminate=!sa.checked&&selectedFollowUpItems.size>0;
-      }
+      // Per-section count + send-button enable state. Global IDs (fuSelCount/fuSelectAll/btnBulkSendFU) are gone.
+      ['emerald','red','amber'].forEach(cls=>{
+        const m=selFuByCls[cls];
+        const bar=document.querySelector('.fu-section.'+cls+' .fu-bulk-section');
+        if(!bar) return;
+        const cnt=bar.querySelector('.sel-count'); if(cnt) cnt.textContent=m.size+' selected';
+        const sendBtn=bar.querySelector('.btn-bulk-send'); if(sendBtn) sendBtn.disabled=m.size===0;
+        const sa=bar.querySelector('.fu-bulk-selall');
+        if(sa){
+          const total=bar.parentElement?bar.parentElement.querySelectorAll(':scope > .fu-row').length:0;
+          sa.checked=total>0&&m.size===total;
+          sa.indeterminate=m.size>0&&m.size<total;
+        }
+      });
     }
+    // Legacy quickSelectFollowUps kept for any external caller; clears all sections + selects first N from union
     function quickSelectFollowUps(n){
-      selectedFollowUpItems.clear();
-      _lastFollowUpAllItems.slice(0,n).forEach(i=>selectedFollowUpItems.set(`${i.lead.id}-${i.fuKey}`,i));
+      [selFuInitial,selFuOverdue,selFuToday].forEach(m=>m.clear());
+      _lastFollowUpAllItems.slice(0,n).forEach(i=>{
+        const k=i.lead.id+'-'+(i.fuKey||'initial');
+        // Route to the right section based on fuKey: 'initial' → emerald, 'fuN' check date for overdue/today
+        // (best-effort: assume 'initial' = emerald, others = red since legacy callers don't distinguish)
+        const targetMap=i.fuKey==='initial'?selFuInitial:(_lastFollowUpAllItems.indexOf(i)<_lastFollowUpAllItems.length?selFuOverdue:selFuToday);
+        targetMap.set(k,i);
+      });
+      _rebuildLegacyFuSelection();
       renderFollowUps();
+    }
+    // Per-section bulk send: copy section's Map into legacy selectedFollowUpItems then call openBulkSendModal
+    function handleSectionBulkSendVersa(cls){
+      const m=selFuByCls[cls];
+      if(!m||!m.size){ alert('Select at least one row in this section.'); return; }
+      selectedFollowUpItems=new Map();
+      m.forEach((v,k)=>selectedFollowUpItems.set(k,v));
+      openBulkSendModal();
     }
 
     function openBulkSendModal(){
@@ -3176,14 +3189,8 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
     }
 
     function bindBulkSend(){
-      const fuSA=document.getElementById('fuSelectAll');
-      if(fuSA) fuSA.addEventListener('change',e=>{ if(e.target.checked) _lastFollowUpAllItems.forEach(i=>selectedFollowUpItems.set(`${i.lead.id}-${i.fuKey}`,i)); else selectedFollowUpItems.clear(); renderFollowUps(); });
-      const btnFU=document.getElementById('btnBulkSendFU');
-      if(btnFU) btnFU.addEventListener('click',()=>{ if(selectedFollowUpItems.size>0) openBulkSendModal(); });
-      const fs10=document.getElementById('btnFuSel10'); if(fs10) fs10.addEventListener('click',()=>quickSelectFollowUps(10));
-      const fs25=document.getElementById('btnFuSel25'); if(fs25) fs25.addEventListener('click',()=>quickSelectFollowUps(25));
-      const fs50=document.getElementById('btnFuSel50'); if(fs50) fs50.addEventListener('click',()=>quickSelectFollowUps(50));
-      const fsClear=document.getElementById('btnFuSelClear'); if(fsClear) fsClear.addEventListener('click',()=>{ selectedFollowUpItems.clear(); renderFollowUps(); });
+      // Per-section bulk handlers are now bound inside renderSection (closure-scoped to each card).
+      // Old global IDs (fuSelectAll / btnBulkSendFU / btnFuSel10/25/50 / btnFuSelClear) were ripped out with the global bulk bar.
       const closeBtn=document.getElementById('bulkSendClose');
       if(closeBtn) closeBtn.addEventListener('click',closeBulkSendModal);
       const bd=document.getElementById('bulkSendBackdrop');
@@ -3348,6 +3355,17 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
         ...overdue.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel})),
         ...dueToday.map(i=>({lead:i.lead,fuKey:i.fuKey,fuLabel:i.fuLabel}))
       ];
+      // Per-section visible-keys cleanup: drop selections that are no longer in their section's items
+      const _visKeys={
+        emerald:new Set(unsent.map(l=>l.id+'-initial')),
+        red:new Set(overdue.map(i=>i.lead.id+'-'+i.fuKey)),
+        amber:new Set(dueToday.map(i=>i.lead.id+'-'+i.fuKey))
+      };
+      ['emerald','red','amber'].forEach(cls=>{
+        const m=selFuByCls[cls]; const vis=_visKeys[cls];
+        Array.from(m.keys()).forEach(k=>{ if(!vis.has(k)) m.delete(k); });
+      });
+      _rebuildLegacyFuSelection();
 
       // === Daedalus-style row rendering ===
       // fu1=Email 2, fu2=Email 3, fu3=Email 4. Initial=Email 1.
@@ -3363,7 +3381,60 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
         if(!sectionItems.length) return;
         const sec=document.createElement('div'); sec.className='fu-section '+cls;
         const inner=document.createElement('div'); inner.className='fu-section-inner';
-        inner.innerHTML='<div class="fu-section-head"><div class="fu-section-title"><span class="dot"></span>'+escapeHtml(titleText)+'</div><div class="fu-section-count">'+escapeHtml(countText)+'</div></div>';
+        const sectionMap=selFuByCls[cls];
+        // Per-section bulk bar at top of card (above the section head)
+        inner.innerHTML='<div class="fu-bulk-section" data-section="'+cls+'">'+
+          '<input type="checkbox" class="fu-bulk-selall" title="Select / deselect all in this section">'+
+          '<span class="sel-count">'+sectionMap.size+' selected</span>'+
+          '<span class="sep">|</span>'+
+          '<button type="button" class="btn-q" data-bact="qsel" data-n="10">10</button>'+
+          '<button type="button" class="btn-q" data-bact="qsel" data-n="25">25</button>'+
+          '<button type="button" class="btn-q" data-bact="qsel" data-n="50">50</button>'+
+          '<span class="sep">|</span>'+
+          '<button type="button" class="btn-q" data-bact="clear">Clear</button>'+
+          '<div class="bulk-right"><button type="button" class="btn-q btn-bulk-send" data-bact="bulk-send"'+(sectionMap.size===0?' disabled':'')+'>Send via Outlook</button></div>'+
+          '</div>'+
+          '<div class="fu-section-head"><div class="fu-section-title"><span class="dot"></span>'+escapeHtml(titleText)+'</div><div class="fu-section-count">'+escapeHtml(countText)+'</div></div>';
+        // Bind bulk bar handlers (closure captures cls + sectionMap + sectionItems)
+        const bulkBar=inner.querySelector('.fu-bulk-section');
+        const sa=bulkBar.querySelector('.fu-bulk-selall');
+        sa.addEventListener('change',()=>{
+          if(sa.checked){
+            sectionItems.forEach(item=>{
+              const fk=item.fuKey||'initial';
+              const fl=item.fuLabel||'Initial';
+              sectionMap.set(item.lead.id+'-'+fk,{lead:item.lead,fuKey:fk,fuLabel:fl});
+            });
+          } else {
+            sectionMap.clear();
+          }
+          _rebuildLegacyFuSelection();
+          renderFollowUps();
+        });
+        bulkBar.querySelectorAll('[data-bact="qsel"]').forEach(btn=>btn.addEventListener('click',()=>{
+          sectionMap.clear();
+          const n=parseInt(btn.dataset.n,10);
+          sectionItems.slice(0,n).forEach(item=>{
+            const fk=item.fuKey||'initial';
+            const fl=item.fuLabel||'Initial';
+            sectionMap.set(item.lead.id+'-'+fk,{lead:item.lead,fuKey:fk,fuLabel:fl});
+          });
+          _rebuildLegacyFuSelection();
+          renderFollowUps();
+        }));
+        bulkBar.querySelector('[data-bact="clear"]').addEventListener('click',()=>{
+          sectionMap.clear();
+          _rebuildLegacyFuSelection();
+          renderFollowUps();
+        });
+        bulkBar.querySelector('[data-bact="bulk-send"]').addEventListener('click',()=>{
+          handleSectionBulkSendVersa(cls);
+        });
+        // Initial select-all visual state
+        const allKey=item=>item.lead.id+'-'+(item.fuKey||'initial');
+        sa.checked=sectionItems.length>0&&sectionItems.every(it=>sectionMap.has(allKey(it)));
+        sa.indeterminate=!sa.checked&&sectionMap.size>0;
+        // Rows
         sectionItems.forEach(item=>{
           const row=document.createElement('div'); row.className='fu-row';
           row.innerHTML=rowBuilder(item);
@@ -3374,10 +3445,11 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
               const k=chk.dataset.key;
               if(chk.checked){
                 const lead=leads.find(L=>L.id==chk.dataset.leadId);
-                if(lead) selectedFollowUpItems.set(k,{lead,fuKey:chk.dataset.fuKey,fuLabel:chk.dataset.fuLabel});
+                if(lead) sectionMap.set(k,{lead,fuKey:chk.dataset.fuKey,fuLabel:chk.dataset.fuLabel});
               } else {
-                selectedFollowUpItems.delete(k);
+                sectionMap.delete(k);
               }
+              _rebuildLegacyFuSelection();
               updateFollowUpsSelectionBar();
             });
           }
@@ -3661,7 +3733,17 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
     let pipelineFilter = {status:'All',source:'All',city:'All',sort:'newest',fuStage:'All',ctaVariant:'All',subjectLine:'All',noLinkedin:'All'};
     let fuFilter = {fuType:'All', city:'All'};
 
-    let selectedFollowUpItems = new Map(); // keyed '${id}-${fuKey}'
+    // Per-section follow-up selection state — keyed by section CSS class (emerald/red/amber)
+    let selFuInitial = new Map(); // emerald — keyed '${id}-initial'
+    let selFuOverdue = new Map(); // red     — keyed '${id}-${fuKey}' (fu1/fu2/fu3)
+    let selFuToday   = new Map(); // amber   — keyed '${id}-${fuKey}'
+    const selFuByCls = {emerald: selFuInitial, red: selFuOverdue, amber: selFuToday};
+    // Backwards-compat union getter for any legacy code that still reads "selectedFollowUpItems"
+    let selectedFollowUpItems = new Map();
+    function _rebuildLegacyFuSelection(){
+      selectedFollowUpItems = new Map();
+      [selFuInitial, selFuOverdue, selFuToday].forEach(m => m.forEach((v,k)=>selectedFollowUpItems.set(k,v)));
+    }
     let selectedPipelineIds = new Set();
     let _lastPipelineFiltered = [];
     let _lastFollowUpAllItems = [];
