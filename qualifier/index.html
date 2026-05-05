@@ -437,6 +437,9 @@
     const SB_KEY = 'sb_publishable_EKF8XjMQO-ILwFbEtbU-mw_2DFfDECH';
     const SB_TABLE = 'versa_leads';
     let _sb = null;
+    // Returns fallback on null OR parse error. Wraps JSON.parse for safe LLM-output / localStorage reads.
+    function safeJsonParse(text, fallback){ try { return text == null ? fallback : JSON.parse(text); } catch { return fallback; } }
+
     function getSB(){ if(!_sb && window.supabase) _sb = window.supabase.createClient(SB_URL, SB_KEY); return _sb; }
 
     // ── Supabase write tracking + visible sync error banner ──
@@ -1032,7 +1035,8 @@ ${pageText}`;
       const apiData = await apiRes.json();
       const rawText = (apiData.content?.[0]?.text || '').trim();
       const clean = rawText.replace(/^```json?\s*/i,'').replace(/```\s*$/,'').trim();
-      const result = JSON.parse(clean);
+      const result = safeJsonParse(clean, null);
+      if(!result) throw new Error('Claude response was not valid JSON');
 
       if(_isOOH) result.score = 'Cold';
 

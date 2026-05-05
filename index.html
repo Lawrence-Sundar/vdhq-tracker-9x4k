@@ -1972,6 +1972,10 @@
     const SB_KEY = 'sb_publishable_EKF8XjMQO-ILwFbEtbU-mw_2DFfDECH';
     const SB_TABLE = 'versa_leads';
     let _sb = null;
+    // Returns fallback on null OR parse error. Replaces unguarded JSON.parse(localStorage.getItem(K))
+    // pattern that throws on corrupted storage (Versa cross-cutting learning).
+    function safeJsonParse(text, fallback){ try { return text == null ? fallback : JSON.parse(text); } catch { return fallback; } }
+
     function getSB(){ if(!_sb && window.supabase) _sb = window.supabase.createClient(SB_URL, SB_KEY); return _sb; }
 
     // ── Supabase write tracking + visible sync error banner ──
@@ -2070,10 +2074,10 @@
           else throw new Error(error?.message||'No data');
         }catch(e){
           console.warn('[load] Supabase failed, falling back to localStorage:',e.message);
-          const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
+          leads=safeJsonParse(localStorage.getItem(STORAGE_KEY), []);
         }
       } else {
-        const raw=localStorage.getItem(STORAGE_KEY); leads=raw?JSON.parse(raw):[];
+        leads=safeJsonParse(localStorage.getItem(STORAGE_KEY), []);
       }
       if(!leads.length){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); if(bRaw){ const backups=JSON.parse(bRaw); if(backups.length&&(backups[0].data||[]).length){ const b=backups[0]; const ts=formatBackupTimestamp(b.timestamp); if(confirm('No leads found but a backup exists from '+ts+' with '+b.data.length+' leads. Restore it?')){ leads=b.data; localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); } } } }catch(e){ console.warn('[load] Backup restore prompt failed:', e && e.message); } }
       leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; });
@@ -2107,7 +2111,7 @@
     function openBackupModal(){ renderBackupList(); const bd=document.getElementById('backupBackdrop'); const md=document.getElementById('backupModal'); bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
     function closeBackupModal(){ const bd=document.getElementById('backupBackdrop'); const md=document.getElementById('backupModal'); md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
     function renderBackupList(){ const container=document.getElementById('backupList'); const bRaw=localStorage.getItem(BACKUP_KEY); const backups=bRaw?JSON.parse(bRaw):[]; if(!backups.length){ container.innerHTML='<div style="color:var(--muted);font-size:13px;padding:12px 0">No backups found.</div>'; return; } container.innerHTML=''; backups.forEach((b,i)=>{ const ts=formatBackupTimestamp(b.timestamp); const count=(b.data||[]).length; const row=document.createElement('div'); row.className='backup-row'; row.innerHTML=`<div><div class="backup-ts">${escapeHtml(ts)}</div><div class="backup-count">${count} lead${count===1?'':'s'}</div></div><button class="btn btn-ghost" style="flex-shrink:0" data-idx="${i}">Restore</button>`; row.querySelector('button').addEventListener('click',()=>restoreFromBackup(i)); container.appendChild(row); }); }
-    function restoreFromBackup(idx){ const bRaw=localStorage.getItem(BACKUP_KEY); if(!bRaw) return; const backups=JSON.parse(bRaw); const b=backups[idx]; if(!b) return; const ts=formatBackupTimestamp(b.timestamp); const count=(b.data||[]).length; if(!confirm('Restore '+count+' lead'+(count===1?'':'s')+' from '+ts+'? This will overwrite your current data.')) return; localStorage.setItem(STORAGE_KEY,JSON.stringify(b.data||[])); closeBackupModal(); location.reload(); }
+    function restoreFromBackup(idx){ const backups=safeJsonParse(localStorage.getItem(BACKUP_KEY), []); if(!backups.length) return; const b=backups[idx]; if(!b) return; const ts=formatBackupTimestamp(b.timestamp); const count=(b.data||[]).length; if(!confirm('Restore '+count+' lead'+(count===1?'':'s')+' from '+ts+'? This will overwrite your current data.')) return; localStorage.setItem(STORAGE_KEY,JSON.stringify(b.data||[])); closeBackupModal(); location.reload(); }
 
     function ensureFUDates(lead){ try{ if(!lead.dateSent) return; if(!isValidDateStr(lead.dateSent)) return;
       if(lead.fu1Sent&&!lead.fu1SentOn&&lead.fu1Date) lead.fu1SentOn=lead.fu1Date;
@@ -3976,7 +3980,8 @@ Return JSON with subject and body only. No preamble, no markdown. Raw JSON.`;
         const data=await res.json();
         const raw=(data.content&&data.content[0]&&data.content[0].text)||'';
         const clean=raw.replace(/^```json?\s*/i,'').replace(/\s*```$/,'').trim();
-        const draft=JSON.parse(clean);
+        const draft=safeJsonParse(clean, null);
+        if(!draft) throw new Error('Claude response was not valid JSON');
         window._initialDraft=draft;
         lead.draftSubject=draft.subject||'';
         lead.draftBody=draft.body||'';
