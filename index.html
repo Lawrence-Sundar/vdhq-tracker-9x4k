@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>var _V='20260427pillfix';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260508variant3a-tracker-fix3';if(localStorage.getItem('_appV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_appV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Versa Digital HQ — Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1555,7 +1555,7 @@
             </div>
             <div class="filter-group">
               <span class="filter-inline-label">CTA</span>
-              <select id="pFilterCta"><option value="All">All</option><option value="Demo">Demo</option><option value="Audit">Audit</option></select>
+              <select id="pFilterCta"><option value="All">All</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
             </div>
             <div class="filter-group">
               <span class="filter-inline-label">Subject</span>
@@ -1866,8 +1866,8 @@
         <div class="form-row"><div><label>City</label><input id="e_city" type="text"></div><div><label>Address</label><input id="e_address" type="text"></div></div>
         <div class="form-row"><div><label>Website</label><input id="e_website" type="text"></div><div><label>Named Contact</label><input id="e_contactName" type="text"></div></div>
         <div class="form-row"><div><label>Email</label><input id="e_email" type="email"></div><div class="w200"><label>Channel</label><select id="e_channel"><option>Email</option><option>Contact Form</option><option>DM</option></select></div><div class="w100"><label>Reviews</label><input id="e_reviewCount" type="text" placeholder="e.g. 47"></div></div>
-        <div class="form-row"><div class="w120"><label>Reply</label><select id="e_reply"><option value="N">No</option><option value="Y">Yes</option></select></div><div><label>Reply Type</label><select id="e_replyType"><option value="">(none)</option><option>Disqualified</option><option>Interested</option><option>Discovery Booked</option><option>Discovery Completed</option><option>Pilot Agreed</option><option>Pilot Started</option><option>Not Interested</option><option>Converted</option><option>Other</option></select></div></div>
-        <div class="form-row"><div class="w200"><label>Source</label><select id="e_source"><option value="manual">Manual</option><option value="qualifier">Qualifier</option></select></div></div>
+        <div class="form-row"><div class="w120"><label>Reply</label><select id="e_reply"><option value="N">No</option><option value="Y">Yes</option></select></div><div><label>Reply Type</label><select id="e_replyType"><option value="">(none)</option><option>Disqualified</option><option>Interested</option><option>Discovery Booked</option><option>Discovery Completed</option><option>Pilot Agreed</option><option>Pilot Started</option><option>Not Interested</option><option>Converted</option><option>Other</option></select></div><div class="w200" style="display:flex;align-items:flex-end;padding-bottom:2px"><label style="display:inline-flex;align-items:center;gap:6px;text-transform:none;font-size:13px;font-weight:400;letter-spacing:0;cursor:pointer"><input type="checkbox" id="e_positiveReply" style="accent-color:var(--success);width:15px;height:15px"> Positive reply</label></div></div>
+        <div class="form-row"><div class="w200"><label>Source</label><select id="e_source"><option value="manual">Manual</option><option value="qualifier">Qualifier</option></select></div><div class="w120"><label>Variant</label><select id="e_ctaVariant"><option value="">(none)</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div></div>
         <div style="margin-bottom:12px"><label>Notes</label><textarea id="e_notes"></textarea></div>
         <div class="flex">
           <button id="editSave" type="button" class="btn btn-primary">Save</button>
@@ -2029,7 +2029,8 @@
       linkedinContact:'linkedin_contact', linkedinNotes:'linkedin_notes',
       discoveryCallBooked:'discovery_call_booked', discoveryCallCompleted:'discovery_call_completed',
       pilotAgreed:'pilot_agreed', pilotStarted:'pilot_started', pilotEndDate:'pilot_end_date',
-      dateAdded:'date_added', score:'score', ctaVariant:'cta_variant'
+      dateAdded:'date_added', score:'score', ctaVariant:'cta_variant',
+      positiveReply:'positive_reply'
     };
     const SB_REVERSE_MAP = Object.fromEntries(Object.entries(SB_FIELD_MAP).map(([k,v])=>[v,k]));
     const SB_DATE_FIELDS = new Set(['date_sent','initial_sent_date','fu1_date','fu1_sent_on','fu2_date','fu2_date_original','fu2_sent_on','fu3_date','fu3_date_original','fu3_sent_on','linkedin_dm_date','linkedin_connection_date','linkedin_not_found_date','discovery_call_booked','discovery_call_completed','pilot_agreed','pilot_started','pilot_end_date']);
@@ -2080,7 +2081,7 @@
         leads=safeJsonParse(localStorage.getItem(STORAGE_KEY), []);
       }
       if(!leads.length){ try{ const bRaw=localStorage.getItem(BACKUP_KEY); if(bRaw){ const backups=JSON.parse(bRaw); if(backups.length&&(backups[0].data||[]).length){ const b=backups[0]; const ts=formatBackupTimestamp(b.timestamp); if(confirm('No leads found but a backup exists from '+ts+' with '+b.data.length+' leads. Restore it?')){ leads=b.data; localStorage.setItem(STORAGE_KEY,JSON.stringify(leads)); } } } }catch(e){ console.warn('[load] Backup restore prompt failed:', e && e.message); } }
-      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; });
+      leads.forEach(l=>{ ensureFUDates(l); if(!l.source) l.source='manual'; if(l.doNotContact===undefined) l.doNotContact=false; if(l.replyText===undefined) l.replyText=''; if(!l.channel) l.channel='Email'; if(l.discoveryCallBooked===undefined) l.discoveryCallBooked=null; if(l.discoveryCallCompleted===undefined) l.discoveryCallCompleted=null; if(l.pilotAgreed===undefined) l.pilotAgreed=null; if(l.pilotStarted===undefined) l.pilotStarted=null; if(l.pilotEndDate===undefined) l.pilotEndDate=null; if(l.positiveReply===undefined) l.positiveReply=false; });
       // One-shot migration: DNC concept retired — convert lingering doNotContact:true leads to reply='Y' + replyType='Not Interested'.
       // Idempotent via activityLog marker. doNotContact flag stays on the record as historical residue (no logic reads it).
       let _dncMigrated=0;
@@ -2124,7 +2125,7 @@
       if(lead.fu1Sent===undefined) lead.fu1Sent=false; if(lead.fu2Sent===undefined) lead.fu2Sent=false; if(lead.fu3Sent===undefined) lead.fu3Sent=false;
     }catch(e){ console.warn('[ensureFUDates] skipped lead id='+lead.id+':',e.message); } }
 
-    function addLead(data){ const lead=Object.assign({id:Date.now(),dateAdded:new Date().toISOString()},data); if(!lead.source) lead.source='manual'; ensureFUDates(lead); leads.unshift(lead); save(); }
+    function addLead(data){ const lead=Object.assign({id:Date.now(),dateAdded:new Date().toISOString(),positiveReply:false},data); if(!lead.source) lead.source='manual'; ensureFUDates(lead); leads.unshift(lead); save(); }
 
     function markFUSent(id,fu){ const lead=leads.find(l=>l.id==id); if(!lead) return;
       if(lead.doNotContact) return; const _ms=computeStatus(lead); if(_ms==='Replied'||_ms==='Converted'||_ms==='Not Interested'||_ms==='Disqualified') return;
@@ -2738,10 +2739,13 @@ function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot 
       else composeLabel='Sequence Complete';
       const composeDisabled=(lead.fu1Sent&&lead.fu2Sent&&lead.fu3Sent)?'disabled style="opacity:0.45;cursor:not-allowed"':'';
 
+      const variantPill=lead.ctaVariant?'<span class="md-city-pill" style="background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.3);color:#c084fc">Variant '+escapeHtml(lead.ctaVariant.toUpperCase())+'</span>':'';
+      const posReplyChecked=lead.positiveReply?'checked':'';
+
       content.innerHTML=
         '<div class="md-meta-row">'+
           '<span class="md-status-pill s-'+statusSlug+'">'+escapeHtml(displayStatus)+'</span>'+
-          cityPill+sourcePill+reviewsPill+
+          cityPill+sourcePill+reviewsPill+variantPill+
         '</div>'+
         '<div class="md-body">'+
           '<div class="md-section">'+
@@ -2757,6 +2761,10 @@ function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot 
               '<div id="ldReplyTypeWrap" style="display:'+(lead.reply==='Y'?'block':'none')+'">'+
                 '<label class="md-select-label">Reply Type</label>'+
                 '<select class="md-select" id="ldReplyType">'+replyTypeOpts+'</select>'+
+              '</div>'+
+              '<div style="display:flex;align-items:center;gap:8px;margin-top:8px">'+
+                '<input type="checkbox" id="ldPositiveReply" '+posReplyChecked+' style="accent-color:var(--success);width:16px;height:16px;cursor:pointer">'+
+                '<label for="ldPositiveReply" class="md-select-label" style="margin:0;cursor:pointer;color:var(--success);text-transform:none;font-size:13px;font-weight:500;letter-spacing:0">Positive reply (asks question / wants demo / books call)</label>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -2777,6 +2785,7 @@ function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot 
               '<div class="md-field"><span class="md-field-label">Next Follow-up</span><span class="md-field-val">'+nextFUHtml+'</span></div>'+
               '<div class="md-field"><span class="md-field-label">Source</span><span class="md-field-val">'+((lead.source||'manual')==='qualifier'?'Qualifier':'Manual')+'</span></div>'+
               '<div class="md-field"><span class="md-field-label">Channel</span><span class="md-field-val">'+escapeHtml(lead.channel||'—')+'</span></div>'+
+              (lead.ctaVariant?'<div class="md-field"><span class="md-field-label">Variant</span><span class="md-field-val" style="color:#c084fc;font-weight:600">'+escapeHtml(lead.ctaVariant.toUpperCase())+'</span></div>':'')+
               notesHtml+replyOnRecordHtml+
             '</div>'+
           '</div>'+
@@ -2790,10 +2799,18 @@ function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot 
       // Wire reply select
       const replySel=content.querySelector('#ldReplySelect');
       const replyTypeSel=content.querySelector('#ldReplyType');
+      const posReplyChk=content.querySelector('#ldPositiveReply');
       if(replySel){
         replySel.addEventListener('change',()=>{
           lead.reply=replySel.value;
-          if(lead.reply==='N') lead.replyType='';
+          if(lead.reply==='N'){ lead.replyType=''; lead.positiveReply=false; }
+          save();
+          openLeadDetail(id);
+        });
+      }
+      if(posReplyChk){
+        posReplyChk.addEventListener('change',()=>{
+          lead.positiveReply=posReplyChk.checked;
           save();
           openLeadDetail(id);
         });
@@ -2964,9 +2981,8 @@ function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot 
           else if(fs==='Qualifier Unsent'){ if((l.source||'manual')!=='qualifier'||l.dateSent) return false; }
         }
         if(pipelineFilter.ctaVariant!=='All'){
-          const cv=(l.ctaVariant||'').toLowerCase();
-          if(pipelineFilter.ctaVariant==='Demo'&&cv!=='demo') return false;
-          if(pipelineFilter.ctaVariant==='Audit'&&cv!=='audit') return false;
+          const cv=(l.ctaVariant||'').toUpperCase();
+          if(cv!==pipelineFilter.ctaVariant) return false;
         }
         if(pipelineFilter.subjectLine!=='All'&&(l.subjectLine||'')!==pipelineFilter.subjectLine) return false;
         if(pipelineFilter.noLinkedin==='No LinkedIn'&&!l.linkedinNotFound) return false;
@@ -3001,7 +3017,9 @@ function deleteLead(id){ if(!confirm('Permanently delete this lead? This cannot 
         // Log Reply section (always shown)
         const logReplyHtml=`<div class="ra-section"><span class="ra-section-label">Log Reply</span><textarea class="ra-textarea" id="ra-txt-${l.id}" placeholder="Paste the reply you received...">${escapeHtml(l.replyText||'')}</textarea><button class="btn-ra-save" id="ra-savebtn-${l.id}">Save Reply</button></div>`;
         const scoreBadgeHtml=(l.score==='Hot')?'<span class="score-badge-hot">HOT LEAD</span>':(l.score==='Warm')?'<span class="score-badge-warm">WARM LEAD</span>':'';
-        expand.innerHTML=`${scoreBadgeHtml}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}${l.address?'<div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">'+escapeHtml(l.address)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.reviewCount?'<div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">'+escapeHtml(l.reviewCount)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button>${l.reply==='Y'?`<select class="rt-inline" data-id="${l.id}" data-action="setReplyType"><option value=""${!l.replyType?' selected':''}>Reply type...</option>${['Disqualified','Interested','Discovery Booked','Discovery Completed','Pilot Agreed','Pilot Started','Not Interested','Converted','Other'].map(t=>`<option value="${t}"${l.replyType===t?' selected':''}>${t}</option>`).join('')}</select>`:''}<button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
+        const variantBadgeHtml=l.ctaVariant?`<span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;letter-spacing:0.08em;margin-right:6px">VARIANT ${escapeHtml(l.ctaVariant.toUpperCase())}</span>`:'';
+        const posReplyBadgeHtml=l.positiveReply?'<span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);color:var(--success);letter-spacing:0.08em">POSITIVE REPLY</span>':'';
+        expand.innerHTML=`${scoreBadgeHtml}${variantBadgeHtml||posReplyBadgeHtml?'<div style="margin-bottom:8px">'+variantBadgeHtml+posReplyBadgeHtml+'</div>':''}<div class="expand-grid"><div class="expand-field"><span class="ef-label">Email</span><span class="ef-val">${escapeHtml(l.email||'—')}</span></div>${l.website?'<div class="expand-field"><span class="ef-label">Website</span><span class="ef-val">'+escapeHtml(l.website)+'</span></div>':''}${l.address?'<div class="expand-field"><span class="ef-label">Address</span><span class="ef-val">'+escapeHtml(l.address)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Date Sent</span><span class="ef-val">${escapeHtml(formatDateISOtoUK(l.dateSent)||'—')}</span></div><div class="expand-field"><span class="ef-label">Channel</span><span class="ef-val">${escapeHtml((l.channel||'—').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</span></div>${l.reviewCount?'<div class="expand-field"><span class="ef-label">Reviews</span><span class="ef-val">'+escapeHtml(l.reviewCount)+'</span></div>':''}<div class="expand-field"><span class="ef-label">Source</span><span class="ef-val">${isQual?'Added via Qualifier':'Added manually'}</span></div>${l.notes?`<div class="expand-field" style="grid-column:1/-1"><span class="ef-label">Notes</span><span class="ef-val">${escapeHtml(l.notes)}</span></div>`:''}</div><div class="expand-fu"><button class="fu-btn ${l.fu1Sent?'fu-sent':fu1Due?'fu-due':''}" data-id="${l.id}" data-fu="fu1">${l.fu1Sent?'&#10003; FU1 sent':'FU1 · '+formatDateISOtoShortUK(l.fu1Date)}</button><button class="fu-btn ${l.fu2Sent?'fu-sent':fu2Due?'fu-due':''}" data-id="${l.id}" data-fu="fu2">${l.fu2Sent?'&#10003; FU2 sent':'FU2 · '+formatDateISOtoShortUK(l.fu2Date)}</button><button class="fu-btn ${l.fu3Sent?'fu-sent':fu3Due?'fu-due':''}" data-id="${l.id}" data-fu="fu3">${l.fu3Sent?'&#10003; FU3 sent':'FU3 · '+formatDateISOtoShortUK(l.fu3Date)}</button></div><div class="expand-actions">${!l.dateSent?`<button class="btn btn-ghost btn-sm" data-action="markSent" data-id="${l.id}">Mark as Sent</button>`:''}<button class="btn btn-ghost btn-sm" data-id="${l.id}" data-action="toggleReply">${l.reply==='Y'?'Mark No Reply':'Mark Replied'}</button>${l.reply==='Y'?`<select class="rt-inline" data-id="${l.id}" data-action="setReplyType"><option value=""${!l.replyType?' selected':''}>Reply type...</option>${['Disqualified','Interested','Discovery Booked','Discovery Completed','Pilot Agreed','Pilot Started','Not Interested','Converted','Other'].map(t=>`<option value="${t}"${l.replyType===t?' selected':''}>${t}</option>`).join('')}</select>`:''}<button class="btn btn-primary btn-sm" data-id="${l.id}" data-action="edit">Edit</button><button class="btn btn-ghost btn-sm btn-delete" data-id="${l.id}" data-action="deleteLead">Delete</button></div>${hasDraft?`<div class="expand-draft"><div class="draft-header"><span class="expand-draft-label">Initial Email Draft</span><button class="btn-ghost btn-sm" id="btnToggleDraft-${l.id}" style="font-size:12px" onclick="const b=document.getElementById('draftBody-'+${l.id});const e=document.getElementById('btnDraftEdit-'+${l.id});const t=this;if(b.style.display==='none'){b.style.display='';t.textContent='Hide draft';if(e)e.style.display=''}else{b.style.display='none';t.textContent='Show draft';if(e)e.style.display='none'}">Show draft</button><button class="btn-draft-edit" id="btnDraftEdit-${l.id}" style="display:none">Edit</button><button class="btn-draft-save" id="btnDraftSave-${l.id}" style="display:none">Save</button><button class="btn-draft-cancel" id="btnDraftCancel-${l.id}" style="display:none">Cancel</button></div><div class="expand-draft-row"><span class="expand-draft-subject" id="ds-${l.id}">${escapeHtml(l.draftSubject||'')}</span><input class="draft-edit-input" id="ds-input-${l.id}" type="text" value="${escapeHtml(l.draftSubject||'')}" style="display:none;flex:1"><button class="btn-copy-draft" id="btnCopyDs-${l.id}">Copy Subject</button></div><div id="draftBody-${l.id}" style="display:none"><div class="expand-draft-body" id="db-${l.id}">${escapeHtml(l.draftBody||'')}</div><textarea class="draft-edit-ta" id="db-ta-${l.id}" style="display:none">${escapeHtml(l.draftBody||'')}</textarea><div style="margin-top:8px"><button class="btn-copy-draft" id="btnCopyDb-${l.id}">Copy Email</button></div></div></div>`:''}`;
         expand.innerHTML += onRecordHtml + logReplyHtml;
         const _viewBtn=main.querySelector('.btn-view-lead');
         if(_viewBtn) _viewBtn.addEventListener('click',e=>{ e.stopPropagation(); openLeadDetail(l.id); });
@@ -3371,6 +3389,17 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
       });
       _rebuildLegacyFuSelection();
 
+      // === Deliverability pause ===
+      const FU_PAUSE_END='2026-06-05';
+      const isPaused=(fuKey,fuDate,lead)=>{
+        if(fuKey==='fu1') return false; // pause only affects FU2 and FU3
+        if(!fuDate||!isValidDateStr(fuDate)) return false;
+        if(lead && lead[fuKey+'Sent']===true) return false;
+        const today=todayISO();
+        return fuDate>=today && fuDate<=FU_PAUSE_END;
+      };
+      const pauseBannerHtml='<div style="display:flex;align-items:center;gap:6px;margin-top:6px;padding:5px 10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:6px;font-size:11px;font-weight:600;color:#ef4444;letter-spacing:0.04em">&#9888; DO NOT SEND &mdash; deliverability pause active until '+FU_PAUSE_END+'</div>';
+
       // === Daedalus-style row rendering ===
       // fu1=Email 2, fu2=Email 3, fu3=Email 4. Initial=Email 1.
       const nextEmailFor=(fuKey)=> fuKey==='fu1'?'Email 2':fuKey==='fu2'?'Email 3':fuKey==='fu3'?'Email 4':'Email 1';
@@ -3491,10 +3520,11 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
         const l=item.lead;
         const daysLate=Math.max(1,Math.round((new Date(td)-new Date(item.fuDate))/86400000));
         const k=l.id+'-'+item.fuKey; const checked=selectedFollowUpItems.has(k);
+        const _paused=isPaused(item.fuKey,item.fuDate,l);
         return '<input type="checkbox" data-key="'+k+'" data-lead-id="'+l.id+'" data-fu-key="'+item.fuKey+'" data-fu-label="'+item.fuLabel+'" '+(checked?'checked':'')+'>'+
           '<span class="fu-badge overdue">Overdue · '+daysLate+'d</span>'+
           '<span class="fu-next">'+nextEmailFor(item.fuKey)+'</span>'+
-          '<div class="fu-info"><div class="fu-name">'+escapeHtml(l.clinicName||'(no name)')+'</div><div class="fu-director">'+subLineFor(l)+'</div></div>'+
+          '<div class="fu-info"><div class="fu-name">'+escapeHtml(l.clinicName||'(no name)')+'</div><div class="fu-director">'+subLineFor(l)+'</div>'+(_paused?pauseBannerHtml:'')+'</div>'+
           '<div class="fu-actions"><button class="btn-fu btn-fu-compose" data-action="compose" data-id="'+l.id+'" data-futype="'+item.fuKey.toUpperCase()+'">Compose</button><button class="btn-fu" data-action="snooze" data-id="'+l.id+'" data-fu-key="'+item.fuKey+'">Snooze 3d</button></div>';
       });
 
@@ -3502,10 +3532,11 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
       renderSection(dueToday,'amber','Due today',dueToday.length+' '+(dueToday.length===1?'clinic':'clinics')+' · action today',(item)=>{
         const l=item.lead;
         const k=l.id+'-'+item.fuKey; const checked=selectedFollowUpItems.has(k);
+        const _paused=isPaused(item.fuKey,item.fuDate,l);
         return '<input type="checkbox" data-key="'+k+'" data-lead-id="'+l.id+'" data-fu-key="'+item.fuKey+'" data-fu-label="'+item.fuLabel+'" '+(checked?'checked':'')+'>'+
           '<span class="fu-badge today">Today</span>'+
           '<span class="fu-next">'+nextEmailFor(item.fuKey)+'</span>'+
-          '<div class="fu-info"><div class="fu-name">'+escapeHtml(l.clinicName||'(no name)')+'</div><div class="fu-director">'+subLineFor(l)+'</div></div>'+
+          '<div class="fu-info"><div class="fu-name">'+escapeHtml(l.clinicName||'(no name)')+'</div><div class="fu-director">'+subLineFor(l)+'</div>'+(_paused?pauseBannerHtml:'')+'</div>'+
           '<div class="fu-actions"><button class="btn-fu btn-fu-compose" data-action="compose" data-id="'+l.id+'" data-futype="'+item.fuKey.toUpperCase()+'">Compose</button><button class="btn-fu" data-action="snooze" data-id="'+l.id+'" data-fu-key="'+item.fuKey+'">Snooze 3d</button></div>';
       });
 
@@ -3554,7 +3585,7 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
     }
 
     let editingId=null;
-    function openEdit(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; editingId=id; document.getElementById('e_clinicName').value=lead.clinicName||''; document.getElementById('e_dateSent').value=lead.dateSent||''; document.getElementById('e_city').value=lead.city||''; document.getElementById('e_address').value=lead.address||''; document.getElementById('e_website').value=lead.website||''; document.getElementById('e_contactName').value=lead.contactName||''; document.getElementById('e_email').value=lead.email||''; document.getElementById('e_channel').value=lead.channel||'Email'; document.getElementById('e_source').value=lead.source||'manual'; document.getElementById('e_reply').value=lead.reply||'N'; document.getElementById('e_replyType').value=lead.replyType||''; document.getElementById('e_notes').value=lead.notes||''; document.getElementById('e_reviewCount').value=lead.reviewCount||''; showModal(); }
+    function openEdit(id){ const lead=leads.find(l=>l.id==id); if(!lead) return; editingId=id; document.getElementById('e_clinicName').value=lead.clinicName||''; document.getElementById('e_dateSent').value=lead.dateSent||''; document.getElementById('e_city').value=lead.city||''; document.getElementById('e_address').value=lead.address||''; document.getElementById('e_website').value=lead.website||''; document.getElementById('e_contactName').value=lead.contactName||''; document.getElementById('e_email').value=lead.email||''; document.getElementById('e_channel').value=lead.channel||'Email'; document.getElementById('e_source').value=lead.source||'manual'; document.getElementById('e_reply').value=lead.reply||'N'; document.getElementById('e_replyType').value=lead.replyType||''; document.getElementById('e_notes').value=lead.notes||''; document.getElementById('e_reviewCount').value=lead.reviewCount||''; document.getElementById('e_positiveReply').checked=!!lead.positiveReply; document.getElementById('e_ctaVariant').value=lead.ctaVariant||''; showModal(); }
 
     function showModal(){ const bd=document.getElementById('editBackdrop'); const md=document.getElementById('editModal'); bd.classList.add('open'); md.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
     function closeModal(){ const bd=document.getElementById('editBackdrop'); const md=document.getElementById('editModal'); md.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); editingId=null; }
@@ -3562,9 +3593,10 @@ const deleteBtn=expand.querySelector('[data-action="deleteLead"]'); if(deleteBtn
     function openAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); bd.classList.add('open'); pn.classList.add('open'); bd.setAttribute('aria-hidden','false'); }
     function closeAddLeadPanel(){ const bd=document.getElementById('addLeadBackdrop'); const pn=document.getElementById('addLeadPanel'); pn.classList.remove('open'); bd.classList.remove('open'); bd.setAttribute('aria-hidden','true'); }
 
-    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim();
-      // If reply set to N, clear replyType + replyText so downstream logic agrees
-      if(lead.reply==='N'){ lead.replyType=''; lead.replyText=''; }
+    function saveModalEdit(){ if(!editingId) return; const lead=leads.find(l=>l.id==editingId); if(!lead) return; lead.clinicName=document.getElementById('e_clinicName').value.trim(); lead.dateSent=document.getElementById('e_dateSent').value||''; lead.city=document.getElementById('e_city').value.trim(); lead.address=document.getElementById('e_address').value.trim(); lead.website=document.getElementById('e_website').value.trim(); lead.contactName=document.getElementById('e_contactName').value.trim(); lead.email=document.getElementById('e_email').value.trim(); lead.channel=document.getElementById('e_channel').value; lead.source=document.getElementById('e_source').value; lead.reply=document.getElementById('e_reply').value; lead.replyType=document.getElementById('e_replyType').value; lead.notes=document.getElementById('e_notes').value.trim(); lead.reviewCount=document.getElementById('e_reviewCount').value.trim(); lead.ctaVariant=document.getElementById('e_ctaVariant').value||'';
+      // If reply set to N, clear replyType + replyText + positiveReply so downstream logic agrees
+      if(lead.reply==='N'){ lead.replyType=''; lead.replyText=''; lead.positiveReply=false; }
+      else { lead.positiveReply=document.getElementById('e_positiveReply').checked; }
       // If dateSent cleared, also clear FU schedule + flags + originals
       if(!lead.dateSent){ lead.fu1Date=''; lead.fu2Date=''; lead.fu3Date=''; lead.fu1Sent=false; lead.fu2Sent=false; lead.fu3Sent=false; delete lead.fu1SentOn; delete lead.fu2SentOn; delete lead.fu3SentOn; delete lead.fu2DateOriginal; delete lead.fu3DateOriginal; }
       const _td=todayISO();

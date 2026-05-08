@@ -8,7 +8,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Clinic Qualifier - Versa Digital HQ</title>
-  <script>var _V='20260427fudates';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
+  <script>var _V='20260508variant3a';if(localStorage.getItem('_qualV')!==_V&&!location.search.includes('_v='+_V)){localStorage.setItem('_qualV',_V);location.replace(location.pathname+'?_v='+_V);};</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--bg:#0b0f12;--card:#0f1619;--muted:#9aa6ac;--accent:#7dd3fc;--success:#4ade80;--danger:#f87171;--warn:#fbbf24}
@@ -356,6 +356,22 @@
         </select>
       </div>
 
+      <!-- Message Variant selector -->
+      <div class="card" id="msgVariantCard" style="display:none">
+        <div class="section-label" style="margin-bottom:10px">Message Variant</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#e6eef2;margin-bottom:0">
+            <input type="radio" name="msgVariant" value="A" id="variantA" checked style="accent-color:var(--accent);cursor:pointer"> A — Conversion rate
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#e6eef2;margin-bottom:0">
+            <input type="radio" name="msgVariant" value="B" id="variantB" style="accent-color:var(--accent);cursor:pointer"> B — Silent loss
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#e6eef2;margin-bottom:0">
+            <input type="radio" name="msgVariant" value="C" id="variantC" style="accent-color:var(--accent);cursor:pointer"> C — Time-to-booking
+          </label>
+        </div>
+      </div>
+
       <!-- Review Draft Email CTA -->
       <div id="draftCtaWrap" style="display:none">
         <button class="btn-draft" id="btnReviewDraft">Review Draft Email →</button>
@@ -507,6 +523,8 @@
     let selectedEmail = '';
     let _draftEdited  = false;
     let _editMode     = false;
+    // Message variant — persisted in sessionStorage, default A
+    window._msgVariant = sessionStorage.getItem('qualifier:variant') || 'A';
 
     // ── UI helpers ──
     function setLoading(on, msg) {
@@ -1460,7 +1478,7 @@ ${pageText}`;
       textIds.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; });
       const containerIds = ['emailsList','emailSelector','metaGrid','signalList','disqualifierList','flagChannel','flagContact'];
       containerIds.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
-      const sectionsToHide = ['emailDraftSection','draftOutput','confirmState','markSentState','customObsCard','intakeMethodCard','draftCtaWrap','emailsCard','emailToSendCard','principalCard','pmCard','namesCard','metaCard','signalsCard','recommendationCard','coldPanel','outOfAreaPanel','flagChannel','flagContact','manuallyQualifiedBadge'];
+      const sectionsToHide = ['emailDraftSection','draftOutput','confirmState','markSentState','customObsCard','intakeMethodCard','msgVariantCard','draftCtaWrap','emailsCard','emailToSendCard','principalCard','pmCard','namesCard','metaCard','signalsCard','recommendationCard','coldPanel','outOfAreaPanel','flagChannel','flagContact','manuallyQualifiedBadge'];
       sectionsToHide.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
       const btnConfirm = document.getElementById('btnConfirmTracker');
       if (btnConfirm) { btnConfirm.style.display = ''; btnConfirm.disabled = false; }
@@ -1530,7 +1548,7 @@ ${pageText}`;
     function resetResultPanels() {
       ['coldPanel','outOfAreaPanel','flagChannel','flagContact',
        'recommendationCard','signalsCard','metaCard','emailsCard',
-       'namesCard','emailToSendCard','principalCard','pmCard','intakeMethodCard','customObsCard','draftCtaWrap',
+       'namesCard','emailToSendCard','principalCard','pmCard','intakeMethodCard','customObsCard','msgVariantCard','draftCtaWrap',
        'manuallyQualifiedBadge'].forEach(id => hide(id));
     }
 
@@ -1725,8 +1743,9 @@ ${pageText}`;
       }
       show('intakeMethodCard');
 
-      // Custom observation + Draft CTA
+      // Custom observation + Variant selector + Draft CTA
       show('customObsCard');
+      show('msgVariantCard');
       show('draftCtaWrap');
     }
 
@@ -1846,6 +1865,15 @@ ${pageText}`;
     updateFutureTargetsBtn();
     document.getElementById('btnReviewDraft').addEventListener('click', openDraftSection);
 
+    // Message variant radios — persist choice to sessionStorage
+    document.querySelectorAll('input[name="msgVariant"]').forEach(radio => {
+      if (radio.value === window._msgVariant) radio.checked = true;
+      radio.addEventListener('change', () => {
+        window._msgVariant = radio.value;
+        sessionStorage.setItem('qualifier:variant', radio.value);
+      });
+    });
+
     // Back-to-Batch button (new inline batch bar inside #results)
     const _btnBackToBatch = document.getElementById('btnBackToBatch');
     if (_btnBackToBatch) _btnBackToBatch.addEventListener('click', backToBatchView);
@@ -1963,6 +1991,7 @@ ${pageText}`;
         notes:       [window._manuallyQualified ? 'Manually qualified' : '', window._oohDetected ? 'Out-of-hours cover detected' : '', (document.getElementById('customObsInput') ? document.getElementById('customObsInput').value.trim() : '')].filter(Boolean).join(' | '),
         reviewCount:  r.review_count != null ? String(r.review_count) : '',
         score:        r.score || '',
+        ctaVariant:   window._msgVariant || 'A',
         draftSubject: window._lastDraft ? (window._lastDraft.subject || '') : '',
         draftBody:    window._lastDraft ? (window._lastDraft.body    || '') : '',
         subjectLine:  window._lastDraft ? (window._lastDraft.subject || '') : ''
@@ -2147,19 +2176,25 @@ ${pageText}`;
       const channel = _imEl ? _imEl.value : (r.booking_channel || 'unknown');
       const reviews = r.review_count != null ? String(r.review_count) : 'not available';
 
+      // Variant-conditional diagnostic question (first body sentence after greeting)
+      const _variantMap = {
+        A: `Of every patient who enquires at ${clinic}, what percentage actually books an appointment?`,
+        B: `Of every patient enquiry ${clinic} receives, how many become actual appointments, and how many just go quiet?`,
+        C: `When a patient enquires through ${clinic}'s website, how long before they have a confirmed appointment booked? Not a callback. An actual booked slot.`
+      };
+      const _activeVariant = window._msgVariant || 'A';
+      const _diagnosticQuestion = _variantMap[_activeVariant] || _variantMap['A'];
+
       const systemPrompt = `You are writing a warm, honest cold outreach email on behalf of Lawrence at Versa Digital HQ. Lawrence has just launched an automation business and is looking for his first dental clinic partner.
 
 TONE: Genuine, warm, direct. Sounds like a real person who visited their website - not a salesperson. Simple language - third to sixth grade reading level. No corporate language. No jargon.
 
-STRUCTURE - four parts, strict order:
-1. Opening line - clinic-specific pain point observation. Reference the clinic name and what you noticed about their intake setup. Opens a loop without stating a problem explicitly. One sentence. Clinic first, Lawrence second.
-Example: "Noticed [Clinic Name]'s enquiry form goes quiet after closing time - when patients submit after hours, how quickly does your team typically get back to them?"
-2. Introduction + mechanism - who Lawrence is and exactly how the system works in one sentence. Specific enough to be credible. Simple enough for anyone to understand.
-Example: "I'm Lawrence - I build intake automation specifically for independent dental clinics. The system captures every enquiry the moment it arrives, sends the patient an instant confirmation, and delivers a clean log to your team by morning. Nothing handled by hand."
+STRUCTURE - three parts plus sign-off, strict order:
+1. First body sentence after greeting - use this EXACT diagnostic question verbatim: "${_diagnosticQuestion}" - do not paraphrase, do not add a preamble, do not precede it with "Quick question" or any opening observation. This is the first sentence of the body.
+2. Introduction + mechanism - who Lawrence is and exactly how the system works. One to two sentences. Specific enough to be credible. Simple enough for anyone to understand. Frame around conversion gap: the system measures every enquiry through to booking or closure - nothing falls through.
+Example: "I'm Lawrence. I build intake automation specifically for independent dental clinics - the system tracks every enquiry from the moment it arrives through to a confirmed booking or a closed lead. Nothing handled by hand."
 3. The offer - mutual exchange: no fee, no contract, setup takes ten minutes. Two sentences maximum. Reference the clinic name.
 Example: "I'm at the stage where I'm looking for one clinic to build this for first - so there's no fee, no contract, and setup takes me about ten minutes. You get the system running, I get proof it works."
-4. CTA - diagnostic question about their current overnight process. Not a demo request. Invites them to describe their situation.
-Example: "How does your team currently handle enquiries that come in overnight - is there a process, or is it whoever checks emails first?"
 Sign off: Lawrence / Versa Digital HQ
 
 HARD RULES:
@@ -2172,19 +2207,18 @@ HARD RULES:
 - No links of any kind
 - No unsubscribe language
 - Zero reading level complexity - "handled by hand" not "manually processed"
-- Opening line must reference the clinic name specifically
-- CTA must be confident and personalised - never passive
-- In the body JSON field, separate the greeting, each paragraph, the close, and the sign-off with a blank line (two newline characters \\n\\n between each section)
+- No references to after hours, voicemail, answering service, out-of-hours cover, or overnight enquiries
+- The first body sentence must be the diagnostic question verbatim - no preamble before it
+- In the body JSON field, separate the greeting, each paragraph, and the sign-off with a blank line (two newline characters \\n\\n between each section)
 
 SUBJECT LINE:
 Always use exactly: "9pm to 9am"
 
 FIELDS PROVIDED:
 - Greeting - use for greeting line
-- Clinic Name - reference in opening line and CTA
+- Clinic Name - already substituted in the diagnostic question; reference again in the offer if needed
 - City - available if needed
-- Intake method - reference in opening observation
-- Custom Observation - if provided, this MUST be the basis of the opening line. Do not ignore it. Weave the observation into the first sentence as a specific, researched hook about this clinic. This takes priority over any generic intake observation
+- Custom Observation - if provided, weave it into paragraph 2 (the mechanism paragraph) as a specific, researched observation about this clinic. Do not use it to replace the diagnostic question in paragraph 1
 
 <examples>
 <example>
@@ -2192,13 +2226,11 @@ Subject: 9pm to 9am
 
 Hi Sarah,
 
-Noticed Bright Smile Dental's enquiry form goes quiet after closing time - when patients submit after hours, how quickly does your team typically get back to them?
+Of every patient who enquires at Bright Smile Dental, what percentage actually books an appointment?
 
-I'm Lawrence. I build intake automation specifically for independent dental clinics - the system captures every enquiry the moment it arrives, sends the patient an instant confirmation, and delivers a clean log to your team by morning. Nothing handled by hand.
+I'm Lawrence. I build intake automation specifically for independent dental clinics - the system tracks every enquiry from the moment it arrives through to a confirmed booking or a closed lead. Nothing handled by hand.
 
 I'm at the stage where I'm looking for one clinic to build this for first - so there's no fee, no contract, and setup takes me about ten minutes. You get the system running, I get proof it works.
-
-How does your team currently handle enquiries that come in overnight - is there a process, or is it whoever checks emails first?
 
 Lawrence
 Versa Digital HQ
@@ -2209,13 +2241,11 @@ Subject: 9pm to 9am
 
 Hi Dr Patel,
 
-Noticed Riverside Dental's contact page asks patients to call or email - anything that comes in after hours is sitting unanswered until your team arrives the next morning.
+Of every patient enquiry Riverside Dental receives, how many become actual appointments, and how many just go quiet?
 
-I'm Lawrence. I build intake automation specifically for independent dental clinics - the system captures every enquiry instantly, confirms the patient, and delivers everything your team needs by morning. Nothing to handle by hand.
+I'm Lawrence. I build intake automation specifically for independent dental clinics - the system tracks every enquiry from the moment it arrives through to a confirmed booking or a closed lead. Nothing handled by hand.
 
 I'm at the stage where I'm looking for one clinic to build this for first - so there's no fee, no contract, and setup takes me about ten minutes. You get the system running, I get proof it works.
-
-How does your team currently handle enquiries that come in overnight - is there a process, or is it whoever checks emails first?
 
 Lawrence
 Versa Digital HQ
